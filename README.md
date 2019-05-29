@@ -1,4 +1,7 @@
-# Re:VIEW Template
+# shoten7
+[![CircleCI](https://circleci.com/gh/golangtokyo/shoten7.svg?style=svg)][circleci]
+
+[circleci]:https://circleci.com/gh/golangtokyo/shoten7
 
 このリポジトリはRe:VIEW用の書籍テンプレートです。Re:VIEWバージョン3.0に対応します。
 メンテナンスはTechBoosterが行っています。

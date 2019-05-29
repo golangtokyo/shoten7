@@ -3,6 +3,8 @@ jobs:
   build:
     docker:
       - image: vvakame/review:3.1
+        environment:
+          REVIEWDOG_VERSION: 0.9.12
     steps:
       - checkout
       - restore_cache:
@@ -16,8 +18,18 @@ jobs:
           paths:
             - ./node_modules
       - run:
-          name: Test
-          command: npm test
+          name: install reviewdog
+          command: "curl -fSL https://github.com/reviewdog/reviewdog/releases/download/$REVIEWDOG_VERSION/reviewdog_linux_amd64 -o reviewdog && chmod +x ./reviewdog"
+      - run:
+          name: lint
+          command: "$(npm bin)/textlint -f checkstyle articles/*.re | tee check_result"
+      - run:
+          name: reviewdog
+          command: >
+              if [ -n "$REVIEWDOG_GITHUB_API_TOKEN" ]; then
+                cat check_result | ./reviewdog -f=checkstyle -name=textlint -ci=circle-ci
+              fi
+          when: on_fail
       - run:
           name: Build PDF
           command: npm run pdf
