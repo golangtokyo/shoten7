@@ -19,7 +19,7 @@ jobs:
             - ./node_modules
       - run:
           name: install reviewdog
-          command: "curl -fSL https://github.com/reviewdog/reviewdog/releases/download/$REVIEWDOG_VERSION/reviewdog_linux_amd64 -o reviewdog && chmod +x ./reviewdog"
+          command: "curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s  v$REVIEWDOG_VERSION"
       - run:
           name: lint
           command: "$(npm bin)/textlint -f checkstyle articles/*.re | tee check_result"
@@ -27,7 +27,7 @@ jobs:
           name: reviewdog
           command: >
               if [ -n "$REVIEWDOG_GITHUB_API_TOKEN" ]; then
-                cat check_result | ./reviewdog -f=checkstyle -name=textlint -ci=circle-ci
+                cat check_result | ./bin/reviewdog -f=checkstyle -name=textlint -reporter=github-pr-review
               fi
           when: on_fail
       - run:
