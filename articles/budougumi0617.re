@@ -1,6 +1,10 @@
 = 動作確認用
 
-== はじめに
+#@# textlint-disable
+
+## はじめに
+
+#@# textlint-enable
 
 freee株式会社でバックエンドエンジニアをしている@budougumi0617@<fn>{bd617_twitter}です。
 
