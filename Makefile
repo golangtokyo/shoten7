@@ -1,10 +1,14 @@
-PHONY: lint help
+PHONY: lint fixlint \
+	help
 
 # 引数がないときはusageを表示する
 .DEFAULT_GOAL := help
 
 lint: ## Execute textlint
 	@$(shell npm bin)/textlint articles/*.re
+
+fixlint: ## Fix textlint error
+	@$(shell npm bin)/textlint --fix articles/*.re
 
 # 各コマンドについたコメントを表示する
 help: ## Show usages
