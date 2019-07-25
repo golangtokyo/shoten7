@@ -35,6 +35,6 @@ jobs:
       - run:
           name: Build PDF
           command: npm run pdf
-      - store_artifacts:
-          path: ./articles/shoten7.pdf
-          destination: shoten7.pdf
+          #       - store_artifacts:
+          #           path: ./articles/golangtokyo_shoten7.pdf
+          #           destination: golangtokyo_shoten7.pdf
