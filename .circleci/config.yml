@@ -6,7 +6,6 @@ jobs:
         user: root
         environment:
           REVIEWDOG_VERSION: 0.9.12
-      - image: circleci/golang:1.12.7
     steps:
       - checkout
       - restore_cache:
@@ -40,9 +39,8 @@ jobs:
           name: Move PDF
           command: |
             mkdir ./build
-            mv ./articles/golangtokyo_shoten7.pdf ./build/$(CIRCLE_BRANCH).pdf
+            mv ./articles/golangtokyo_shoten7.pdf ./build/${CIRCLE_BRANCH}.pdf
             ls ./build
-            go version
           #       - store_artifacts:
           #           path: ./articles/golangtokyo_shoten7.pdf
           #           destination: golangtokyo_shoten7.pdf
