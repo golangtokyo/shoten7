@@ -31,11 +31,18 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "grunt": "^1.0.1",
+    "grunt": "^1.0.4",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^2.0.0",
     "grunt-shell": "^3.0.1",
-    "js-yaml": "^3.6.0",
-    "load-grunt-tasks": "^4.0.0"
+    "js-yaml": "^3.13.1",
+    "load-grunt-tasks": "^4.0.0",
+    "textlint": "^11.2.5",
+    "textlint-filter-rule-comments": "^1.2.2",
+    "textlint-plugin-review": "^0.3.3",
+    "textlint-rule-max-ten": "^2.0.3",
+    "textlint-rule-preset-ja-technical-writing": "^3.1.2",
+    "textlint-rule-preset-japanese": "^4.0.3",
+    "textlint-rule-prh": "^5.2.1"
   }
 }

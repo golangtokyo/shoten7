@@ -3,6 +3,9 @@ jobs:
   build:
     docker:
       - image: vvakame/review:3.1
+        user: root
+        environment:
+          REVIEWDOG_VERSION: 0.9.12
     steps:
       - checkout
       - restore_cache:
@@ -10,17 +13,28 @@ jobs:
             - npm-cache-{{ checksum "package-lock.json" }}
       - run:
           name: Setup
-          command: npm install
+          # https://til.codes/npm-install-failed-with-cannot-run-in-wd-2/
+          command: npm install -g --unsafe-perm
       - save_cache:
           key: npm-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
       - run:
-          name: Test
-          command: npm test
+          name: install reviewdog
+          command: "curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s  v$REVIEWDOG_VERSION"
+      - run:
+          name: lint
+          command: "$(npm bin)/textlint -f checkstyle articles/*.re | tee check_result"
+      - run:
+          name: reviewdog
+          command: >
+              if [ -n "$REVIEWDOG_GITHUB_API_TOKEN" ]; then
+                cat check_result | ./bin/reviewdog -f=checkstyle -name=textlint -reporter=github-pr-review
+              fi
+          when: on_fail
       - run:
           name: Build PDF
           command: npm run pdf
-      - store_artifacts:
-          path: ./articles/shoten7.pdf
-          destination: shoten7.pdf
+          #       - store_artifacts:
+          #           path: ./articles/golangtokyo_shoten7.pdf
+          #           destination: golangtokyo_shoten7.pdf
