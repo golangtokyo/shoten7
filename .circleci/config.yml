@@ -2,7 +2,8 @@ version: 2
 jobs:
   build:
     docker:
-      - image: vvakame/review:3.1
+      # vvakame/review imageにgdriveのmasterブランチをgo getしたものを含んだimage
+      - image: budougumi0617/review-uploader:latest
         user: root
         environment:
           REVIEWDOG_VERSION: 0.9.12
@@ -38,9 +39,11 @@ jobs:
       - run:
           name: Move PDF
           command: |
-            mkdir ./build
-            mv ./articles/golangtokyo_shoten7.pdf ./build/${CIRCLE_BRANCH}.pdf
-            ls ./build
-          #       - store_artifacts:
-          #           path: ./articles/golangtokyo_shoten7.pdf
-          #           destination: golangtokyo_shoten7.pdf
+            mv ./articles/golangtokyo_shoten7.pdf ./${CIRCLE_BRANCH}.pdf
+      - run:
+          name: Upload PDF
+          command: |
+            # 環境変数から認証情報を取得してJSONファイルに出力
+            echo $GOOGLE_SERVICE_ACCOUNT_CREDENTIAL > credential.json
+            # Upload to https://drive.google.com/drive/u/0/folders/15vJsSbnosM-iXE0VogU71boPzrHiYnWr
+            gdrive --config $(pwd) --service-account credential.json upload -p 15vJsSbnosM-iXE0VogU71boPzrHiYnWr ./${CIRCLE_BRANCH}.pdf
