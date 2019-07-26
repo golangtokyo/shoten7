@@ -39,11 +39,11 @@ jobs:
       - run:
           name: Move PDF
           command: |
-            mv ./articles/golangtokyo_shoten7.pdf ./${CIRCLE_BRANCH}.pdf
+            mv ./articles/golangtokyo_shoten7.pdf ./${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}.pdf
       - run:
           name: Upload PDF
           command: |
             # 環境変数から認証情報を取得してJSONファイルに出力
             echo $GOOGLE_SERVICE_ACCOUNT_CREDENTIAL > credential.json
             # Upload to https://drive.google.com/drive/u/0/folders/15vJsSbnosM-iXE0VogU71boPzrHiYnWr
-            gdrive --config $(pwd) --service-account credential.json upload -p 15vJsSbnosM-iXE0VogU71boPzrHiYnWr ./${CIRCLE_BRANCH}.pdf
+            gdrive --config $(pwd) --service-account credential.json upload -p 15vJsSbnosM-iXE0VogU71boPzrHiYnWr ./${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}.pdf
