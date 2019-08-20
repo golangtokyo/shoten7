@@ -1,4 +1,4 @@
-PHONY: lint fixlint \
+PHONY: lint fixlint build \
 	help
 
 # 引数がないときはusageを表示する
@@ -9,6 +9,9 @@ lint: ## Execute textlint
 
 fixlint: ## Fix textlint error
 	@$(shell npm bin)/textlint --fix articles/*.re
+
+build: ## Build PDF in Docker
+	@./build-in-docker.sh
 
 # 各コマンドについたコメントを表示する
 help: ## Show usages
