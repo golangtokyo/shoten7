@@ -20,7 +20,7 @@ Goチームの人と連携し、大きめのissueに取り組んでいます。
 
 本稿は@<tt>{gomobile}についてのまとめです。
 とりわけ@<tt>{gomobile bind}のAndroid版について、内部で何を行っているのかについて説明します。
-Objective-C版も流れはだいたい同じはずですので、本稿では割愛します。
+iOS版も流れはだいたい同じはずですので、本稿では割愛します。
 
 本稿で使用する@<tt>{gomobile}のバージョンは次のものです。
 
@@ -85,7 +85,7 @@ Goで定義したinterfaceをJava側で実装してGoの関数に渡す、とい
 
 == @<tt>{gomobile bind}の使用例
 
-たとえば次のようなGoパッケージがあるとします。
+たとえば@<list>{gomobile-go}のようなGoパッケージがあるとします。
 
 //listnum[gomobile-go][@<tt>{mypkg}パッケージ][go]{
 package mypkg
@@ -100,7 +100,7 @@ func NewCounter() *Counter { return &Counter{ 5 } }
 //}
 
 これを@<tt>{gomobile bind}でビルドすると、@<tt>{Mypkg.aar}ファイルが生成されます。
-その@<tt>{Mypkg.aar}ファイルには次のようなJavaのクラスなどが定義されています。
+その@<tt>{Mypkg.aar}ファイルには@<list>{gomobile-java}のようなJavaのクラスなどが定義されています。
 
 //listnum[gomobile-java][@<tt>{Mypkg.aar}ファイルがもつ定義][java]{
 public final class Counter {
@@ -175,7 +175,6 @@ GioはAndroidやiOS向けアプリケーションを生成できます。
 @<tt>{gobind}はバインディングに必要なソースコードを生成します。
 ソースコードを生成するだけでコンパイルは行いません。
 
-@<tt>{gomobile}が内部で@<tt>{gobind}を
 Androidの場合、次のことを行います。
 
   1. @<tt>{$WORK/src/gobind}配下に@<tt>{*.go}ファイル、@<tt>{*.c}ファイル、@<tt>{*.h}ファイルを生成する
@@ -195,7 +194,7 @@ Androidの場合、次のことを行います。
 Androidの場合は次のとおりです。
 
   1. @<tt>{$GOPATH}に@<tt>{$WORK}を追加し、@<tt>{gobind}という名前のパッケージをGoでビルドする。@<tt>{$WORK/android/src/main/jniLibs/[ARCH]}に@<tt>{libgojni.so}ファイルを出力する。
-  2. @<tt>{$WORK/java}次のJavaファイルを${javac}でコンパイルする。@<tt>{$WORK/java-output}配下に@<tt>{*.class}ファイルを出力する。
+  2. @<tt>{$WORK/java}内のJavaファイルを@<tt>{javac}でコンパイルする。@<tt>{$WORK/java-output}配下に@<tt>{*.class}ファイルを出力する。
   3. @<tt>{$WORK/java-output}に対し、@<tt>{jar c -C}コマンドで@<tt>{classes.jar}ファイルを出力する。
   4. @<tt>{AndroidManifest.xml}、@<tt>{proguard.txt}、@<tt>{R.txt}ファイルなどを生成する。
   5. 今まで生成した@<tt>{libgojni.so}、@<tt>{classes.jar}などのファイルをすべてzipで固めて、@<tt>{*.aar}ファイルを出力する。
@@ -246,3 +245,13 @@ Goの仕様に手を入れなければならない可能性があります。
 @<tt>{gobind}は@<tt>{main}パッケージを自動生成しますが、
 「開発者は@<tt>{main}パッケージが依存するライブラリを指定できる」というmoduleの仮定と合わないからです。
 これについては@<tt>{gomobile}の仕様の大幅な見直しが必要な可能性があります。
+
+== 終わりに
+
+本稿では@<tt>{gomobile}の様々なトピックについてざっくりと解説しました。
+特に@<tt>{gomobile}が内部で何をやっているかは、ほかに類を見ない解説だと自負しています。
+@<tt>{gomobile}へのコントリビュートに必要な取っ掛かりとなる部分を説明したつもりです。
+
+@<tt>{gomobile}はGoツールチェインの中ではマイナーな部類です。
+そのためなのか、残念ながらあまり活発にメンテナンスされていません。
+本稿が@<tt>{gomobile}を使ってみよう、またはコントリビュートしてみよう、と思っていただけるきっかけになれば幸いです。
