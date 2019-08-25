@@ -14,8 +14,11 @@ jobs:
             - npm-cache-{{ checksum "package-lock.json" }}
       - run:
           name: Setup
-          # https://til.codes/npm-install-failed-with-cannot-run-in-wd-2/
-          command: npm install -g --unsafe-perm
+          command: |
+            # --unsafe-perm付きではtextlintがインストールされないので二度行なう
+            npm install
+            # https://til.codes/npm-install-failed-with-cannot-run-in-wd-2/
+            npm install -g --unsafe-perm
       - save_cache:
           key: npm-cache-{{ checksum "package-lock.json" }}
           paths:
