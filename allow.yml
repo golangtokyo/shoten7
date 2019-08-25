@@ -1,0 +1,6 @@
+# 単語、あるいは書き方を許可するリストです。
+# 独自の正規表現記法でパターンとして許可することも可能です。
+# https://github.com/textlint/regexp-string-matcher#regexp-like-string
+- "Module"
+- "/TODO:\\s*/"
+- "メンテナン"
