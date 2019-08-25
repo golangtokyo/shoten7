@@ -2,7 +2,7 @@
 
 == はじめに
 
-白ヤギコーポレーションでバックエンドエンジニアをしている@po3rin@<fn>{po3rin}です。今回は Go とベイズ理論を使った記事分類の実装方法を紹介します。Naive Bayesの理論を学べるのはもちろんですが、Goでのテキスト前処理の方法や、学習済み分類器の保存方法なども含めてご紹介します。Go で記事分類を実装することで、すでに Go で実装されたアプリケーションへの組み込みも容易になります。
+白ヤギコーポレーションでバックエンドエンジニアをしている@po3rin@<fn>{po3rin}です。仕事では記事レコメンド API を Go で実装しています。今回は Go とベイズ理論を使ったシンプルな記事分類の実装方法を紹介します。Naive Bayesの理論を学べるのはもちろんですが、Goでのテキスト前処理の方法や、学習済み分類器の保存方法なども含めてご紹介します。Go で記事分類を実装することで、すでに Go で実装されたアプリケーションへの組み込みも容易になります。
 
 #@# TODO: motivate
 
@@ -46,21 +46,47 @@ IT	PythonとGo
 
 ==== P(C）
 
-@<code>{P(C)} はカテゴリーの出現率です。たとえば「経済カテゴリ」の出現率は @<code>{経済カテゴリの数 / カテゴリ総数}なので 2/5 になります。
+@<code>{P(C)} はカテゴリーの出現率です。たとえば「経済カテゴリ」の出現率は @<code>{経済カテゴリの数 / カテゴリ総数(重複分もカウント)}なので 2/5 になります。
 
-#@# TODO: table
+//table[pc][P(C）の例]{
+カテゴリ	P(C）
+------------------------------------
+経済	2/5
+IT	2/5
+エンタメ	1/5
+//}
 
 ==== P(D|C）
 
-@<code>{P(D|C)} はカテゴリーが与えられた時のドキュメント出現率でした。ドキュメントは一連の単語で構成されているため @<code>{P(D|C)} はカテゴリ内のドキュメントのすべての単語の結合確率で計算できます。これは計算が難しいように思えます。一方でカテゴリ内の単語出現率は簡単です。ITカテゴリには単語が4つあるので、たとえば「Python」が「ITカテゴリ」に出現する確率は 2/4 、「株価」が「ITカテゴリ」に出現する確率は 1/4 です。
+@<code>{P(D|C)} はカテゴリーが与えられた時のドキュメント出現率でした。これは計算が難しいように思えます。一方でカテゴリ内の単語出現率(P(W|C））は簡単です。ITカテゴリには単語が4つあるので、たとえば「Python」が「ITカテゴリ」に出現する確率は 2/4 、「株価」が「ITカテゴリ」に出現する確率は 1/4 です。
 
-#@# TODO: table
+//table[pwc][P(W|C）の例]{
+.	経済	IT	エンタメ
+------------------------------------
+株価	1/2	1/4	0/1
+保険	1/2	1/4	0/1
+Python	0/2	2/4	0/1
+Go	0/2	1/4	0/1
+マーベル	0/2	0/4	1/1
+//}
 
 この数字を使って欲しい @<code>{P(D|C)} を計算します。Naive Bayes では @<code>{P(D|C)} は 各単語の確率の掛け算で表せます。@<code>{P(Pythonで株価|IT)} は (「Python」が「ITカテゴリ」に出現する確率 2/4 ）* (「株価」が「ITカテゴリ」に出現する確率 1/4 ）で 1/8 になります。
 
-#@# TODO: table
+//table[pdc][P(D|C）の例]{
+.	ITカテゴリにドキュメントが分類される確率 P(D|C）
+------------------------------------
+Pythonで株価	2/4 * 1/4 = 1/8
+PythonとGo	2/4 * 1/4 = 1/8
+//}
 
-実は今までの計算では本来あるべき単語の条件付き確率を無視し、各単語が互いに独立していると仮定してます。つまり単語がドキュメント内にランダムに現れると仮定しているのです。この過程が Naive Bayes が Naive たる所以です。
+実は今までの計算では本来あるべき単語の条件付き確率を無視し、各単語が互いに独立していると仮定してます。つまり単語がドキュメント内にランダムに現れると仮定しているのです。この過程が Naive Bayes が Naive たる所以です。ここまでこれば欲しかった @<code>{P(C|D)} を計算できます。復習ですが @<code>{P(C|D)} は@<code>{P(C)} と @<code>{P(D|C)} の掛け算です
+
+//table[pcd][P(C|D）の例]{
+.	ドキュメントがITカテゴリに分類される確率 P(C|D）= P(D|C）*P(C）
+------------------------------------
+Pythonで株価	1/8 * 2/5 = 1/20
+PythonとGo	1/8 * 2/5 = 1/20
+//}
 
 == Goによるテキストの前処理
 
@@ -148,7 +174,7 @@ func TestIsStopWords(t *testing.T) {
 }
 //}
 
-@<code>{you} は stop word なので @<code>{true} が返り、@<code>{great} は stop word ではないなので @<code>{false} が返ることが期待されます。テストを実行するとテストが通るはずです。テストの書き方に関しては @budougumi0617 さんのブログ @<fn>{how_to_test} が体系的にまとまっていて勉強になるので @<list>{test_isStopWords} で知らないコードが会った人は読んでみることをお勧めします。
+@<code>{you} は stop word なので @<code>{true} が返り、@<code>{great} は stop word ではないなので @<code>{false} が返ることが期待されます。テストを実行するとテストが通るはずです。テストの書き方に関しては @budougumi0617 さんのブログ @<fn>{how_to_test} が体系的にまとまっていて勉強になるので @<list>{test_isStopWords} でテストの書き方の知識が怪しいなと思った人は読んでみることをお勧めします。
 
 //footnote[how_to_test][@<href>{https://budougumi0617.github.io/2018/08/19/go-testing2018/#sub-test-testing-t-run}]
 
@@ -164,8 +190,7 @@ agonopol/go-stem	こちらもGoで実装された「Porter Stemming」
 kljensen/snowball	Go で実装された「Snowball Stemming」
 //}
 
-
-たまに kljensen/snowball が更新されるくらいで、活発に開発されているパッケージは見つからなかったです。今回は英語以外の言語にも対応している kljensen/snowball を採用しましょう。Goで任意のstringをstemmingする関数を実装します。
+たまに @<code>{kljensen/snowball} が更新されるくらいで、活発に開発されているパッケージは見つからなかったです。今回は英語以外の言語にも対応している @<code>{kljensen/snowball} を採用しましょう。Goで任意のstringをstemmingする関数を実装します。
 
 //list[stem][stemming処理の実装][go]{
 package gonbayes
@@ -230,13 +255,14 @@ func TestStem(t *testing.T) {
 
 //list[clean][テキストクリーニングの実装][go]{
 func clean(document string) string {
-	document = regexp.MustCompile("[^a-zA-Z 0-9]+")
-	document.ReplaceAllString(strings.ToLower(document), "")
-	return document
+	document = strings.ToLower(document)
+	return regexp.MustCompile("[^a-zA-Z 0-9]+").ReplaceAllString(document, "")
 }
 //}
 
-これで大文字を小文字にした上で正規表現でアルファベットと数字以外の文字を除外しています。@<list>{export_test_sw} と同じように関数を公開した後に、テストで動作を確認してみます。
+@<list>{clean} では大文字を小文字に変換した上で正規表現でアルファベットと数字以外の文字を除外しています。Goにおける正規表現は標準パッケージの @<code>{regexp} を使っています。それでは @<list>{export_test_sw} と同じように関数を公開した後に、テストで動作を確認してみます。
+
+//footnote[regexp][@<href>{https://golang.org/pkg/regexp/}]
 
 //list[clean_test][テキストクリーニングのテスト][go]{
 func TestClean(t *testing.T) {
@@ -263,7 +289,7 @@ func TestClean(t *testing.T) {
 }
 //}
 
-テキストクリーニングができているのが確認できます。
+テキストクリーニングができているのが確認できます。ここでは紹介しませんがHTMLタグの削除なども実装していくとクローリングしてきた記事などを Naive Bayes ににかけれるようになります。
 
 === 単語数のカウント
 
@@ -375,7 +401,6 @@ func NewClassifier(categories []string, threshold float64) (c Classifier) {
 
 Goにおいて map のゼロ値は @<code>{nil} なので明示的に @<code>{make} で初期化しておく必要があります。@<code>{Clasifier} の用途がある程度想定されるなら map の初期化にcapsを設定しておくとよいかもしれません。@<code>{NewClassifier}の第一引数では記事をどのように分類するカテゴリ数を受けます。これはその数でmapを初期化する為です。第二引数の @<code>{threshold} は低い確率を足切りするための閾値です。閾値に関しては後ほど説明します。
 
-
 === データセットからの学習を実装する
 
 続いてClassifierを学習させるための関数 @<code>{Classifier.Train}を実装しましょう。
@@ -416,7 +441,8 @@ func (c *Classifier) pDocCategory(category string, document string) (p float64) 
 
 // P(w|C)の計算 (P(D|C)の計算のため)
 func (c *Classifier) pWordCategory(category string, word string) float64 {
-	return float64(c.Words[category][stem(word)]+1) / float64(c.TotalWordsInCategories[category])
+	d := float64(c.Words[category][stem(word)]+1)
+	return d / float64(c.TotalWordsInCategories[category])
 }
 
 // P(C|D)の計算 (最終的に欲しい値)
@@ -484,15 +510,14 @@ func (c *Classifier) Classify(document string) string {
 
 === データセットの読み込み
 
-学習に使うデータセットは「Sentiment Labelled Sentences Data Set」@<fn>{slsds}です。このデータセットはドキュメントとネガティブ/ポジティブ(0/1）がセットになっているテキストファイルです@<list>{slsds}。サイト@<fn>{slsds}から「Data Folder」>「sentiment labelled sentences.zip」でzipファイルをダウンロードしておきましょう。
+学習に使うデータセットは「Sentiment Labelled Sentences Data Set」です。このデータセットはドキュメントとネガティブ/ポジティブ(0/1）がセットになっているテキストファイルです@<list>{slsds}。サイト@<fn>{slsds}から「Data Folder」>「sentiment labelled sentences.zip」でzipファイルをダウンロードしておきましょう。
 
-//footnote[slsds][@<href>{「Sentiment Labelled Sentences Data Set」https://archive.ics.uci.edu/ml/datasets/Sentiment+Labelled+Sentences}]
+//footnote[slsds][@<href>{https://archive.ics.uci.edu/ml/datasets/Sentiment+Labelled+Sentences}]
 
 //list[slsds][Sentiment Labelled Sentences Data Set][go]{
 Wow... Loved this place.	1
 Crust is not good.	0
 Not tasty and the texture was just nasty.	0
-Stopped by during the late May bank holiday off Rick Steve recommendation and loved it.	1
 The selection on the menu was great and so were the prices.	1
 Now I am getting angry and I want my damn pho.	0
 Honeslty it didn't taste THAT fresh.)	0
@@ -586,10 +611,10 @@ $ go run cmd/negaposi/main.go -s "i unlike this" -f "yelp_labelled.txt"
 negative
 //}
 
-確かに "i unlike this" はネガティブなコメントです。それでは @<code>{"this is wonderful"} ではどうでしょうか。
+確かに "i unlike this" はネガティブな口コミです。それでは @<code>{"this is wonderful"} ではどうでしょうか。
 
 //list[exec][口コミの感情分析の実行 2][go]{
-go run cmd/negaposi/main.go -s "this is wonderful" -f "dataset/yelp_labelled.txt"
+$ go run cmd/negaposi/main.go -s "this is wonderful" -f "dataset/yelp_labelled.txt"
 positive
 //}
 
@@ -597,6 +622,98 @@ positive
 
 == 訓練済み分類器を gob パッケージで保存する
 
-分類を実行する度に同じデータセットから同じ学習を行って分類器を生成するのは無駄だと気づいたかもしれません。最後に訓練済みの @<code>{Classifier} をいつでも呼び出せるように修正しましょう。その為には標準パッケージである @<code>{encoding/gob} を利用します。
+分類を実行する度に同じデータセットから同じ学習を行って分類器を生成するのは無駄だと気づいたかもしれません。最後に訓練済みの @<code>{Classifier} をいつでも呼び出せるように修正しましょう。その為には標準パッケージである @<code>{encoding/gob} @<fn>{gob}を利用します。Go ではデータ構造のシリアライズのために標準でいくつかのパッケージが用意されていますがGo内でデータ構造を使うのであれば XML や JSON などにではなくバイナリエンコーディングした形で保存して読み込み時などで効率性を上げたいところです。そのような目的で @<code>{encoding/gob} が誕生しています。もちろんデータ構造さえ自明であればそのままエンコードできるので使用感としてもとてもシンプルに収まります。早速　@<code>{Clasifier} に 新しいメソッドを定義して訓練済みの @<code>{Clasifier} を Encode & Decode できるようにしておきましょう。
+
+//footnote[gob][@<href>{https://golang.org/pkg/encoding/gob/}]
+
+//list[gob][gobを使った訓練済みClassifierの Encode & Decode][go]{
+// Encode trained Classifier
+func (c *Classifier) Encode(fileName string) error {
+	if c.TotalDocs == 0 {
+		return errors.New("gonbayes: classifier is not trained yet")
+	}
+	f, err := os.Create(fileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = gob.NewEncoder(f).Encode(&c)
+	if err != nil {
+		return errors.Wrap(err, "gonbayes: failed to encode")
+	}
+	return nil
+}
+
+// Decode CBOW output file to struct.
+func (c *Classifier) Decode(fileName string) error {
+	f, err := os.Open(fileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = gob.NewDecoder(f).Decode(c)
+	if err != nil {
+		return errors.Wrap(err, "gonbayes: failed to dencode file")
+	}
+	return nil
+}
+//}
+
+@<list>{gob} ではシンプルなメソッドとしてファイル名さえ指定すればエンコード & デコードできるように設計します。たとえば @<code>{Encode} を呼べば指定ファイルへ訓練済みの　@<code>{Clasifier} をバイナリエンコーディングした形でファイルに保存できます。これを使って @<list>{main} を改良しましょう。
+
+//list[main_with_gob][gob を 使った main の実装][go]{
+func main() {
+	s := flag.String("s", "", "input string")
+	f := flag.String("f", "./yelp_labelled.txt", "dataset file path")
+	t := flag.String("t", "", "trained model file path")
+	o := flag.String("o", "classifier.gob", "trained file name")
+	flag.Parse()
+
+	class := []string{posiLabel, negaLabel}
+	threshold := 1.4
+
+	classifier := gonbayes.NewClassifier(class, threshold)
+
+	// 訓練済みファイルを指定した場合、それをデコードして Classifier を生成する。
+	if *t != "" {
+		err := classifier.Decode(*t)
+		if err != nil {
+			log.Fatal(err)
+		}
+	// 新しく学習して Classifirerを　生成する。
+	} else {
+		dataset, err := loadNegaPosiDataset(*f)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for s, v := range dataset {
+			classifier.Train(v, s)
+		}
+	}
+
+	result := classifier.Classify(*s)
+	fmt.Println(result)
+
+	学習済み Classifier を バイナリエンコーディング
+	if *t == "" {
+		classifier.Encode(*o)
+	}
+}
+//}
+
+@<list>{main_with_gob} では Flag を増やして学習済みのClassifierをエンコードしたファイルを指定できるようにしておきます。指定ファイルがあればそれをデコードして 学習済み @<code>{Classifier} として使い、指定がなければ新しく学習します。
+
+//list[exec_f][学習済み Classifer のエンコードとデコードを使った][go]{
+# 新しく学習して Classifier をバイナリエンコード
+$ go run cmd/negaposi/main.go -s "this is wonderful" -f "dataset/yelp_labelled.txt"
+
+# 学習済みの Classifier を利用した分類
+$ go run cmd/negaposi/main.go -s "this is wonderful" -t "negaposi_classifier.gob"
+//}
+
+これで毎回学習を走らせなくても、感情分析ができるようになりました。もちろん @<code>{encoding/gob} は Naive Bayes のときだけでなく、ニューラルネットワークの実装で学習済みモデルを保存しておく用途でも使えます。一方でGo以外の言語で学習済みのモデルを使いたい場合は JSON などにエンコードして利用してしまうのも一手です。
 
 == おわりに
+
+#@# TODO: write
