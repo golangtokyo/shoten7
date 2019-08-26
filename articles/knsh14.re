@@ -8,7 +8,7 @@
 
 == Gio とは？
 Gio@<fn>{knsh14_gioui_link}はGo製のGUIライブラリです。
-作者のElias Naurさんは元々Go Mobileを開発されていた方です。
+作者のElias NaurさんはGo Mobileを開発されていた方です。
 その経験を踏まえつつ、今回さらに強力なライブラリを設計しました。
 
 Gioはまだv1.0.0がリリースされておらず、今でも大きな変更があります。
@@ -16,20 +16,20 @@ Gioはまだv1.0.0がリリースされておらず、今でも大きな変更�
 //footnote[knsh14_gioui_link][https://gioui.org]
 
 === 特徴
-大きな特徴として私達が書くアプリケーションのコードをすべてGoで書くことができる点にあります。
+大きな特徴として私達が書くアプリケーションのコードをすべてGoで書ける点にあります。
 さらに、Goそのものの特徴であるクロスプラットフォームにも対応しています。
-対応しているプラットフォームはiOS、AndroidはもちろんtvOSやWebGLなどにも出力することができます。
+対応しているプラットフォームはiOS、AndroidはもちろんtvOSやWebGLなどにも出力できます。
 
 === インストール方法
-インストール方法は他のGoのライブラリと変わらない方法でインストールすることができます。
+インストール方法はほかのGoのライブラリと変わらない方法でインストールできます。
 ライブラリの取得方法を@<list>{knsh14_gioui_install}に示します。
 
 //list[knsh14_gioui_install][Gio UIのインストール方法][shell]{
 $ go get -u gioui.org/...
 //}
 
-開発中は@<code>{go run main.go}のようにそのまま実行することができます。
-実際にアプリケーションをビルドしてバイナリにする場合は@<list>{knsh14_gioui_builds}に上げたGioのコマンドを実行する必要があります
+開発中は@<code>{go run main.go}のようにそのまま実行できます。
+実際にアプリケーションをビルドしてバイナリにする場合は@<list>{knsh14_gioui_builds}に上げたGioのコマンドを実行する必要があります。
 
 //list[knsh14_gioui_builds][Gioアプリケーションのビルド方法][shell]{
 // iOS
@@ -45,7 +45,7 @@ $ goexec 'http.ListenAndServe(":8080", http.FileServer(http.Dir("APP")))'
 //}
 
 ビルドするためのコマンドが@<code>{gio}ではなく、@<code>{go run gioui.org/cmd/gio}なのはgioという別のコマンドがmacOSではデフォルトで入っているからです。
-iOS向けやAndroid向けのビルドコマンドで生成されたバイナリは各ツールでさらに端末にインストールすることができます。
+iOS向けやAndroid向けのビルドコマンドで生成されたバイナリは各ツールでさらに端末にインストールできます。
 
 == Gio の設計
 
