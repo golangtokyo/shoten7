@@ -1,4 +1,4 @@
-= 新しい GUI ライブラリ Gio で遊んでみよう！
+= 新しい GUI ライブラリ Gio で遊んでみよう!
 
 2019年7月に開催されたGopherCon 2019@<fn>{knsh14_gophercon_link}で新しいGoのGUIライブラリが発表されました。
 これまでGoの苦手な分野としてGUIを持ったアプリケーションが開発しづらいという点が挙げられていましたが、これを解決する可能性を秘めたライブラリです。
@@ -6,7 +6,7 @@
 
 //footnote[knsh14_gophercon_link][https://www.gophercon.com/]
 
-== Gio とは？
+== Gio の概要
 Gio@<fn>{knsh14_gioui_link}はGo製のGUIライブラリです。
 作者のElias NaurさんはGo Mobileを開発されていた方です。
 その経験を踏まえつつ、今回さらに強力なライブラリを設計しました。
@@ -21,7 +21,7 @@ Gioはまだv1.0.0がリリースされておらず、今でも大きな変更�
 対応しているプラットフォームはiOS、AndroidはもちろんtvOSやWebGLなどにも出力できます。
 
 === インストール方法
-インストール方法はほかのGoのライブラリと変わらない方法でインストールできます。
+インストール方法は他のGoのライブラリと変わらない方法でインストールできます。
 ライブラリの取得方法を@<list>{knsh14_gioui_install}に示します。
 
 //list[knsh14_gioui_install][Gio UIのインストール方法][shell]{
