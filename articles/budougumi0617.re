@@ -154,7 +154,7 @@ https://github.com/golang/exp
 例を挙げると、x/xerrorsも元はこのリポジトリで実装されていました。
 定期的にチェックしておくと、Goの新しい機能を先取りできるかも？
 
-```bash 
+//cmd{
 $ git log --oneline wrap.go
 3ee3066 xerrors: remove useless condition checking in Is
 3850056 xerrors: fix Is panics if target is uncomparable
@@ -163,7 +163,7 @@ a5947ff xerrors: require that error be type assertable to As's target
 334af84 xerrors: check for nil pointers in As's target
 4e09f5a xerrors: make As match on assignability
 20feca1 xerrors: copied files from x/exp/errors
-```
+//}
 
 === @<code>{golang.org/x/image}パッケージ
  * https://godoc.org/golang.org/x/image
