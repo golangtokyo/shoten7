@@ -24,9 +24,11 @@ freee株式会社でバックエンドエンジニアをしている@<code>{@bud
  * 準公式パッケージで提供されるコードを利用することでコーディングの品質を上げる（車輪の再発明を避ける）
  * 今後リリースされるGoのバージョンに取り込まれるであろう、新しいGoの仕組みを先取りして学習する
 
+まず、@<hd>{abst}では@<code>{golang.org/x}配下にあるパッケージの位置づけを簡単に述べます。
+@<hd>{summary}では、@<code>{golang.org/x}配下にあるすべてのパッケージの簡単な紹介を述べます。
+最後に@<hd>{detail}で実践的な実装を含んだパッケージの詳細とサンプルコードを記載します。
 
-
-== @<code>{golang.org/x}配下にあるパッケージとは
+=={abst} @<code>{golang.org/x}配下にあるパッケージとは
 @<code>{golang/x}パッケージという準公式パッケージがあることをご存知でしょうか。
 例を挙げると、Go1.7で@<code>{context}パッケージが追加される前は@<code>{golang.org/x/net/context}パッケージの@<code>{context.Context}でコンテキスト情報を扱っていました。
 最近ではGo Modules導入前の@<code>{vgo}、まだ@<code>{xerrors}なども準公式パッケージです。
@@ -34,7 +36,7 @@ freee株式会社でバックエンドエンジニアをしている@<code>{@bud
 
 TODO: もうちょっと練って書く
 
-== @<code>{golang.org/x}で提供されているパッケージ一覧
+=={summary} @<code>{golang.org/x}で提供されているパッケージ一覧
 それでは、早速@<code>{golang.org/x}から提供されているパッケージを見ていきましょう。
 サブパッケージまでひとつひとつ紹介していくと途方のない数になってしまうため、ここでは@@<i>{GitHub}上のリポジトリ単位で紹介していきます。
 
@@ -232,7 +234,7 @@ https://tech.mercari.com/entry/2017/12/05/154907
  * https://godoc.org/golang.org/x/time
  * https://github.com/golang/time
 
-`time`パッケージに補足的なパッケージ。現在提供されているのは`time/rate`パッケージのみ。
+`time`パッケージに補足的なパッケージです。現在提供されているのは`time/rate`パッケージのみ。
 
 === @<code>{golang.org/x/tools}パッケージ
  * https://godoc.org/golang.org/x/tools
@@ -272,7 +274,7 @@ https://google.golang.org/ から各godocへリダイレクトする簡易Webサ
 
 新しいエラーの仕組み。
 
-== @<code>{golang.org/x}で提供されているパッケージを使ったコーディング
+=={detail} @<code>{golang.org/x}で提供されているパッケージを使ったコーディング
 
 TODO: 実用系のパッケージを使ったサンプルコードを時間があるかぎり書いていく。
 
