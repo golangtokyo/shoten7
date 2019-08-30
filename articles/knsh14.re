@@ -58,6 +58,7 @@ iOS向けやAndroid向けのビルドコマンドで生成されたバイナリ�
 まずはGioのプログラムを動かしてみましょう。
 @<list>{knsh14_gioui_sample_blank_window}のプログラムを実行すると真っ白なウィンドウが現れます。
 
+#@# textlint-disable
 //list[knsh14_gioui_sample_blank_window][真っ白なWindow][go]{
 package main
 
@@ -74,6 +75,7 @@ func main() {
   app.Main()
 }
 //}
+#@# textlint-enable
 
 @<code>{main}関数で@<code>{gioui.org/ui/app}の@<code>{Main}関数を呼び出します。
 この関数は必ず呼ぶ必要があります。@<code>{gioui.org/ui/app.Main}関数はすべてのウィンドウが閉じられるまで@<code>{main}関数をブロックします。
@@ -82,6 +84,7 @@ func main() {
 === Hello world
 GopherConで例として利用されたHello worldのコード@<fn>{knsh14_gioui_sample_hello_world_link}を実行します。
 
+#@# textlint-disable
 //list[knsh14_gioui_sample_hello_world][GioおけるHello world][go]{
 package main
 
@@ -126,6 +129,7 @@ func main() {
 
 // END OMIT
 //}
+#@# textlint-enable
 
 このコードを実行すると@<img>{knsh14_gioui_hello_world}のような実行結果が得られます。
 //image[knsh14_gioui_hello_world][GioにおけるHello world]{
@@ -156,7 +160,7 @@ func main() {
 右寄せで画面のN%部分に表示したいという状況はGUIアプリケーションを作っているとよく遭遇します。
 そのためのサンプルとして、@<list>{knsh14_gioui_sample_layout_image}にレイアウトを自由に変更するサンプルを示します。
 
-
+#@# textlint-disable
 //list[knsh14_gioui_sample_layout_image][Gioでウィンドウサイズに依存した表示を行う][go]{
 package main
 
@@ -221,6 +225,7 @@ func loop(w *app.Window) error {
   }
 }
 //}
+#@# textlint-enable
 
 @<list>{knsh14_gioui_sample_layout_image}を実行すると、画面の同じ画像が横に2つ並んでいるウィンドウが開きます。
 端をドラッグしてウィンドウのサイズを変更するとそれに伴って画像のサイズも変化します。
@@ -234,6 +239,7 @@ func loop(w *app.Window) error {
 GUIアプリケーションに必須の機能として、キーボードなどの入力を受けて処理を実行することが挙げられます。
 @<list>{knsh14_gioui_sample_handle_input}はキーボード入力があった際にコンソール上に入力された文字を表示するプログラムです。
 
+#@# textlint-disable
 //list[knsh14_gioui_sample_handle_input][Gioでキーボード入力を表示するサンプル][go]{
 package main
 
@@ -266,6 +272,7 @@ func loop(w *app.Window) error {
   }
 }
 //}
+#@# textlint-enable
 
 キーボード入力は@<code>{gioui.org/ui/key.Event}というイベントで定義されています。
 このイベントが来た場合に中身を取り出して処理をすることができます。
