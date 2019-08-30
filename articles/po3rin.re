@@ -1,4 +1,4 @@
-= Goとベイズ理論でゼロから記事分類を実装してみよう！
+= Goとベイズ理論でゼロからシンプルな記事分類を実装してみよう！
 
 == はじめに
 
@@ -37,11 +37,11 @@ P(B|A)	Aが起こった時にBが起こる確率
 //table[documents][ドキュメントの実際の例]{
 カテゴリ	ドキュメント
 ------------------------------------
-経済	株価
-経済	保険
-IT	Pythonで株価
-IT	PythonとGo
-エンタメ	マーベル
+経済	Price
+経済	Insurance
+IT	Python and Price
+IT	Python and Go
+エンタメ	Marvel
 //}
 
 ==== P(C）
@@ -63,11 +63,11 @@ IT	2/5
 //table[pwc][P(W|C）の例]{
 .	経済	IT	エンタメ
 ------------------------------------
-株価	1/2	1/4	0/1
-保険	1/2	1/4	0/1
+Price	1/2	1/4	0/1
+Insurance	1/2	0/4	0/1
 Python	0/2	2/4	0/1
 Go	0/2	1/4	0/1
-マーベル	0/2	0/4	1/1
+Marvel	0/2	0/4	1/1
 //}
 
 この数字を使って欲しい @<code>{P(D|C)} を計算します。Naive Bayes では @<code>{P(D|C)} は 各単語の確率の掛け算で表せます。@<code>{P(Pythonで株価|IT)} は (「Python」が「ITカテゴリ」に出現する確率 2/4 ）* (「株価」が「ITカテゴリ」に出現する確率 1/4 ）で 1/8 になります。
@@ -75,8 +75,8 @@ Go	0/2	1/4	0/1
 //table[pdc][P(D|C）の例]{
 .	ITカテゴリにドキュメントが分類される確率 P(D|C）
 ------------------------------------
-Pythonで株価	2/4 * 1/4 = 1/8
-PythonとGo	2/4 * 1/4 = 1/8
+Python and Price	2/4 * 1/4 = 1/8
+Python and Go	2/4 * 1/4 = 1/8
 //}
 
 実は今までの計算では本来あるべき単語の条件付き確率を無視し、各単語が互いに独立していると仮定してます。つまり単語がドキュメント内にランダムに現れると仮定しているのです。この過程が Naive Bayes が Naive たる所以です。ここまでこれば欲しかった @<code>{P(C|D)} を計算できます。復習ですが @<code>{P(C|D)} は@<code>{P(C)} と @<code>{P(D|C)} の掛け算です
@@ -84,8 +84,7 @@ PythonとGo	2/4 * 1/4 = 1/8
 //table[pcd][P(C|D）の例]{
 .	ドキュメントがITカテゴリに分類される確率 P(C|D）= P(D|C）*P(C）
 ------------------------------------
-Pythonで株価	1/8 * 2/5 = 1/20
-PythonとGo	1/8 * 2/5 = 1/20
+Python and Go	1/8 * 2/5 = 1/20
 //}
 
 == Goによるテキストの前処理
@@ -441,7 +440,7 @@ func (c *Classifier) pDocCategory(category string, document string) (p float64) 
 
 // P(w|C)の計算 (P(D|C)の計算のため)
 func (c *Classifier) pWordCategory(category string, word string) float64 {
-	d := float64(c.Words[category][stem(word)]+1)
+	d := float64(c.Words[category][stem(word)])
 	return d / float64(c.TotalWordsInCategories[category])
 }
 
@@ -452,8 +451,6 @@ func (c *Classifier) pCategoryDocument(category string, document string) float64
 //}
 
 これで @<code>{P(C)} @<code>{P(D|C)} を計算する関数を実装し、それを使って　@<code>{P(C|D)} を計算します (@<code>{P(C|D)} = @<code>{P(D|C)} * @<code>{P(C)} であることを思い出しましょう)。@<code>{P(D|C)} は カテゴリー内の単語出現確率 (@<code>{P(w|C)}) の掛け算でした。
-
-#@# TODO: test
 
 次に @<code>{Classifier.pCategoryDocument} を使って、記事に対してそれぞれのカテゴリに分類される確率を求める関数を作っておきましょう。
 
@@ -467,6 +464,51 @@ func (c *Classifier) P(document string) map[string]float64 {
 	return p
 }
 //}
+
+早速、テストをしてみましょう。最初に示した具体例を利用します。
+
+//list[p_test][各確率を計算するメソッドのテスト][go]{
+func TestP(t *testing.T) {
+	tests := []struct {
+		name       string
+		categories []string
+		dataset    map[string]string
+		document   string
+		want       map[string]float64
+	}{
+		{
+			name:       "example",
+			categories: []string{"経済", "IT", "エンタメ"},
+			dataset: map[string]string{
+				"Price":            "経済",
+				"Insurance":        "経済",
+				"Python and Price": "IT",
+				"Python and Go":    "IT",
+				"Marvel":           "エンタメ",
+			},
+			document: "Python and Go",
+			want:     map[string]float64{"IT": 0.05, "エンタメ": 0, "経済": 0},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			c := gonbayes.NewClassifier(tt.categories, 0)
+			for s, v := range tt.dataset {
+				c.Train(v, s)
+			}
+			got := c.P(tt.document)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("want = %v, got = %v\n", tt.want, got)
+			}
+		})
+	}
+}
+//}
+
+@<list>{p_test}の結果と最初に示したベイズ理論の図と結果が一致することを確認してください。
 
 === Naive Bayes を使って記事分類を実装する
 
@@ -714,6 +756,49 @@ $ go run cmd/negaposi/main.go -s "this is wonderful" -t "negaposi_classifier.gob
 
 これで毎回学習を走らせなくても、感情分析ができるようになりました。もちろん @<code>{encoding/gob} は Naive Bayes のときだけでなく、ニューラルネットワークの実装で学習済みモデルを保存しておく用途でも使えます。一方でGo以外の言語で学習済みのモデルを使いたい場合は JSON などにエンコードして利用してしまうのも一手です。
 
+== もっと Naive Bayes の精度をよくするには
+
+実はここまでの実装では分類の精度が高いとはいえません。１つずつ問題をみていきましょう。
+
+=== ゼロ頻度問題
+
+@<code>{P(D|C))}の計算を思い出しましょう。@<code>{P(D|C))}は各単語の確率の掛け算で表せました。しかし学習データには存在しないワードがあった場合、つまり、１つでも確率0の単語があった場合、カテゴリーの確率が0になってしまいます。これを解決する為にさまざまな手法が提案されています。何個か対策方法があるのでみていきましょう。
+
+==== 単に確率0を無視する
+
+愚直な解決方法です。単に確率0の単語はなかったものとして計算していきます。
+
+//list[ignore][出現確率0の単語を無視する実装][go]{
+func (c *Classifier) pWordCategory(category string, word string) float64 {
+	n := float64(c.Words[category][stem(word)])
+	if n == 0 {
+		return 1
+	}
+	return n / float64(c.TotalWordsInCategories[category])
+}
+//}
+
+==== Additive smoothings
+
+@<list>{ignore}だと単語を単に無視する為、正しい対策とはあまりいえません。そこで @<code>{smoothings} という手法を使ってゼロ頻度問題を解決します。@<code>{Additive smoothings} はもっとも単純なスムージングの1つです。実際よりもわずかに全単語の出現率を上げて計算します。すべてのカウントに係数@<code>{δ}を追加します。通常は@<code>{0<δ≤1}です。基本的には@<code>{δ=1}として計算します。分子に1加え、分母に全単語数を足します。
+
+//list[add][出現確率0の単語を無視する実装][go]{
+func (c *Classifier) pWordCategory(category string, word string) float64 {
+	n = float64(c.Words[category][stem(word)]+1)
+	d = float64(c.TotalWordsInCategories[category]+c.TotalWords)
+	return n / d
+}
+//}
+
+他にもさまざまな @<code>{smoothings} があるので調べてみてください。「An empirical study of smoothing techniques for
+language modeling」@<fn>{sm} というペーパーが非常に勉強になります。
+
+//footnote[sm][@<href>{http://u.cs.biu.ac.il/~yogo/courses/mt2013/papers/chen-goodman-99.pdf}]
+
+#@# absolute discounting
+#@# additive smoothing
+#@# backoff
+
 == おわりに
 
-#@# TODO: write
+本章では Go とベイズ理論を使ったシンプルな記事分類の実装方法を紹介しました。是非みなさんも Go で自然言語処理に挑戦してみてください！
