@@ -50,8 +50,13 @@ iOS向けやAndroid向けのビルドコマンドで生成されたバイナリ�
 == Gio の設計
 
 == Gio で遊んで見る
+実際のコードを動かして、Gioがどのような機能を持っているか紹介します。
+これから紹介するコードは、Go Playgroundで動かすことはできません。
+ローカルで動かしてください。
+
 === 真っ白なWindowを出力する
 まずはGioのプログラムを動かしてみましょう。
+@<list>{knsh14_gioui_sample_blank_window}のプログラムを実行すると真っ白なウィンドウが現れます。
 
 //list[knsh14_gioui_sample_blank_window][真っ白なWindow][go]{
 package main
@@ -77,7 +82,7 @@ func main() {
 === Hello world
 GopherConで例として利用されたHello worldのコード@<fn>{knsh14_gioui_sample_hello_world_link}を実行します。
 
-//list[knsh14_gioui_sample_hello_world][GioにおけるHello world][go]{
+//list[knsh14_gioui_sample_hello_world][GioおけるHello world][go]{
 package main
 
 import (
@@ -106,8 +111,11 @@ func main() {
         ops.Reset()
         faces.Reset(cfg)
 
-        lbl := text.Label{Face: faces.For(regular, ui.Sp(72)), Text: "Hello, World!"} // HLdraw
-        lbl.Layout(ops, cs)                                                           // HLdraw
+        lbl := text.Label{
+          Face: faces.For(regular, ui.Sp(72)),
+          Text: "Hello, World!",
+        } // HLdraw
+        lbl.Layout(ops, cs) // HLdraw
 
         w.Update(ops)
       }
@@ -120,7 +128,7 @@ func main() {
 //}
 
 このコードを実行すると@<img>{knsh14_gioui_hello_world}のような実行結果が得られます。
-//image[knsh14_gioui_hello_world][GioにおけるHello world]{
+//image[knsh14_gioui_hello_world][GioにおけるHello world]{
 //}
 
 ウィンドウを出す方法は真っ白なウィンドウを出す方法と変わりません。
@@ -137,22 +145,22 @@ func main() {
 
 文字を実際に出すためには@<code>{Layout}メソッドを呼び出す必要があります。
 このメソッドに渡すために、@<code>{gioui.org/ui.Ops}と@<code>{gioui.org/ui/layout.Constraints}を取得する必要があります。
-@<code>{gioui.org/ui.Ops}はループの外側で定義し、再利用することができます。
+@<code>{gioui.org/ui.Ops}は
 @<code>{gioui.org/ui/layout.Constraints}はイベントを処理する毎に取得する必要があります。
 なぜなら画面サイズが変わったりした場合に再度計算する必要があるからです。
 
 //footnote[knsh14_gioui_sample_hello_world_link][https://github.com/eliasnaur/gophercon-2019-talk/blob/master/helloworld.go]
 //footnote[knsh14_gioui_app_updateevent_doc_link][https://godoc.org/gioui.org/ui/app#UpdateEvent]
 
-=== 画像を出してみる
+=== レイアウトを変更する
+右寄せで画面のN%部分に表示したいという状況はGUIアプリケーションを作っているとよく遭遇します。
+そのためのサンプルとして、@<list>{knsh14_gioui_sample_layout_image}にレイアウトを自由に変更するサンプルを示します。
 
-//list[knsh14_gioui_sample_display_image][Gioで画像を出す][go]
+
+//list[knsh14_gioui_sample_layout_image][Gioでウィンドウサイズに依存した表示を行う][go]{
 package main
 
-// A simple Gio program. See https://gioui.org for more information.
-
 import (
-  "fmt"
   "image"
   _ "image/png"
   "log"
@@ -161,7 +169,6 @@ import (
   "gioui.org/ui"
   "gioui.org/ui/app"
   "gioui.org/ui/layout"
-  "gioui.org/ui/measure"
   "gioui.org/ui/widget"
 )
 
@@ -177,7 +184,6 @@ func main() {
 
 func loop(w *app.Window) error {
   var cfg app.Config
-  var faces measure.Faces
   file, err := os.Open("gophercon.png")
   defer file.Close()
   if err != nil {
@@ -191,24 +197,75 @@ func loop(w *app.Window) error {
   for {
     e := <-w.Events()
     switch e := e.(type) {
-    case app.DestroyEvent:
-      return e.Err
     case app.UpdateEvent:
       cfg = e.Config
-      faces.Reset(&cfg)
+      ops.Reset()
       cs := layout.RigidConstraints(e.Size)
-      fmt.Println(e.Size)
-      stack := layout.Stack{Alignment: layout.Center}
-      stack.Init(ops, cs)
-      cs = stack.Rigid()
-      dimensions := widget.Image{Src: img, Rect: img.Bounds()}.Layout(&cfg, ops, cs)
-      red := stack.End(dimensions)
-      stack.Layout(red)
+      flex := layout.Flex{}
+      flex.Init(ops, cs)
+      cs = flex.Flexible(0.5)
+      dimensions := widget.Image{
+        Src:  img,
+        Rect: img.Bounds(),
+      }.Layout(&cfg, ops, cs)
+      child1 := flex.End(dimensions)
+      cs = flex.Flexible(0.5)
+      dimensions = widget.Image{
+        Src:  img,
+        Rect: img.Bounds(),
+      }.Layout(&cfg, ops, cs)
+      child2 := flex.End(dimensions)
+      flex.Layout(child1, child2)
       w.Update(ops)
     }
   }
 }
 //}
 
+@<list>{knsh14_gioui_sample_layout_image}を実行すると、画面の同じ画像が横に2つ並んでいるウィンドウが開きます。
+端をドラッグしてウィンドウのサイズを変更するとそれに伴って画像のサイズも変化します。
+
+画像などのレイアウトを変更する場合は@<code>{gioui.org/ui/layout}パッケージを利用します。
+@<code>{Flex}は横方向に要素を並べます。
+横幅に対する割合は@<code>{Flexible}メソッドで決定し、その戻り値を利用して表示を行います。
+
+
 === キーイベントをハンドリングしてみる
-GUIアプリケーションに必須の機能として、キーボードなどの入力を受けて、何かの処理を実行することがあります。
+GUIアプリケーションに必須の機能として、キーボードなどの入力を受けて処理を実行することが挙げられます。
+@<list>{knsh14_gioui_sample_handle_input}はキーボード入力があった際にコンソール上に入力された文字を表示するプログラムです。
+
+//list[knsh14_gioui_sample_handle_input][Gioでキーボード入力を表示するサンプル][go]{
+package main
+
+import (
+  "fmt"
+  "log"
+
+  "gioui.org/ui/app"
+  "gioui.org/ui/key"
+)
+
+func main() {
+  go func() {
+    w := app.NewWindow()
+    if err := loop(w); err != nil {
+      log.Fatal(err)
+    }
+  }()
+  app.Main()
+}
+
+func loop(w *app.Window) error {
+  for {
+    e := <-w.Events()
+    switch e := e.(type) {
+    case key.Event:
+      v := string([]rune{e.Name})
+      fmt.Println(v)
+    }
+  }
+}
+//}
+
+キーボード入力は@<code>{gioui.org/ui/key.Event}というイベントで定義されています。
+このイベントが来た場合に中身を取り出して処理をすることができます。
