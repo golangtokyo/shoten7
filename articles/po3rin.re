@@ -79,7 +79,7 @@ Marvel	0/2	0/4	1/1
 Python and Go	2/4 * 1/4 = 1/8
 //}
 
-実は今までの計算では本来あるべき単語の条件付き確率を無視し、各単語が互いに独立していると仮定してます。つまり単語がドキュメント内にランダムに現れると仮定しているのです。この過程が Naive Bayes が Naive たる所以です。ここまでこれば欲しかった @<code>{P(C|D)} を計算できます。復習ですが @<code>{P(C|D)} は@<code>{P(C)} と @<code>{P(D|C)} の掛け算です
+実はこの計算では本来あるべき単語の条件付き確率を無視し、各単語が互いに独立していると仮定してます。つまり単語がドキュメント内にランダムに現れると仮定しているのです。この過程が Naive Bayes が Naive たる所以です。ここまでこれば欲しかった @<code>{P(C|D)} を計算できます。復習ですが @<code>{P(C|D)} は@<code>{P(C)} と @<code>{P(D|C)} の掛け算です
 
 //table[pcd][P(C|D）の例]{
 .	ドキュメントがITカテゴリに分類される確率 P(C|D）= P(D|C）*P(C）
@@ -191,7 +191,7 @@ agonopol/go-stem	こちらもGoで実装された「Porter Stemming」
 kljensen/snowball	Go で実装された「Snowball Stemming」
 //}
 
-たまに @<code>{kljensen/snowball} が更新されるくらいで、活発に開発されているパッケージは見つからなかったです。今回は英語以外の言語にも対応している @<code>{kljensen/snowball} を採用しましょう。Go で任意の string をステミングする関数を実装します。
+たまに @<code>{kljensen/snowball} が更新されるくらいで、活発に開発されているパッケージは見つからなかったです(そもそもこういうアルゴリズムの実装のパッケージがバリバリ更新されていくことの方が珍しい）。今回は英語以外の言語にも対応している @<code>{kljensen/snowball} を採用しましょう。Go で任意の string をステミングする関数を実装します。
 
 //list[stem][ステミング処理の実装][go]{
 package gonbayes
@@ -263,18 +263,7 @@ func clean(document string) string {
 
 @<list>{clean} では大文字を小文字に変換した上で正規表現でアルファベットと数字以外の文字を除外しています。Goにおける正規表現は標準パッケージの @<code>{regexp} を使っています。それでは @<list>{export_test_sw} と同じように関数を公開した後に、テストで動作を確認してみます。
 
-===[column] Go の正規表現は本当に遅いの？
-
-Go の標準パッケージでは @<code>{Thompson NFA} という正規表現の実装手法が採用されています。Russ Cox さんが「Regular Expression Matching Can Be Simple And Fast 」というブログ @<fn>{regexp_blog} @<fn>{regexp_blog}で @<code>{Thompson NFA}　を解説しています。ブログから引用した図をみてみましょう。@<m>{a^n} に対する正規表現 @<m>{a?^n a^n} のケースでのパフォーマンスです。 @<code>{Thompson NFA} ではパフォーマンスが線形的に落ちていくのに対し、Perl で採用されている手法では 最初は高速ですが、 @<code>{n} がある程度大きくなると急激にパフォーマンスが落ちます。よって Go の正規表現が絶対に遅いというわけではなく、場合によっては Go の正規表現の方が高速に動く可能性もあります。「Go の正規表現は遅い」ということを鵜呑みにせずに実際に Benchmark をとって、問題になるパフォーマンスなのかどうかを確認することをオススメします。@<code>{@momotaro98} さんが日本語でまとめてくれているのでこちらも是非読んでみてください。
-
-//image[Regex][入力文字に対する正規表現手法のパフォーマンス][scale=1]{
-//}
-===[/column]
-
 //footnote[regexp][@<href>{https://golang.org/pkg/regexp/}]
-//footnote[regexp_blog][@<href>{https://swtch.com/~rsc/regexp/regexp1.html}]
-//footnote[regexp_blog_ja][@<href>{https://qiita.com/momotaro98/items/09d0f968d44c7027450d}]
-
 
 //list[clean_test][テキストクリーニングのテスト][go]{
 func TestClean(t *testing.T) {
@@ -302,6 +291,17 @@ func TestClean(t *testing.T) {
 //}
 
 テキストクリーニングができているのが確認できます。ここでは紹介しませんが HTML タグの削除なども実装していくと、クローリングしてきた記事などを Naive Bayes で処理できるようになります。
+
+===[column] Go の正規表現は本当に遅いの？
+
+Go の標準パッケージでは @<code>{Thompson NFA} という正規表現の実装手法が採用されています。Russ Cox さんが「Regular Expression Matching Can Be Simple And Fast 」というブログ @<fn>{regexp_blog} で @<code>{Thompson NFA} を解説しています。ブログから引用した図 @<img>{Regex} をみてみましょう。@<m>{a^n} に対する正規表現 @<m>{a?^n a^n} のケースでのパフォーマンスです。 @<code>{Thompson NFA} ではパフォーマンスが線形的に落ちていくのに対し、Perl で採用されている手法では 最初は高速ですが、@<code>{n} がある程度大きくなると急激にパフォーマンスが落ちます。よって Go の正規表現が絶対的に遅いというわけではなく、場合によっては Go の正規表現の方が高速に動く可能性もあります。「Go の正規表現は遅い」ということを鵜呑みにせずに実際に Benchmark をとって、問題になるパフォーマンスなのかどうかを確認することをオススメします。@<code>{@momotaro98} さんが日本語でまとめてくれているのでこちら @<fn>{regexp_blog_ja} も是非読んでみてください。
+
+//image[Regex][入力文字に対する正規表現手法のパフォーマンス][scale=1]{
+//}
+===[/column]
+
+//footnote[regexp_blog][@<href>{https://swtch.com/~rsc/regexp/regexp1.html}]
+//footnote[regexp_blog_ja][@<href>{https://qiita.com/momotaro98/items/09d0f968d44c7027450d}]
 
 === 単語数のカウント
 
@@ -357,7 +357,7 @@ func TestCountWords(t *testing.T) {
 
 前処理を行う関数ができたので、いよいよ Naive Bayes を実装します。設計としては @<code>{Classifier} 構造体に学習用のメソッドと分類用のメソッドを生やします。
 
-//list[classifier][countWordsのテスト][go]{
+//list[classifier][学習用のメソッドと分類用のメソッド][go]{
 package gonbayes
 
 // ...
@@ -384,7 +384,7 @@ func (c *Classifier) Classify(document string) (category string) {
 
 @<code>{Classifier} には確率計算で使うデータを格納するためのフィールドを定義しておきます。@<code>{Classifier} にはどんなフィールドが必要でしょうか？単語総数はもちろん、@<code>{P(C)} を計算するためのに各カテゴリに何個ドキュメントが格納されているかのデータ(@<code>{TotalDocsInCategories})とドキュメントの総数(@<code>{TotalDocs})の２つは必要です。@<code>{P(D|C)} ではカテゴリそれぞれの各単語の数(@<code>{Words})に加えて、全単語の総数(@<code>{TotalWords})、カテゴリごとに単語が何個あるかのデータ(@<code>{TotalWordsInCategories})も必要です。早速 @<code>{Classifier} と、ついでに @<code>{Classifier} を初期化する関数を実装しましょう。
 
-//list[classifier_init][countWordsのテスト][go]{
+//list[classifier_init][Classifier の実装][go]{
 // Classifier is documents categories clasifier.
 type Classifier struct {
 	Words             map[string]map[string]uint64
@@ -561,7 +561,7 @@ func (c *Classifier) Classify(document string) string {
 
 == 口コミの感情分析をやってみよう
 
-早速、実装した記事分類を使って口コミの感情分析(ネガティブ or ポジティブ）判定をやってみましょう。
+早速、実装した記事分類を使って口コミの感情分析(ネガティブ or ポジティブ）判定をやってみましょう。@<code>{"I am happy"} というドキュメントはポジティブ、@<code>{"It's out of my mind"} というドキュメントはネガティブというように口コミを分類することがゴールです。
 
 === データセットの読み込み
 
@@ -625,13 +625,13 @@ func loadNegaPosiDataset(file string) (map[string]string, error) {
 
 この関数は標準パッケージの機能である @<code>{func (*Scanner) Scan} @<fn>{scan}を使って1行ずつ読み込んでデータをmapに格納していきます。Go初心者の方は1行ずつ読み込む鉄板の処理なので覚えておきましょう。
 
-=== いざ Sentiment analysis !!
+=== いざ感情分析!!
 
-いよいよ記事分類を行う@<code>{main}関数を実装します。
+いよいよ口コミの感情分析を行う@<code>{main}関数を実装します。
 
 //footnote[scan][@<href>{https://golang.org/pkg/bufio/#Scanner.Scan}]
 
-//list[main][Sentiment analysis][go]{
+//list[main][感情分析を実行するmainパッケージ][go]{
 func main() {
 	s := flag.String("s", "", "input string")
 	f := flag.String("f", "./yelp_labelled.txt", "dataset file path")
@@ -661,7 +661,7 @@ func main() {
 
 早速実行してみましょう。
 
-//list[exec_nega][口コミの感情分析の実行][go]{
+//list[exec_nega][口コミの感情分析の実行 1][go]{
 $ go run cmd/negaposi/main.go -s "i unlike this" -f "yelp_labelled.txt"
 negative
 //}
@@ -677,7 +677,7 @@ positive
 
 == 学習済み分類器を gob パッケージで保存する
 
-分類を実行する度に同じデータセットから同じ学習を行って分類器を生成するのは無駄だと気づいたかもしれません。最後に学習済みの @<code>{Classifier} をいつでも呼び出せるように修正しましょう。その為には標準パッケージである @<code>{encoding/gob} @<fn>{gob}を利用します。Go ではデータ構造のシリアライズのために標準でいくつかのパッケージが用意されていますがGo内でデータ構造を使うのであれば XML や JSON などにではなくバイナリエンコーディングした形で保存して読み込み時などで効率性を上げたいところです。そのような目的で @<code>{encoding/gob} が誕生しています。もちろんデータ構造さえ自明であればそのままエンコードできるので使用感としてもとてもシンプルに収まります。早速　@<code>{Classifier} に 新しいメソッドを定義して学習済みの @<code>{Classifier} を Encode & Decode できるようにしておきましょう。
+分類を実行する度に同じデータセットから同じ学習を行って分類器を生成するのは無駄だと気づいたかもしれません。最後に学習済みの @<code>{Classifier} をいつでも呼び出せるように修正しましょう。その為には標準パッケージである @<code>{encoding/gob} @<fn>{gob}を利用します。Go ではデータ構造のシリアライズのために標準でいくつかのパッケージが用意されていますがGo内でデータ構造を使うのであれば XML や JSON などにではなくバイナリエンコーディングした形で保存して読み込み時などで効率性を上げたいところです。そのような目的で @<code>{encoding/gob} が誕生しています。もちろんデータ構造さえ自明であればそのまま Encode できるので使用感としてもとてもシンプルに収まります。早速　@<code>{Classifier} に 新しいメソッドを定義して学習済みの @<code>{Classifier} を Encode & Decode できるようにしておきましょう。
 
 //footnote[gob][@<href>{https://golang.org/pkg/encoding/gob/}]
 
@@ -714,7 +714,7 @@ func (c *Classifier) Decode(fileName string) error {
 }
 //}
 
-@<list>{gob} ではシンプルなメソッドとしてファイル名さえ指定すればエンコード & デコードできるように設計します。たとえば @<code>{Encode} を呼べば指定ファイルへ学習済みの　@<code>{Clasifier} をバイナリエンコーディングした形でファイルに保存できます。これを使って @<list>{main} を改良しましょう。
+@<list>{gob} ではシンプルなメソッドとしてファイル名さえ指定すれば Encode & Decode できるように設計します。たとえば @<code>{Encode} を呼べば指定ファイルへ学習済みの　@<code>{Clasifier} をバイナリエンコーディングした形でファイルに保存できます。これを使って @<list>{main} を改良しましょう。
 
 //list[main_with_gob][gob を 使った main の実装][go]{
 func main() {
@@ -757,9 +757,9 @@ func main() {
 }
 //}
 
-@<list>{main_with_gob} では Flag を増やして学習済みのClassifierをエンコードしたファイルを指定できるようにしておきます。指定ファイルがあればそれをデコードして 学習済み @<code>{Classifier} として使い、指定がなければ新しく学習します。
+@<list>{main_with_gob} では Flag を増やして学習済みの Classifier を Encode したファイルを指定できるようにしておきます。指定ファイルがあればそれをデコードして 学習済み @<code>{Classifier} として使い、指定がなければ新しく学習します。
 
-//list[exec_f][学習済み Classifer のエンコードとデコードを使った][go]{
+//list[exec_f][学習済み Classifer を使う][go]{
 # 新しく学習して Classifier をバイナリエンコード
 $ go run cmd/negaposi/main.go -s "this is wonderful" -f "dataset/yelp_labelled.txt"
 
@@ -767,7 +767,7 @@ $ go run cmd/negaposi/main.go -s "this is wonderful" -f "dataset/yelp_labelled.t
 $ go run cmd/negaposi/main.go -s "this is wonderful" -t "negaposi_classifier.gob"
 //}
 
-これで毎回学習を走らせなくても、感情分析ができるようになりました。もちろん @<code>{encoding/gob} は Naive Bayes のときだけでなく、ニューラルネットワークの実装で学習済みモデルを保存しておく用途でも使えます。一方でGo以外の言語で学習済みのモデルを使いたい場合は JSON などにエンコードして利用してしまうのも一手です。
+これで毎回学習を走らせなくても、感情分析ができるようになりました。もちろん @<code>{encoding/gob} は Naive Bayes のときだけでなく、ニューラルネットワークの実装で学習済みモデルを保存しておく用途でも使えます。一方でGo以外の言語で学習済みのモデルを使いたい場合は JSON などに Encode して利用してしまうのも一手です。
 
 == もっと Naive Bayes の精度をよくするには
 
@@ -779,7 +779,7 @@ $ go run cmd/negaposi/main.go -s "this is wonderful" -t "negaposi_classifier.gob
 
 ==== 単に確率0を無視する
 
-愚直な解決方法です。単に確率0の単語はなかったものとして計算していきます。
+愚直な解決方法です。単に出現確率0の単語はなかったものとして計算していきます。つまり @<code>{pWordCategory} では出現確率が0だった場合、乗算に影響を与えないように1を返します。
 
 //list[ignore][出現確率0の単語を無視する実装][go]{
 func (c *Classifier) pWordCategory(category string, word string) float64 {
@@ -795,7 +795,7 @@ func (c *Classifier) pWordCategory(category string, word string) float64 {
 
 @<list>{ignore}だと単語を単に無視する為、正しい対策とはあまりいえません。そこで @<code>{スムーシング} という手法を使ってゼロ頻度問題を解決します。@<code>{Additive smoothings} はもっとも単純なスムージングの1つです。実際よりもわずかに全単語の出現率を上げて計算します。すべてのカウントに係数@<code>{δ}を追加します。通常は@<code>{0<δ≤1}です。基本的には@<code>{δ=1}として計算します。分子に1加え、分母に全単語数を足します。
 
-//list[add][出現確率0の単語を無視する実装][go]{
+//list[add][Additive smoothings の実装][go]{
 func (c *Classifier) pWordCategory(category string, word string) float64 {
 	n = float64(c.Words[category][stem(word)]+1)
 	d = float64(c.TotalWordsInCategories[category]+c.TotalWords)
