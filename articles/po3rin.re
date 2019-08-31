@@ -2,15 +2,16 @@
 
 == はじめに
 
-白ヤギコーポレーションでバックエンドエンジニアをしている@po3rin@<fn>{po3rin}です。仕事では記事レコメンド API を Go で実装しています。今回は Go とベイズ理論を使ったシンプルな記事分類の実装方法を紹介します。Naive Bayesの理論を学べるのはもちろんですが、Goでのテキスト前処理の方法や、学習済み分類器の保存方法なども含めてご紹介します。Go で記事分類を実装することで、すでに Go で実装されたアプリケーションへの組み込みも容易になります。
+白ヤギコーポレーションでバックエンドエンジニアをしている@po3rin@<fn>{po3rin}です。仕事では記事レコメンド API を Go で実装しています。今回は Go とベイズ理論を使ったシンプルな記事分類の実装方法を紹介します。Naive Bayes の理論を簡単に学べるのはもちろんですが、Goでのテキスト前処理の方法や、学習済み分類器の保存方法なども含めてご紹介するので、今後 Go で自然言語処理をする際に役立つかもしれません。今回実装するコードは@<code>{github.com/po3rin/gonbayes}@<fn>{gonbayes}というリポジトリ名で GitHub に公開しているので参考にしてください。
 
 #@# TODO: motivate
 
-//footnote[po3rin][@<href>{Goに関する情報などを呟いてます。https://twitter.com/po3rin}]
+//footnote[po3rin][@<href>{https://twitter.com/po3rin}]
+//footnote[gonbayes][@<href>{https://github.com/po3rin/gonbayes}]
 
 == ベイズの理論と Naive Bayes
 
-この節では Naive Bayes の理論をザックリと理解することがゴールです。実装に困らないようになんとなくやっていることが分かる程度で大丈夫です。
+この節では Naive Bayes の理論をザックリと理解することがゴールです。実装に困らない程度に「なんとなくやっていることが分かる」程度で大丈夫です。
 
 === さらっとベイズの理論を抑えよう
 
@@ -25,10 +26,10 @@
 式	意味
 ------------------------------------
 P(A)	Aが起こる確率
-P(B|A)	Aが起こった時にBが起こる確率
+P(B|A)	Aが起こった時にBが起こる確率 (事後確率と呼ぶ)
 //}
 
-記事のカテゴリ分類を例にベイズの定理の使い方を見ていきましょう。知りたいのは「ドキュメントが与えられた時に、とあるカテゴリに分類される確率」です。これは@<table>{p}を見返すと@<code>{P(C|D)}と表せることがわかります。ベイズの理論より @<code>{P(C|D)} は @<code>{P(C)}（カテゴリーの出現率）と @<code>{P(D|C)}（カテゴリーが与えられた時のドキュメント出現率）の掛け算です(@<code>{P(D)}（カテゴリー内のドキュメント出現率）はすべてのカテゴリで同じであるため無視できます）。
+記事のカテゴリ分類を例にベイズの定理の使い方を見ていきましょう。知りたいのは「ドキュメントが与えられた時に、とあるカテゴリに分類される確率」です。これは@<table>{p}を見返すと@<code>{P(C|D)}と表せることがわかります(@<code>{C} は Category、@<code>{D} は Document を表しています)。ベイズの理論より @<code>{P(C|D)} は @<code>{P(C)}（カテゴリーの出現率）と @<code>{P(D|C)}（カテゴリーが与えられた時のドキュメント出現率）の掛け算です(@<code>{P(D)}（カテゴリー内のドキュメント出現率）はすべてのカテゴリで同じであるため無視できます）。
 
 === 具体例から Naive Bayes の具体的な計算方法を理解する
 
@@ -58,7 +59,7 @@ IT	2/5
 
 ==== P(D|C）
 
-@<code>{P(D|C)} はカテゴリーが与えられた時のドキュメント出現率でした。これは計算が難しいように思えます。一方でカテゴリ内の単語出現率(P(W|C））は簡単です。ITカテゴリには単語が4つあるので、たとえば「Python」が「ITカテゴリ」に出現する確率は 2/4 、「株価」が「ITカテゴリ」に出現する確率は 1/4 です。
+@<code>{P(D|C)} はカテゴリーが与えられた時のドキュメント出現率でした。これは計算が難しいように思えます。一方でカテゴリ内の単語出現率(P(W|C））は簡単です。ITカテゴリには単語が4つあるので、たとえば「Python」が「ITカテゴリ」に出現する確率は 2/4 、「Price」が「ITカテゴリ」に出現する確率は 1/4 です。
 
 //table[pwc][P(W|C）の例]{
 .	経済	IT	エンタメ
@@ -70,12 +71,11 @@ Go	0/2	1/4	0/1
 Marvel	0/2	0/4	1/1
 //}
 
-この数字を使って欲しい @<code>{P(D|C)} を計算します。Naive Bayes では @<code>{P(D|C)} は 各単語の確率の掛け算で表せます。@<code>{P(Pythonで株価|IT)} は (「Python」が「ITカテゴリ」に出現する確率 2/4 ）* (「株価」が「ITカテゴリ」に出現する確率 1/4 ）で 1/8 になります。
+この数字を使って欲しい @<code>{P(D|C)} を計算する簡単な方法があります。@<code>{P(D|C)} を各単語の確率の掛け算で計算する方法です。たとえば @<code>{P(Python and Go|IT)} は (「Python」が「ITカテゴリ」に出現する確率 2/4 ）* (「Go」が「ITカテゴリ」に出現する確率 1/4 ）で 1/8 になります(@<code>{and} などのドキュメントに頻出する単語は @<code>{stop words} と呼ばれ、Naive Bayes では無視します。次の節で詳しく説明します）。
 
 //table[pdc][P(D|C）の例]{
 .	ITカテゴリにドキュメントが分類される確率 P(D|C）
 ------------------------------------
-Python and Price	2/4 * 1/4 = 1/8
 Python and Go	2/4 * 1/4 = 1/8
 //}
 
@@ -87,15 +87,17 @@ Python and Go	2/4 * 1/4 = 1/8
 Python and Go	1/8 * 2/5 = 1/20
 //}
 
+これで @<code>{Python and Go} というドキュメントが @<code>{ITカテゴリ} に含まれる確率は @<code>{0.05} という結果が計算できました。分類においては分類したいドキュメントに対してそれぞれのカテゴリで @<code>{P(C|D)} を計算し、もっとも高い確率の物を分類の結果として採択します。
+
 == Goによるテキストの前処理
 
-実際に Naive Bayes を実装する前に入力されるテキストを前処理する必要があります。今回は英語を対象にするので、英語のテキストを前処理する必要があります。本章のコードでは GitHub のサンプルパッケージ名と同じ「gonbayes」パッケージとして実装していきます。
+実際に Naive Bayes を実装する前に入力されるテキストを前処理する必要があります。今回は英語を対象にするので、英語のテキストを前処理する必要があります。本章のコードでは GitHub のサンプルパッケージ名と同じ「gonbayes」パッケージとして実装していきますが好きなパッケージ名で構いません。
 
 === stop words の削除
 
-「the」や 「it」などの高頻度で出現する単語はその文章の特徴を表す単語とはいえない為、前処理で削除しておく必要があります。このような高頻度で出現する単語を自然言語処理界隈で stop words を呼ばれています。では Go で stop words を検知しましょう。
+「the」や 「it」などの高頻度で出現する単語はその文章の特徴を表す単語とはいえない為、前処理で削除しておく必要があります。このような高頻度で出現する単語を自然言語処理界隈で stop words を呼ばれています。では Go で stop word を検知しましょう。
 
-//list[stopwords][stop wordsの検知][go]{
+//list[stopwords][stop wordの検知][go]{
 package gonbayes
 
 var stopWords = map[string]struct{}{
@@ -107,7 +109,7 @@ var stopWords = map[string]struct{}{
     // 省略 (github.com/po3rin/gonbayes/blob/master/const.go を参照)
 }
 
-func isStopWords(word string) bool {
+func isStopWord(word string) bool {
 	_, ok := stopWords[word]
 	return ok
 }
@@ -126,16 +128,16 @@ fmt.Println(unsafe.Sizeof(s))
 
 //footnote[export_test][@<href>{https://tech.mercari.com/entry/2018/08/08/080000}]
 
-//list[export_test_sw][isStopWordsの公開][go]{
+//list[export_test_sw][isStopWordの公開][go]{
 package gonbayes
 
-var IsStopWords = isStopWords
+var IsStopWord = isStopWord
 
 //}
 
-これでテスト時にだけIsStopWordsがビルドされるようになりました。早速テストを書いていきましょう。
+これでテスト時にだけ @<code>{IsStopWord} がビルドされるようになりました。早速テストを書いていきましょう。
 
-//list[test_isStopWords][isStopWordsのテスト][go]{
+//list[test_isStopWord][isStopWordのテスト][go]{
 package gonbayes_test
 
 import (
@@ -144,7 +146,7 @@ import (
 	"github.com/po3rin/gonbayes"
 )
 
-func TestIsStopWords(t *testing.T) {
+func TestIsStopWord(t *testing.T) {
 	tests := []struct {
 		name string
 		word string
@@ -164,7 +166,7 @@ func TestIsStopWords(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := gonbayes.IsStopWords(tt.word)
+			got := gonbayes.IsStopWord(tt.word)
 			if got != tt.want {
 				t.Errorf("want = %v, got = %v\n", tt.want, got)
 			}
@@ -173,7 +175,7 @@ func TestIsStopWords(t *testing.T) {
 }
 //}
 
-@<code>{you} は stop word なので @<code>{true} が返り、@<code>{great} は stop word ではないなので @<code>{false} が返ることが期待されます。テストを実行するとテストが通るはずです。テストの書き方に関しては @budougumi0617 さんのブログ @<fn>{how_to_test} が体系的にまとまっていて勉強になるので @<list>{test_isStopWords} でテストの書き方の知識が怪しいなと思った人は読んでみることをお勧めします。
+@<code>{you} は stop word なので @<code>{true} が返り、@<code>{great} は stop word ではないなので @<code>{false} が返ることが期待されます。実行するとテストが通るはずです。テストの書き方に関しては @budougumi0617 さんのブログ @<fn>{how_to_test} が体系的にまとまっていて勉強になるので @<list>{test_isStopWord} でテストの書き方の知識が怪しいなと思った人は読んでみることをお勧めします。
 
 //footnote[how_to_test][@<href>{https://budougumi0617.github.io/2018/08/19/go-testing2018/#sub-test-testing-t-run}]
 
@@ -189,9 +191,9 @@ agonopol/go-stem	こちらもGoで実装された「Porter Stemming」
 kljensen/snowball	Go で実装された「Snowball Stemming」
 //}
 
-たまに @<code>{kljensen/snowball} が更新されるくらいで、活発に開発されているパッケージは見つからなかったです。今回は英語以外の言語にも対応している @<code>{kljensen/snowball} を採用しましょう。Goで任意のstringをstemmingする関数を実装します。
+たまに @<code>{kljensen/snowball} が更新されるくらいで、活発に開発されているパッケージは見つからなかったです。今回は英語以外の言語にも対応している @<code>{kljensen/snowball} を採用しましょう。Go で任意の string をステミングする関数を実装します。
 
-//list[stem][stemming処理の実装][go]{
+//list[stem][ステミング処理の実装][go]{
 package gonbayes
 
 import (
@@ -211,7 +213,7 @@ func stem(word string) string {
 }
 //}
 
-@<code>{snowball.Stem} 関数は未知の単語がきた時などにエラーを返しますが、今回はそのまま単語を返し、エラーを無視する実装にしています。いくつかの単語でテストしてみましょう。@<list>{export_test_sw} と同じようにテストしたい関数を公開した後に、stemmingのテストを書いてみます。
+@<code>{snowball.Stem} 関数は未知の単語がきた時などにエラーを返しますが、今回はそのまま単語を返し、エラーを無視する実装にしています。いくつかの単語でテストしてみましょう。@<list>{export_test_sw} と同じようにテストしたい関数をテスト中だけ公開できるようにした後に、ステミングのテストを書いてみます。
 
 //list[test_stem][stemのテスト][go]{
 
@@ -246,7 +248,7 @@ func TestStem(t *testing.T) {
 }
 //}
 
-このテストで stemming ができていることが確認できます。
+このテストで単語のステミングができていることが確認できます。
 
 === テキストクリーニング
 
@@ -261,7 +263,18 @@ func clean(document string) string {
 
 @<list>{clean} では大文字を小文字に変換した上で正規表現でアルファベットと数字以外の文字を除外しています。Goにおける正規表現は標準パッケージの @<code>{regexp} を使っています。それでは @<list>{export_test_sw} と同じように関数を公開した後に、テストで動作を確認してみます。
 
+===[column] Go の正規表現は本当に遅いの？
+
+Go の標準パッケージでは @<code>{Thompson NFA} という正規表現の実装手法が採用されています。Russ Cox さんが「Regular Expression Matching Can Be Simple And Fast 」というブログ @<fn>{regexp_blog} @<fn>{regexp_blog}で @<code>{Thompson NFA}　を解説しています。ブログから引用した図をみてみましょう。@<m>{a^n} に対する正規表現 @<m>{a?^n a^n} のケースでのパフォーマンスです。 @<code>{Thompson NFA} ではパフォーマンスが線形的に落ちていくのに対し、Perl で採用されている手法では 最初は高速ですが、 @<code>{n} がある程度大きくなると急激にパフォーマンスが落ちます。よって Go の正規表現が絶対に遅いというわけではなく、場合によっては Go の正規表現の方が高速に動く可能性もあります。「Go の正規表現は遅い」ということを鵜呑みにせずに実際に Benchmark をとって、問題になるパフォーマンスなのかどうかを確認することをオススメします。@<code>{@momotaro98} さんが日本語でまとめてくれているのでこちらも是非読んでみてください。
+
+//image[Regex][入力文字に対する正規表現手法のパフォーマンス][scale=1]{
+//}
+===[/column]
+
 //footnote[regexp][@<href>{https://golang.org/pkg/regexp/}]
+//footnote[regexp_blog][@<href>{https://swtch.com/~rsc/regexp/regexp1.html}]
+//footnote[regexp_blog_ja][@<href>{https://qiita.com/momotaro98/items/09d0f968d44c7027450d}]
+
 
 //list[clean_test][テキストクリーニングのテスト][go]{
 func TestClean(t *testing.T) {
@@ -288,7 +301,7 @@ func TestClean(t *testing.T) {
 }
 //}
 
-テキストクリーニングができているのが確認できます。ここでは紹介しませんがHTMLタグの削除なども実装していくとクローリングしてきた記事などを Naive Bayes ににかけれるようになります。
+テキストクリーニングができているのが確認できます。ここでは紹介しませんが HTML タグの削除なども実装していくと、クローリングしてきた記事などを Naive Bayes で処理できるようになります。
 
 === 単語数のカウント
 
@@ -300,7 +313,7 @@ func countWords(document string) (wordCount map[string]int) {
 	words := strings.Split(document, " ")
 	wordCount = make(map[string]int)
 	for _, word := range words {
-		if !isStopWords(word) {
+		if !isStopWord(word) {
 			key := stem(strings.ToLower(word))
 			wordCount[key]++
 		}
@@ -309,7 +322,7 @@ func countWords(document string) (wordCount map[string]int) {
 }
 //}
 
-これでdocumentに単語がそれぞれ何個あったかを返す関数ができました。@<list>{export_test_sw} と同じようにテストしたい関数を公開した後にテストを書いて動作を確認しましょう。
+これでドキュメントに単語がそれぞれ何個あったかを返す関数ができました。@<list>{export_test_sw} と同じようにテストしたい関数を公開した後にテストを書いて動作を確認しましょう。
 
 //list[count_test][countWordsのテスト][go]{
 func TestCountWords(t *testing.T) {
@@ -369,7 +382,7 @@ func (c *Classifier) Classify(document string) (category string) {
 
 === Classifier 構造体を実装する
 
-@<code>{Classifier} には確率計算で使うデータを格納するためのフィールドを定義しておきます。@<code>{Classifier} にはどんなフィールドが必要でしょうか？単語総数はもちろん、@<code>{P(C)} を計算するためのに各カテゴリに何個ドキュメントが格納されているかのデータ(@<code>{TotalDocsInCategories})とドキュメントの総数(@<code>{TotalDocs})の２つは必要です。@<code>{P(D|C)} では各単語の数(@<code>{Words})に加えて、全単語の総数(@<code>{TotalWords})、カテゴリごとに単語が何個あるかのデータ(@<code>{TotalWordsInCategories})も必要です。早速 @<code>{Classifier} と、ついでに @<code>{Classifier} を初期化する関数を実装しましょう。
+@<code>{Classifier} には確率計算で使うデータを格納するためのフィールドを定義しておきます。@<code>{Classifier} にはどんなフィールドが必要でしょうか？単語総数はもちろん、@<code>{P(C)} を計算するためのに各カテゴリに何個ドキュメントが格納されているかのデータ(@<code>{TotalDocsInCategories})とドキュメントの総数(@<code>{TotalDocs})の２つは必要です。@<code>{P(D|C)} ではカテゴリそれぞれの各単語の数(@<code>{Words})に加えて、全単語の総数(@<code>{TotalWords})、カテゴリごとに単語が何個あるかのデータ(@<code>{TotalWordsInCategories})も必要です。早速 @<code>{Classifier} と、ついでに @<code>{Classifier} を初期化する関数を実装しましょう。
 
 //list[classifier_init][countWordsのテスト][go]{
 // Classifier is documents categories clasifier.
@@ -404,7 +417,7 @@ Goにおいて map のゼロ値は @<code>{nil} なので明示的に @<code>{ma
 
 続いてClassifierを学習させるための関数 @<code>{Classifier.Train}を実装しましょう。
 
-//list[train][Clasifierを学習させるための関数][go]{
+//list[train][Classifierを学習させるための関数][go]{
 // Train trains documents classifier.
 func (c *Classifier) Train(category string, document string) {
 	for word, count := range countWords(document) {
@@ -417,7 +430,7 @@ func (c *Classifier) Train(category string, document string) {
 }
 //}
 
-@<list>{train} では与えられた訓練データから Classifier のフィールドを更新していくだけです。分類ではこのフィールドに入った値を使って確率を計算していきます。
+@<list>{train} では与えられた学習用データから Classifier のフィールドを更新していくだけです。分類ではこのフィールドに入った値を使って確率を計算していきます。
 
 === ベイズ確率計算を実装する
 
@@ -556,7 +569,7 @@ func (c *Classifier) Classify(document string) string {
 
 //footnote[slsds][@<href>{https://archive.ics.uci.edu/ml/datasets/Sentiment+Labelled+Sentences}]
 
-//list[slsds][Sentiment Labelled Sentences Data Set][go]{
+//list[slsds][Sentiment Labelled Sentences Data Set][txt]{
 Wow... Loved this place.	1
 Crust is not good.	0
 Not tasty and the texture was just nasty.	0
@@ -618,7 +631,7 @@ func loadNegaPosiDataset(file string) (map[string]string, error) {
 
 //footnote[scan][@<href>{https://golang.org/pkg/bufio/#Scanner.Scan}]
 
-//list[main][記事のネガポジ分類][go]{
+//list[main][Sentiment analysis][go]{
 func main() {
 	s := flag.String("s", "", "input string")
 	f := flag.String("f", "./yelp_labelled.txt", "dataset file path")
@@ -662,13 +675,13 @@ positive
 
 確かに口コミの感情分析ができています！これで Naive Bayes を使ったテキスト分類が成功していることがわかります。
 
-== 訓練済み分類器を gob パッケージで保存する
+== 学習済み分類器を gob パッケージで保存する
 
-分類を実行する度に同じデータセットから同じ学習を行って分類器を生成するのは無駄だと気づいたかもしれません。最後に訓練済みの @<code>{Classifier} をいつでも呼び出せるように修正しましょう。その為には標準パッケージである @<code>{encoding/gob} @<fn>{gob}を利用します。Go ではデータ構造のシリアライズのために標準でいくつかのパッケージが用意されていますがGo内でデータ構造を使うのであれば XML や JSON などにではなくバイナリエンコーディングした形で保存して読み込み時などで効率性を上げたいところです。そのような目的で @<code>{encoding/gob} が誕生しています。もちろんデータ構造さえ自明であればそのままエンコードできるので使用感としてもとてもシンプルに収まります。早速　@<code>{Clasifier} に 新しいメソッドを定義して訓練済みの @<code>{Clasifier} を Encode & Decode できるようにしておきましょう。
+分類を実行する度に同じデータセットから同じ学習を行って分類器を生成するのは無駄だと気づいたかもしれません。最後に学習済みの @<code>{Classifier} をいつでも呼び出せるように修正しましょう。その為には標準パッケージである @<code>{encoding/gob} @<fn>{gob}を利用します。Go ではデータ構造のシリアライズのために標準でいくつかのパッケージが用意されていますがGo内でデータ構造を使うのであれば XML や JSON などにではなくバイナリエンコーディングした形で保存して読み込み時などで効率性を上げたいところです。そのような目的で @<code>{encoding/gob} が誕生しています。もちろんデータ構造さえ自明であればそのままエンコードできるので使用感としてもとてもシンプルに収まります。早速　@<code>{Classifier} に 新しいメソッドを定義して学習済みの @<code>{Classifier} を Encode & Decode できるようにしておきましょう。
 
 //footnote[gob][@<href>{https://golang.org/pkg/encoding/gob/}]
 
-//list[gob][gobを使った訓練済みClassifierの Encode & Decode][go]{
+//list[gob][gobを使った学習済みClassifierの Encode & Decode][go]{
 // Encode trained Classifier
 func (c *Classifier) Encode(fileName string) error {
 	if c.TotalDocs == 0 {
@@ -701,7 +714,7 @@ func (c *Classifier) Decode(fileName string) error {
 }
 //}
 
-@<list>{gob} ではシンプルなメソッドとしてファイル名さえ指定すればエンコード & デコードできるように設計します。たとえば @<code>{Encode} を呼べば指定ファイルへ訓練済みの　@<code>{Clasifier} をバイナリエンコーディングした形でファイルに保存できます。これを使って @<list>{main} を改良しましょう。
+@<list>{gob} ではシンプルなメソッドとしてファイル名さえ指定すればエンコード & デコードできるように設計します。たとえば @<code>{Encode} を呼べば指定ファイルへ学習済みの　@<code>{Clasifier} をバイナリエンコーディングした形でファイルに保存できます。これを使って @<list>{main} を改良しましょう。
 
 //list[main_with_gob][gob を 使った main の実装][go]{
 func main() {
@@ -716,7 +729,7 @@ func main() {
 
 	classifier := gonbayes.NewClassifier(class, threshold)
 
-	// 訓練済みファイルを指定した場合、それをデコードして Classifier を生成する。
+	// 学習済みファイルを指定した場合、それをデコードして Classifier を生成する。
 	if *t != "" {
 		err := classifier.Decode(*t)
 		if err != nil {
@@ -762,7 +775,7 @@ $ go run cmd/negaposi/main.go -s "this is wonderful" -t "negaposi_classifier.gob
 
 === ゼロ頻度問題
 
-@<code>{P(D|C))}の計算を思い出しましょう。@<code>{P(D|C))}は各単語の確率の掛け算で表せました。しかし学習データには存在しないワードがあった場合、つまり、１つでも確率0の単語があった場合、カテゴリーの確率が0になってしまいます。これを解決する為にさまざまな手法が提案されています。何個か対策方法があるのでみていきましょう。
+@<code>{P(D|C))}の計算を思い出しましょう。@<code>{P(D|C))}は各単語の確率の掛け算で表せました。しかし学習用データには存在しないワードがあった場合、つまり、１つでも確率0の単語があった場合、カテゴリーの確率が0になってしまいます。これを解決する為にさまざまな手法が提案されています。何個か対策方法があるのでみていきましょう。
 
 ==== 単に確率0を無視する
 
@@ -780,7 +793,7 @@ func (c *Classifier) pWordCategory(category string, word string) float64 {
 
 ==== Additive smoothings
 
-@<list>{ignore}だと単語を単に無視する為、正しい対策とはあまりいえません。そこで @<code>{smoothings} という手法を使ってゼロ頻度問題を解決します。@<code>{Additive smoothings} はもっとも単純なスムージングの1つです。実際よりもわずかに全単語の出現率を上げて計算します。すべてのカウントに係数@<code>{δ}を追加します。通常は@<code>{0<δ≤1}です。基本的には@<code>{δ=1}として計算します。分子に1加え、分母に全単語数を足します。
+@<list>{ignore}だと単語を単に無視する為、正しい対策とはあまりいえません。そこで @<code>{スムーシング} という手法を使ってゼロ頻度問題を解決します。@<code>{Additive smoothings} はもっとも単純なスムージングの1つです。実際よりもわずかに全単語の出現率を上げて計算します。すべてのカウントに係数@<code>{δ}を追加します。通常は@<code>{0<δ≤1}です。基本的には@<code>{δ=1}として計算します。分子に1加え、分母に全単語数を足します。
 
 //list[add][出現確率0の単語を無視する実装][go]{
 func (c *Classifier) pWordCategory(category string, word string) float64 {
@@ -790,7 +803,7 @@ func (c *Classifier) pWordCategory(category string, word string) float64 {
 }
 //}
 
-他にもさまざまな @<code>{smoothings} があるので調べてみてください。「An empirical study of smoothing techniques for
+他にもさまざまなスムーシングがあるので調べてみてください。「An empirical study of smoothing techniques for
 language modeling」@<fn>{sm} というペーパーが非常に勉強になります。
 
 //footnote[sm][@<href>{http://u.cs.biu.ac.il/~yogo/courses/mt2013/papers/chen-goodman-99.pdf}]
