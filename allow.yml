@@ -2,5 +2,9 @@
 # 独自の正規表現記法でパターンとして許可することも可能です。
 # https://github.com/textlint/regexp-string-matcher#regexp-like-string
 - "Module"
-- "/TODO:\\s*/"
+- "/TODO:.*/"
 - "メンテナンス"
+- "/\/\/footnote.*/"
+- "/https:[\\w.\/]*/"
+- "/golang.org/[\\w.\/]*/"
+- "株式会社"
