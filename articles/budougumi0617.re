@@ -6,8 +6,7 @@
 
 #@# textlint-enable
 
-
-freee株式会社でバックエンドエンジニアをしている@<code>{@budougumi0617}@<fn>{bd617_twitter}です。
+バックエンドエンジニアをGoを利用している@<code>{@budougumi0617}@<fn>{bd617_twitter}です。
 本章では2019年9月現在@<code>{golang.org/x}配下にある準公式パッケージについて紹介したいと思います。
 
 
@@ -18,9 +17,9 @@ freee株式会社でバックエンドエンジニアをしている@<code>{@bud
 本章では、Goの準公式パッケージとして配信されているリポジトリにどんなものリポジトリがあるのかを紹介します。
 リポジトリの中にはGoの今後のバージョンのために試験的に作成されたパッケージから、実務での利用に耐えうるパッケージまでさまざまなコードが含まれています。
 中には実際に実務でGoを開発する際にほぼ確実に利用するであろうコマンドラインツールも含まれています。
-このような準硬式パッケージを学習することで、本章では次のようなことを学ぶことをゴールとします。
+このような準公式パッケージを学習することで、本章では次のようなことを学ぶことをゴールとします。
 
- * 準公式パッケージで提供されるコマンドラインツールを知ることで日々の開発の生産性を上げる
+ * 準公式パッケージで提供される各種ツールを知ることで日々の開発の生産性を上げる
  * 準公式パッケージで提供されるコードを利用することでコーディングの品質を上げる（車輪の再発明を避ける）
  * 今後リリースされるGoのバージョンに取り込まれるであろう、新しいGoの仕組みを先取りして学習する
 
@@ -30,9 +29,11 @@ freee株式会社でバックエンドエンジニアをしている@<code>{@bud
 
 =={abst} @<code>{golang.org/x}配下にあるパッケージとは
 @<code>{golang/x}パッケージという準公式パッケージがあることをご存知でしょうか。
+準公式パッケージは公式パッケージに比べて互換性（@<i>{compatibility requirements}）の基準が低いなどの制約はありますが、便利なものばかりです。
+また、Goに大きな新機能が追加される前の試験的な実装もこちらで公開されます。
 例を挙げると、Go1.7で@<code>{context}パッケージが追加される前は@<code>{golang.org/x/net/context}パッケージの@<code>{context.Context}でコンテキスト情報を扱っていました。
 最近ではGo Modules導入前の@<code>{vgo}、まだ@<code>{xerrors}なども準公式パッケージです。
-準公式パッケージは公式パッケージに比べて互換性（@<i>{compatibility requirements}）の基準が低いなどの制約はありますが、便利なものばかりです。
+
 
 TODO: もうちょっと練って書く
 
@@ -204,6 +205,17 @@ go modulesに関するコードだけど今も最新仕様に追従できてい�
 ちょっとサンプルコード書きたいなー。
 もしくはgRPCとかkubernetsで使われているかな？
 
+WebSocketについてはgorillaパッケージなどのほうが優れていることが言及されている。
+golang.org/x/net/websocket
+https://godoc.org/golang.org/x/net/websocket
+
+
+LimitListenerなどがある。
+https://heartbeats.jp/hbblog/2015/10/golang-limitlistener.html
+
+テストの参考になりそう。
+https://github.com/golang/net/blob/master/nettest/conntest.go
+
 === @<code>{golang.org/x/oauth2}パッケージ
  * https://godoc.org/golang.org/x/oauth2
  * https://github.com/golang/oauth2
@@ -275,6 +287,52 @@ https://google.golang.org/ から各godocへリダイレクトする簡易Webサ
 新しいエラーの仕組み。
 
 =={detail} @<code>{golang.org/x}で提供されているパッケージを使ったコーディング
+ここまでで2019年9月現在存在する@<code>{golang.org/x}配下のパッケージを俯瞰的に確認しました。
+本節では、実際に業務やOSSでも利用できる実用的なパッケージの利用方法を紹介します。
+
+=== @<code>{golang.org/x/oauth2}
+
+@<code>{golang.org/x/oauth2}パッケージはGoでOAuth2.0形式の認証認可を扱うためのパッケージです。
+@<code>{GitHub}や@<code>{Google}、@<code>{PayPal}など各社の認可エンドポイントのURLが定義された構造体オブジェクトも含まれています。
+
+//list[github_endpoint][GitHubのOAuth2.0用のエンドポイント]{
+// Copyright 2014 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package github provides constants for using OAuth2 to access Github.
+package github // import "golang.org/x/oauth2/github"
+
+import (
+	"golang.org/x/oauth2"
+)
+
+// Endpoint is Github's OAuth 2.0 endpoint.
+var Endpoint = oauth2.Endpoint{
+	AuthURL:  "https://github.com/login/oauth/authorize",
+	TokenURL: "https://github.com/login/oauth/access_token",
+}
+//}
+
+実際に使うときは@<code>{TokenSource}構造体を起点に実装を行ないます。
+
+TODO: コードを貼る
+
+
+oauth2パッケージの設計は利用者に対してとても親切な点があります。
+それは、利用者がどこまでoauth2パッケージをどのレベルで利用したいか選択できる点です。
+一番簡単な方法は、@<code>{TokenSource}オブジェクトからクライアントを生成する方法です。
+TODO: コードを貼る
+
+また、トークン情報を別の用途で利用する場合はTokenオブジェクトを生成します。これも自動的にトークンリフレッシュが行われます。
+
+TODO: コードを貼る
+
+最後はRoundTripperインターフェイスを実装したTransportオブジェクトを利用する方法です。
+こちらをHttpClientに用いることでOAuth2以外の機能を付与した状態でClientを利用できます。
+TODO: コードを貼る
+
+
 
 TODO: 実用系のパッケージを使ったサンプルコードを時間があるかぎり書いていく。
 
