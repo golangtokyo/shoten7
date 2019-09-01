@@ -29,7 +29,7 @@ P(A)	Aが起こる確率
 P(B|A)	Aが起こった時にBが起こる確率 (事後確率と呼ぶ)
 //}
 
-記事のカテゴリ分類を例にベイズの定理の使い方を見ていきましょう。知りたいのは「ドキュメントが与えられた時に、とあるカテゴリに分類される確率」です。これは@<table>{p}を見返すと@<code>{P(C|D)}と表せることがわかります(@<code>{C} はCategory、@<code>{D}はDocumentを表しています)。ベイズの理論より @<code>{P(C|D)}は@<code>{P(C)}カテゴリーの出現率と@<code>{P(D|C)}（カテゴリーが与えられた時のドキュメント出現率）の掛け算です(@<code>{P(D)}（カテゴリー内のドキュメント出現率）はすべてのカテゴリで同じであるため無視できます）。
+記事のカテゴリ分類を例にベイズの定理の使い方を見ていきましょう。知りたいのは「ドキュメントが与えられた時に、とあるカテゴリに分類される確率」です。これは@<table>{p}を見返すと@<m>{P(C|D）}と表せることがわかります(@<code>{C} はCategory、@<code>{D}はDocumentを表しています)。ベイズの理論より @<m>{P(C|D）}は@<m>{P(C）}カテゴリーの出現率と@<m>{P(D|C）}（カテゴリーが与えられた時のドキュメント出現率）の掛け算です(@<m>{P(D）}（カテゴリー内のドキュメント出現率）はすべてのカテゴリで同じであるため無視できます）。
 
 === 具体例からNaive Bayesの具体的な計算方法を理解する
 
@@ -47,7 +47,7 @@ IT	Python and Go
 
 ==== P(C）
 
-@<code>{P(C)}はカテゴリーの出現率です。たとえば「経済カテゴリ」の出現率は@<code>{経済カテゴリの数/カテゴリ総数(重複分もカウント)}なので2/5になります。
+@<m>{P(C）}はカテゴリーの出現率です。たとえば「経済カテゴリ」の出現率は@<code>{経済カテゴリの数/カテゴリ総数(重複分もカウント)}なので2/5になります。
 
 //table[pc][P(C）の例]{
 カテゴリ	P(C）
@@ -59,7 +59,7 @@ IT	2/5
 
 ==== P(D|C）
 
-@<code>{P(D|C)}はカテゴリーが与えられた時のドキュメント出現率でした。これは計算が難しいように思えます。一方でカテゴリ内の単語出現率(P(W|C））は簡単です。ITカテゴリには単語が4つあるので、たとえば「Python」が「ITカテゴリ」に出現する確率は2/4、「Price」が「ITカテゴリ」に出現する確率は1/4です。
+@<m>{P(D|C）}はカテゴリーが与えられた時のドキュメント出現率でした。これは計算が難しいように思えます。一方でカテゴリ内の単語出現率(@<m>{P(W|C）}）は簡単です。ITカテゴリには単語が4つあるので、たとえば「Python」が「ITカテゴリ」に出現する確率は2/4、「Price」が「ITカテゴリ」に出現する確率は1/4です。
 
 //table[pwc][P(W|C）の例]{
 .	経済	IT	エンタメ
@@ -71,15 +71,15 @@ Go	0/2	1/4	0/1
 Marvel	0/2	0/4	1/1
 //}
 
-この数字を使って欲しい@<code>{P(D|C)}を計算する簡単な方法があります。@<code>{P(D|C)}を各単語の確率の掛け算で計算する方法です。たとえば@<code>{P(Python and Go|IT)}は(「Python」が「ITカテゴリ」に出現する確率2/4）*(「Go」が「ITカテゴリ」に出現する確率1/4）で1/8になります(@<code>{and}などのドキュメントに頻出する単語は @<code>{stop words}と呼ばれ、Naive Bayesでは無視します。次の節で詳しく説明します）。
+この数字を使って欲しい@<m>{P(D|C）}を計算する簡単な方法があります。@<m>{P(D|C）}を各単語の確率の掛け算で計算する方法です。たとえばITカテゴリが@<code>{"Python and Go"}というドキュメントに分類される確率@<m>{P(D|C）}は(「Python」が「ITカテゴリ」に出現する確率2/4）*(「Go」が「ITカテゴリ」に出現する確率1/4）で1/8になります(@<code>{and}などのドキュメントに頻出する単語は @<code>{stop words}と呼ばれ、Naive Bayesでは無視します。次の節で詳しく説明します）。
 
 //table[pdc][P(D|C）の例]{
-.	ITカテゴリにドキュメントが分類される確率 P(D|C）
+.	ITカテゴリがドキュメントが分類される確率 P(D|C）
 ------------------------------------
 Python and Go	2/4 * 1/4 = 1/8
 //}
 
-実はこの計算では本来あるべき単語の条件付き確率を無視し、各単語が互いに独立していると仮定してます。つまり単語がドキュメント内にランダムに現れると仮定しているのです。この過程がNaive BayesがNaiveたる所以です。ここまでこれば欲しかった@<code>{P(C|D)}を計算できます。復習ですが@<code>{P(C|D)}は@<code>{P(C)}と@<code>{P(D|C)}の掛け算です
+実はこの計算では本来あるべき単語の条件付き確率を無視し、各単語が互いに独立していると仮定してます。つまり単語がドキュメント内にランダムに現れると仮定しているのです。この過程がNaive BayesがNaiveたる所以です。ここまでこれば欲しかった@<m>{P(C|D）}を計算できます。復習ですが@<m>{P(C|D）}は@<m>{P(C）}と@<m>{P(D|C）}の掛け算です
 
 //table[pcd][P(C|D）の例]{
 .	ドキュメントがITカテゴリに分類される確率 {P(C|D）= P(D|C）*P(C）
@@ -87,7 +87,7 @@ Python and Go	2/4 * 1/4 = 1/8
 Python and Go	1/8 * 2/5 = 1/20
 //}
 
-これで@<code>{Python and Go}というドキュメントが@<code>{ITカテゴリ}に含まれる確率は@<code>{0.05}という結果が計算できました。分類においては分類したいドキュメントに対してそれぞれのカテゴリで@<code>{P(C|D)}を計算し、もっとも高い確率の物を分類の結果として採択します。
+これで@<m>{Python and Go}というドキュメントが@<code>{ITカテゴリ}に含まれる確率は@<code>{0.05}という結果が計算できました。分類においては分類したいドキュメントに対してそれぞれのカテゴリで@<m>{P(C|D）}を計算し、もっとも高い確率の物を分類の結果として採択します。
 
 == Goによるテキストの前処理
 
@@ -382,7 +382,7 @@ func (c *Classifier) Classify(document string) (category string) {
 
 === Classifier構造体を実装する
 
-@<code>{Classifier}には確率計算で使うデータを格納するためのフィールドを定義しておきます。@<code>{Classifier}にはどんなフィールドが必要でしょうか？単語総数はもちろん、@<code>{P(C)}を計算するためのに各カテゴリに何個ドキュメントが格納されているかのデータ(@<code>{TotalDocsInCategories})とドキュメントの総数(@<code>{TotalDocs})の２つは必要です。@<code>{P(D|C)}ではカテゴリそれぞれの各単語の数(@<code>{Words})に加えて、全単語の総数(@<code>{TotalWords})、カテゴリごとに単語が何個あるかのデータ(@<code>{TotalWordsInCategories})も必要です。早速@<code>{Classifier}と、ついでに@<code>{Classifier}を初期化する関数を実装しましょう。
+@<code>{Classifier}には確率計算で使うデータを格納するためのフィールドを定義しておきます。@<code>{Classifier}にはどんなフィールドが必要でしょうか？単語総数はもちろん、@<m>{P(C）}を計算するためのに各カテゴリに何個ドキュメントが格納されているかのデータ(@<code>{TotalDocsInCategories})とドキュメントの総数(@<code>{TotalDocs})の２つは必要です。@<m>{P(D|C）}ではカテゴリそれぞれの各単語の数(@<code>{Words})に加えて、全単語の総数(@<code>{TotalWords})、カテゴリごとに単語が何個あるかのデータ(@<code>{TotalWordsInCategories})も必要です。早速@<code>{Classifier}と、ついでに@<code>{Classifier}を初期化する関数を実装しましょう。
 
 //list[classifier_init][Classifier の実装][go]{
 // Classifier is documents categories clasifier.
@@ -437,12 +437,12 @@ func (c *Classifier) Train(category string, document string) {
 それではNaive Bayesの根幹である確率計算を実装しましょう。
 
 //list[pcd][各確率を計算するメソッド][go]{
-// P(C)の計算
+// P(C）の計算
 func (c *Classifier) pCategory(category string) float64 {
 	return float64(c.TotalDocsInCategories[category]) / float64(c.TotalDocs)
 }
 
-// P(D|C)の計算
+// P(D|C）の計算
 func (c *Classifier) pDocCategory(category string, document string) (p float64) {
 	p = 1.0
 	for word := range countWords(document) {
@@ -451,19 +451,19 @@ func (c *Classifier) pDocCategory(category string, document string) (p float64) 
 	return p
 }
 
-// P(w|C)の計算 (P(D|C)の計算のため)
+// P(w|C）の計算 (P(D|C）の計算のため)
 func (c *Classifier) pWordCategory(category string, word string) float64 {
 	d := float64(c.Words[category][stem(word)])
 	return d / float64(c.TotalWordsInCategories[category])
 }
 
-// P(C|D)の計算 (最終的に欲しい値)
+// P(C|D）の計算 (最終的に欲しい値)
 func (c *Classifier) pCategoryDocument(category string, document string) float64 {
 	return c.pDocCategory(category, document) * c.pCategory(category)
 }
 //}
 
-@<list>{pcd}では@<code>{P(C)}と@<code>{P(D|C)}を計算する関数を実装し、それを使って　@<code>{P(C|D)}を計算しています(@<code>{P(C|D)} = @<code>{P(D|C)}*@<code>{P(C)}であることを思い出しましょう)。@<code>{P(D|C)}はカテゴリー内の単語出現確率(@<code>{P(w|C)})の掛け算でした。
+@<list>{pcd}では@<m>{P(C）}と@<m>{P(D|C）}を計算する関数を実装し、それを使って　@<m>{P(C|D）}を計算しています(@<m>{P(C|D）} = @<m>{P(D|C）}*@<m>{P(C）}であることを思い出しましょう)。@<m>{P(D|C）}はカテゴリー内の単語出現確率(@<m>{P(w|C）})の掛け算でした。
 
 次に @<code>{Classifier.pCategoryDocument} を使って、記事に対してそれぞれのカテゴリに分類される確率を求める関数を作っておきましょう。
 
@@ -775,7 +775,7 @@ $ go run cmd/negaposi/main.go -s "this is wonderful" -t "negaposi_classifier.gob
 
 === ゼロ頻度問題
 
-@<code>{P(D|C))}の計算を思い出しましょう。@<code>{P(D|C))}は各単語の確率の掛け算で表せました。しかし学習用データには存在しないワードがあった場合、つまり、１つでも確率0の単語があった場合、カテゴリーの確率が0になってしまいます。これを解決する為にさまざまな手法が提案されています。何個か対策方法があるのでみていきましょう。
+@<m>{P(D|C）}の計算を思い出しましょう。@<m>{P(D|C）}は各単語の確率の掛け算で表せました。しかし学習用データには存在しないワードがあった場合、つまり、１つでも確率0の単語があった場合、カテゴリーの確率が0になってしまいます。これを解決する為にさまざまな手法が提案されています。何個か対策方法があるのでみていきましょう。
 
 ==== 単に確率0を無視する
 
