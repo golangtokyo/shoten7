@@ -47,8 +47,6 @@ $ goexec 'http.ListenAndServe(":8080", http.FileServer(http.Dir("APP")))'
 ビルドするためのコマンドが@<code>{gio}ではなく、@<code>{go run gioui.org/cmd/gio}なのはgioという別のコマンドがmacOSではデフォルトで入っているからです。
 iOS向けやAndroid向けのビルドコマンドで生成されたバイナリは各ツールでさらに端末にインストールできます。
 
-== Gio の設計
-
 == Gio で遊んで見る
 実際のコードを動かして、Gioがどのような機能を持っているか紹介します。
 これから紹介するコードは、Go Playgroundで動かすことはできません。
@@ -81,11 +79,11 @@ func main() {
 この関数は必ず呼ぶ必要があります。@<code>{gioui.org/ui/app.Main}関数はすべてのウィンドウが閉じられるまで@<code>{main}関数をブロックします。
 ウィンドウに画像や文字を出したり、キーの入力を受けたりする処理は別の@<code>{goroutine}で実行する必要があります。
 
-=== Hello world
-GopherConで例として利用されたHello worldのコード@<fn>{knsh14_gioui_sample_hello_world_link}を実行します。
+=== Hello World
+GopherConで例として利用されたHello Worldのコード@<fn>{knsh14_gioui_sample_hello_world_link}を実行します。
 
 #@# textlint-disable
-//list[knsh14_gioui_sample_hello_world][GioおけるHello world][go]{
+//list[knsh14_gioui_sample_hello_world][Hello Worldを表示するサンプル][go]{
 package main
 
 import (
@@ -137,6 +135,7 @@ func main() {
 
 ウィンドウを出す方法は真っ白なウィンドウを出す方法と変わりません。
 このサンプルでは文字を出す方法を新しく紹介します。
+
 23行目のfor文でウィンドウオブジェクトからイベントを取り出します。
 イベントには「画面を更新した」、「何らかの入力を受けた」などがあります。
 このサンプルでは画面を更新する際のイベント@<code>{gioui.org/ui/app.UpdateEvent}@<fn>{knsh14_gioui_app_updateevent_doc_link}の場合に文字を出す処理を行います。
@@ -237,18 +236,23 @@ func loop(w *app.Window) error {
 
 === キーイベントをハンドリングしてみる
 GUIアプリケーションに必須の機能として、キーボードなどの入力を受けて処理を実行することが挙げられます。
-@<list>{knsh14_gioui_sample_handle_input}はキーボード入力があった際にコンソール上に入力された文字を表示するプログラムです。
+@<list>{knsh14_gioui_sample_handle_input}はキーボード入力を受け付けて、ウィンドウ上に文字を表示するものです。
 
 #@# textlint-disable
 //list[knsh14_gioui_sample_handle_input][Gioでキーボード入力を表示するサンプル][go]{
 package main
 
 import (
-  "fmt"
   "log"
 
+  "gioui.org/ui"
   "gioui.org/ui/app"
   "gioui.org/ui/key"
+  "gioui.org/ui/layout"
+  "gioui.org/ui/measure"
+  "gioui.org/ui/text"
+  "golang.org/x/image/font/gofont/goregular"
+  "golang.org/x/image/font/sfnt"
 )
 
 func main() {
@@ -262,17 +266,54 @@ func main() {
 }
 
 func loop(w *app.Window) error {
+  var cfg app.Config
+  regular, _ := sfnt.Parse(goregular.TTF)
+  var faces measure.Faces
+  ops := new(ui.Ops)
+  var input string
   for {
     e := <-w.Events()
     switch e := e.(type) {
-    case key.Event:
-      v := string([]rune{e.Name})
-      fmt.Println(v)
+    case app.UpdateEvent:
+      cfg = e.Config
+      faces.Reset(&cfg)
+      ops.Reset()
+      queue := w.Queue()
+      for e, ok := queue.Next(input); ok; e, ok = queue.Next(input) {
+        if v, ok := e.(key.Event); ok {
+          input += string([]rune{v.Name})
+        }
+      }
+      cs := layout.RigidConstraints(e.Size)
+      text.Label{
+        Face: faces.For(regular, ui.Dp(72)),
+        Text: input,
+      }.Layout(ops, cs)
+      key.InputOp{Key: input, Focus: false}.Add(ops)
+      w.Update(ops)
     }
   }
 }
+
 //}
 #@# textlint-enable
 
-キーボード入力は@<code>{gioui.org/ui/key.Event}というイベントで定義されています。
-このイベントが来た場合に中身を取り出して処理を行います。
+キーボード入力などの入力は@<code>{gioui.org/ui/input.Queue}というインターフェースを通して取得することができます。
+このQueueは@<code>{app.Window}オブジェクトから取得することができます。
+取得できるイベントの種類はキーボードの入力以外にも、マウスのクリックやウィンドウのフォーカスなども取得できます。
+
+== Gioでのアプリケーション設計
+サンプルを実行することで、ある程度Gioの機能をどのように利用するか理解できたと思います。
+ここからはGioそのものの仕組みを解説していきます。
+
+=== GioのWindowは状態を持たない
+GopherConのtalkでもGioは状態を持たないという説明がされています。
+GioのWindowオブジェクトは全体の描画イベントなどのQueueのchannel、入力イベントのQueueや、画面再描画のメソッドなどを提供します。
+ですが画面の要素の状態や、再描画の際のフックのためのコールバック関数は定義されていません。
+
+これらを自分たちで管理する必要があります。
+これはアプリケーションの状態を管理するコードを上手く自分たちでハンドリングする必要があるため、作るのが大変になります。
+ですが、自分たちですべてを管理できるので、自分たちのテストで正しく状態遷移できているかをチェックできるというメリットがあります。
+//}
+#@# textlint-enable
+
