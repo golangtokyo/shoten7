@@ -20,7 +20,7 @@
 //image[Bayes][ベイズの理論][scale=0.7]{
 //}
 
-一見すると難しそうに見えますが、１つずつ式の意味を見ていくとそれほ程難しくはないです (@<table>{p})。
+一見すると難しそうに見えますが、１つずつ式の意味を見ていくとそれほど難しくはないです (@<table>{p})。
 
 //table[p][確率の表記]{
 式	意味
@@ -29,11 +29,11 @@ P(A)	Aが起こる確率
 P(B|A)	Aが起こった時にBが起こる確率 (事後確率と呼ぶ)
 //}
 
-記事のカテゴリ分類を例にベイズの定理の使い方を見ていきましょう。知りたいのは「ドキュメントが与えられた時に、とあるカテゴリに分類される確率」です。これは@<table>{p}を見返すと@<m>{P(C|D）}と表せることがわかります(@<code>{C} はCategory、@<code>{D}はDocumentを表しています)。ベイズの理論より @<m>{P(C|D）}は@<m>{P(C）}カテゴリーの出現率と@<m>{P(D|C）}（カテゴリーが与えられた時のドキュメント出現率）の掛け算です(@<m>{P(D）}（カテゴリー内のドキュメント出現率）はすべてのカテゴリで同じであるため無視できます）。
+ドキュメントのカテゴリ分類を例にベイズの定理の使い方を見ていきましょう。知りたいのは「ドキュメントが与えられた時に、とあるカテゴリに分類される確率」です。これは@<table>{p}を見返すと@<m>{P(C|D）}と表せることがわかります(@<m>{C} はCategory、@<m>{D}はDocumentを表しています)。ベイズの理論より @<m>{P(C|D）}は@<m>{P(C）}カテゴリーの出現率と@<m>{P(D|C）}（カテゴリーが与えられた時のドキュメント出現率）の掛け算です。(@<m>{P(D）}（カテゴリー内のドキュメント出現率）はすべてのカテゴリで同じであるため無視できます）
 
 === 具体例からNaive Bayesの具体的な計算方法を理解する
 
-理論だけだと何が行われているのか分からないと思うので具体的な例で理解しましょう。5つの文章@<table>{documents}がある場合を考えます。
+理論だけだと何が行われているのか分からないと思うので具体的な例で理解しましょう。@<table>{documents}のように5つのドキュメントがある場合を考えます。
 
 //table[documents][ドキュメントの実際の例]{
 カテゴリ	ドキュメント
@@ -59,7 +59,7 @@ IT	2/5
 
 ==== P(D|C）
 
-@<m>{P(D|C）}はカテゴリーが与えられた時のドキュメント出現率でした。これは計算が難しいように思えます。一方でカテゴリ内の単語出現率(@<m>{P(W|C）}）は簡単です。ITカテゴリには単語が4つあるので、たとえば「Python」が「ITカテゴリ」に出現する確率は2/4、「Price」が「ITカテゴリ」に出現する確率は1/4です。
+@<m>{P(D|C）}はカテゴリーが与えられた時のドキュメント出現率でした。これは計算が難しいように思えます。一方でカテゴリ内の単語出現率(@<m>{P(W|C）}とする。@<code>{W}は@<code>{"Word"}の頭文字です。）は簡単です。ITカテゴリには単語が4つあるので、たとえば「Python」が「ITカテゴリ」に出現する確率は2/4、「Price」が「ITカテゴリ」に出現する確率は1/4です。
 
 //table[pwc][P(W|C）の例]{
 .	経済	IT	エンタメ
@@ -79,15 +79,15 @@ Marvel	0/2	0/4	1/1
 Python and Go	2/4 * 1/4 = 1/8
 //}
 
-実はこの計算では本来あるべき単語の条件付き確率を無視し、各単語が互いに独立していると仮定してます。つまり単語がドキュメント内にランダムに現れると仮定しているのです。この過程がNaive BayesがNaiveたる所以です。ここまでこれば欲しかった@<m>{P(C|D）}を計算できます。復習ですが@<m>{P(C|D）}は@<m>{P(C）}と@<m>{P(D|C）}の掛け算です
+実は@<table>{pdc}の計算では本来あるべき単語の条件付き確率を無視し、各単語が互いに独立していると仮定してます。つまり単語がドキュメント内にランダムに現れると仮定しているのです。この過程がNaive BayesがNaiveたる所以です。ここまでこれば欲しかった@<m>{P(C|D）}を計算できます。復習ですが@<m>{P(C|D）}は@<m>{P(C）}と@<m>{P(D|C）}の掛け算です
 
 //table[pcd][P(C|D）の例]{
-.	ドキュメントがITカテゴリに分類される確率 {P(C|D）= P(D|C）*P(C）
+.	ドキュメントがITカテゴリに分類される確率(P(C|D）= P(D|C）*P(C）)
 ------------------------------------
 Python and Go	1/8 * 2/5 = 1/20
 //}
 
-これで@<m>{Python and Go}というドキュメントが@<code>{ITカテゴリ}に含まれる確率は@<code>{0.05}という結果が計算できました。分類においては分類したいドキュメントに対してそれぞれのカテゴリで@<m>{P(C|D）}を計算し、もっとも高い確率の物を分類の結果として採択します。
+これで@<code>{"Python and Go"}というドキュメントが@<code>{ITカテゴリ}に含まれる確率は@<code>{0.05}という結果が計算できました。分類においては分類したいドキュメントに対してそれぞれのカテゴリで@<m>{P(C|D）}を計算し、もっとも高い確率の物を分類の結果として採択します。
 
 == Goによるテキストの前処理
 
@@ -95,7 +95,7 @@ Python and Go	1/8 * 2/5 = 1/20
 
 === stop words の削除
 
-「the」や「it」などの高頻度で出現する単語はその文章の特徴を表す単語とはいえない為、前処理で削除しておく必要があります。このような高頻度で出現する単語を自然言語処理界隈でstop wordsを呼ばれています。ではGoでstop wordを検知しましょう。
+「the」や「it」などの高頻度で出現する単語はその文章の特徴を表す単語とはいえない為、前処理で削除しておく必要があります。このような高頻度で出現する単語を自然言語処理界隈でstop wordsを呼ばれています。ではGoでstop wordsを検知しましょう。
 
 //list[stopwords][stop wordの検知][go]{
 package gonbayes
@@ -115,7 +115,7 @@ func isStopWord(word string) bool {
 }
 //}
 
-stop wordsにはPythonで提供されているNLTK(Natural Language Tool Kit）で使われているstop wordsのリスト@<fn>{swlidt}から拝借しました。
+stop wordsにはPythonで提供されているNLTK(Natural Language Tool Kit）で使われているstop wordsのリスト@<fn>{swlidt}を参照しました。
 //footnote[swlidt][NLTKのStop Wrodsの一覧。https://gist.github.com/sebleier/554280]
 
 stop wordsのマップはkeyにstop wordを置き、valueに空の構造体を置きます。Goにおいて空の構造体はメモリを消費しません。その為マップが存在確認のためだけに存在する場合は空の構造体が有用です。初耳の方は実際に@<code>{unsafe.Sizeof}を使って0になることを確認しましょう。
@@ -175,20 +175,20 @@ func TestIsStopWord(t *testing.T) {
 }
 //}
 
-@<code>{you}はstop wordなので@<code>{true}が返り、@<code>{great}はstop wordではないなので@<code>{false}が返ることが期待されます。実行するとテストが通るはずです。テストの書き方に関しては@budougumi0617さんのブログ@<fn>{how_to_test}が体系的にまとまっていて勉強になるので@<list>{test_isStopWord}でテストの書き方の知識が怪しいなと思った人は読んでみることをお勧めします。
+@<code>{you}はstop wordなので@<code>{true}が返り、@<code>{great}はstop wordではないので@<code>{false}が返ることが期待されます。実行するとテストが通るはずです。テストの書き方に関しては@budougumi0617さんのブログ@<fn>{how_to_test}が体系的にまとまっていて勉強になるので@<list>{test_isStopWord}でテストの書き方の知識が怪しいなと思った人は読んでみることをお勧めします。
 
 //footnote[how_to_test][@<href>{https://budougumi0617.github.io/2018/08/19/go-testing2018/#sub-test-testing-t-run}]
 
 === 単語のステミング処理
 
-swimという単語は「swims」「swimming」「swimmer」などの複数の語形があります。単語の語形が変化する言語では前処理としてステミング処理を行う必要があります。英語で使えるステミングアルゴリズムは、「Lancaster」「Porter」「Snowball Stemmers」などがあります。Goのパッケージとして提供されているステミングライブラリである程度starが付いているパッケージを調べたところ@<table>{stem_pkgs}が候補。
+swimという単語は「swims」「swimming」「swimmer」などの複数の語形があります。単語の語形が変化する言語では前処理としてステミング処理を行う必要があります。英語で使えるステミングアルゴリズムは、「Lancaster」「Porter」「Snowball Stemmers」などがあります。Goのパッケージとして提供されているステミングライブラリである程度starが付いているパッケージを調べたところ@<table>{stem_pkgs}が候補です。
 
 //table[stem_pkgs][ドキュメントの実際の例]{
 パッケージ名	説明
 ------------------------------------
-reiver/go-porterstemmer	Goで実装された「Porter Stemming」
-agonopol/go-stem	こちらもGoで実装された「Porter Stemming」
-kljensen/snowball	Goで実装された「Snowball Stemming」
+github.com/reiver/go-porterstemmer	Goで実装された「Porter Stemming」
+github.com/agonopol/go-stem	こちらもGoで実装された「Porter Stemming」
+github.com/kljensen/snowball	Goで実装された「Snowball Stemming」
 //}
 
 たまに@<code>{kljensen/snowball}が更新されるくらいで、活発に開発されているパッケージは見つからなかったです(そもそもこういうアルゴリズムの実装のパッケージがバリバリ更新されていくことの方が珍しい）。今回は英語以外の言語にも対応している@<code>{kljensen/snowball}を採用しましょう。Goで任意のstring をステミングする関数を実装します。
@@ -411,7 +411,7 @@ func NewClassifier(categories []string, threshold float64) (c Classifier) {
 }
 //}
 
-Goにおいてmapのゼロ値は@<code>{nil}なので明示的に@<code>{make}で初期化しておく必要があります。@<code>{Clasifier}の用途がある程度想定されるならmapの初期化にcapsを設定しておくとよいかもしれません。@<code>{NewClassifier}の第一引数では記事をどのように分類するカテゴリ数を受けます。これはその数でmapを初期化する為です。第二引数の@<code>{threshold}は低い確率を足切りするための閾値です。閾値に関しては後ほど説明します。
+Goにおいてmapのゼロ値は@<code>{nil}なので明示的に@<code>{make}で初期化しておく必要があります。@<code>{Clasifier}の用途がある程度想定されるならmapの初期化にcapsを設定しておくとよいかもしれません。@<code>{NewClassifier}の第一引数ではドキュメントをどのように分類するカテゴリ数を受けます。これはその数でmapを初期化する為です。第二引数の@<code>{threshold}は低い確率を足切りするための閾値です。閾値に関しては後ほど説明します。
 
 === データセットからの学習を実装する
 
@@ -465,9 +465,9 @@ func (c *Classifier) pCategoryDocument(category string, document string) float64
 
 @<list>{pcd}では@<m>{P(C）}と@<m>{P(D|C）}を計算する関数を実装し、それを使って　@<m>{P(C|D）}を計算しています(@<m>{P(C|D）} = @<m>{P(D|C）}*@<m>{P(C）}であることを思い出しましょう)。@<m>{P(D|C）}はカテゴリー内の単語出現確率(@<m>{P(w|C）})の掛け算でした。
 
-次に @<code>{Classifier.pCategoryDocument} を使って、記事に対してそれぞれのカテゴリに分類される確率を求める関数を作っておきましょう。
+次に @<code>{Classifier.pCategoryDocument} を使って、ドキュメントに対してそれぞれのカテゴリに分類される確率を求める関数を作っておきましょう。
 
-//list[p][記事に対してそれぞれのカテゴリに分類される確率を求める関数][go]{
+//list[p][ドキュメントに対してそれぞれのカテゴリに分類される確率を求める関数][go]{
 // P is Probabilities of each categories.
 func (c *Classifier) P(document string) map[string]float64 {
 	p := make(map[string]float64)
@@ -525,9 +525,9 @@ func TestP(t *testing.T) {
 
 === Naive Bayesを使って記事分類を実装する
 
-これで任意の記事が与えられた時に、それぞれのカテゴリに何%の確率で分類されるのかをmapとして返す関数ができました。最後に@<code>{Classify}を実装しましょう。
+これで任意のドキュメントが与えられた時に、それぞれのカテゴリに何%の確率で分類されるのかをmapとして返す関数ができました。最後に@<code>{Classify}を実装しましょう。
 
-//list[classify][記事に対してどのカテゴリに分類されるかを返す関数][go]{
+//list[classify][ドキュメントに対してどのカテゴリに分類されるかを返す関数][go]{
 // Classify classify documents.
 func (c *Classifier) Classify(document string) string {
 	prob := c.P(document)
