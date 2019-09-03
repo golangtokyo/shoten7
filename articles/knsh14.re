@@ -26,14 +26,14 @@ Gioはまだv1.0.0がリリースされておらず、今でも大きな変更�
 インストール方法は一般的なGoのライブラリと同じ方法でインストールできます。
 ライブラリの取得方法を@<list>{knsh14_gioui_install}に示します。
 
-//list[knsh14_gioui_install][Gio UIのインストール方法][shell]{
+//listnum[knsh14_gioui_install][Gio UIのインストール方法][shell]{
 $ go get -u gioui.org/...
 //}
 
 開発中は@<code>{go run main.go}のようにそのまま実行できます。
 実際にアプリケーションをビルドしてバイナリにする場合は@<list>{knsh14_gioui_builds}に上げたGioのコマンドを実行する必要があります。
 
-//list[knsh14_gioui_builds][Gioアプリケーションのビルド方法][shell]{
+//listnum[knsh14_gioui_builds][Gioアプリケーションのビルド方法][shell]{
 // iOS
 $ go run gioui.org/cmd/gio -target ios -appid <bundle-id> PATH/TO/APP
 
@@ -59,7 +59,7 @@ iOS向けやAndroid向けのビルドコマンドで生成されたバイナリ�
 @<list>{knsh14_gioui_sample_blank_window}のプログラムを実行すると真っ白なウィンドウが現れます。
 
 #@# textlint-disable
-//list[knsh14_gioui_sample_blank_window][真っ白なWindow][go]{
+//listnum[knsh14_gioui_sample_blank_window][真っ白なWindow][go]{
 package main
 
 import (
@@ -85,7 +85,7 @@ func main() {
 GopherConで例として利用されたHello Worldのコード@<fn>{knsh14_gioui_sample_hello_world_link}を実行します。
 
 #@# textlint-disable
-//list[knsh14_gioui_sample_hello_world][Hello Worldを表示するサンプル][go]{
+//listnum[knsh14_gioui_sample_hello_world][Hello Worldを表示するサンプル][go]{
 package main
 
 import (
@@ -163,7 +163,7 @@ func main() {
 そのためのサンプルとして、@<list>{knsh14_gioui_sample_layout_image}にレイアウトを自由に変更するサンプルを示します。
 
 #@# textlint-disable
-//list[knsh14_gioui_sample_layout_image][Gioでウィンドウサイズに依存した表示を行う][go]{
+//listnum[knsh14_gioui_sample_layout_image][Gioでウィンドウサイズに依存した表示を行う][go]{
 package main
 
 import (
@@ -242,7 +242,7 @@ GUIアプリケーションに必須の機能として、キーボードなど�
 @<list>{knsh14_gioui_sample_handle_input}はキーボード入力を受け付けて、ウィンドウ上に文字を表示するものです。
 
 #@# textlint-disable
-//list[knsh14_gioui_sample_handle_input][Gioでキーボード入力を表示するサンプル][go]{
+//listnum[knsh14_gioui_sample_handle_input][Gioでキーボード入力を表示するサンプル][go]{
 package main
 
 import (
