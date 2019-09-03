@@ -12,8 +12,10 @@ Gio@<fn>{knsh14_gioui_link}はGo製のGUIライブラリです。
 その経験を踏まえつつ、今回さらに強力なライブラリを設計しました。
 
 Gioはまだv1.0.0がリリースされておらず、今でも大きな変更があります。
-2019年9月1日執筆時点でのバージョンを正式なものとして扱います。
+2019年9月2日執筆時点でのバージョン@<fn>{knsh14_gio_version}を正式なものとして扱います。
+
 //footnote[knsh14_gioui_link][https://gioui.org]
+//footnote[knsh14_gio_version][https://git.sr.ht/~eliasnaur/gio/commit/dc62058bcefc51bd138d12668bba5a11dfed3e3f]
 
 === 特徴
 大きな特徴として私達が書くアプリケーションのコードをすべてGoで書ける点にあります。
