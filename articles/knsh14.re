@@ -303,7 +303,7 @@ func loop(w *app.Window) error {
 //}
 #@# textlint-enable
 
-キーボード入力などの入力は@<code>{gioui.org/ui/input.Queue}というインターフェースを通して取得します。
+キーボード入力などの入力は@<code>{gioui.org/ui/input.Queue}というインタフェースを通して取得します。
 このQueueは@<code>{app.Window}オブジェクトから取得します。
 取得できるイベントの種類はキーボードの入力以外にも、マウスのクリックやウィンドウのフォーカスなどがあります。
 
