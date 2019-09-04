@@ -148,8 +148,7 @@ import (
 
 func TestIsStopWord(t *testing.T) {
 	tests := []struct {
-		name string
-		word string
+		name, word string
 		want bool
 	}{
 		{
@@ -158,7 +157,7 @@ func TestIsStopWord(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "stop word",
+			name: "not stop word",
 			word: "great",
 			want: false,
 		},
@@ -183,7 +182,7 @@ func TestIsStopWord(t *testing.T) {
 
 swimという単語は「swims」「swimming」「swimmer」などの複数の語形があります。単語の語形が変化する言語では前処理としてステミング処理を行う必要があります。英語で使えるステミングアルゴリズムは、「Lancaster」「Porter」「Snowball Stemmers」などがあります。Goのパッケージとして提供されているステミングライブラリである程度starが付いているパッケージを調べたところ@<table>{stem_pkgs}が候補です。
 
-//table[stem_pkgs][ドキュメントの実際の例]{
+//table[stem_pkgs][Goで実装された主要なステミングライブラリ]{
 パッケージ名	説明
 ------------------------------------
 github.com/reiver/go-porterstemmer	Goで実装された「Porter Stemming」
@@ -221,17 +220,15 @@ func stem(word string) string {
 
 func TestStem(t *testing.T) {
 	tests := []struct {
-		name string
-		word string
-		want string
+		name, word, want string
 	}{
 		{
-			name: "stop word",
+			name: "stemming swin",
 			word: "swims",
 			want: "swim",
 		},
 		{
-			name: "stop word",
+			name: "stemminh ceiling",
 			word: "ceiling",
 			want: "ceil",
 		},
@@ -255,22 +252,23 @@ func TestStem(t *testing.T) {
 「You are Best friend!!!!!(^^）」という文字列がある場合、顔文字や「！」は邪魔なのでテキストクリーニングをしておきます。つまり先ほどの文字列を「you are best friend」というテキストに変換します。
 
 //list[clean][テキストクリーニングの実装][go]{
+
+var re = regexp.MustCompile("[^a-zA-Z 0-9]+")
+
 func clean(document string) string {
 	document = strings.ToLower(document)
-	return regexp.MustCompile("[^a-zA-Z 0-9]+").ReplaceAllString(document, "")
+	return re.ReplaceAllString(document, "")
 }
 //}
 
-@<list>{clean}では大文字を小文字に変換した上で正規表現でアルファベットと数字以外の文字を除外しています。Goにおける正規表現は標準パッケージの@<code>{regexp}を使っています。それでは@<list>{export_test_sw}と同じように関数を公開した後に、テストで動作を確認してみます。
+@<list>{clean}では大文字を小文字に変換した上で正規表現でアルファベットと数字以外の文字を除外しています。Goにおける正規表現は標準パッケージの@<code>{regexp}を使っています。@<code>{Regexp}は初期化コストが高いのでグローバルに定義して、関数が呼ばれるたびに呼び出されないようにしています。がそれでは@<list>{export_test_sw}と同じように関数を公開した後に、テストで動作を確認してみます。
 
 //footnote[regexp][@<href>{https://golang.org/pkg/regexp/}]
 
 //list[clean_test][テキストクリーニングのテスト][go]{
 func TestClean(t *testing.T) {
 	tests := []struct {
-		name string
-		word string
-		want string
+		name, word ,want string
 	}{
 		{
 			name: "clean",
@@ -327,8 +325,7 @@ func countWords(document string) (wordCount map[string]int) {
 //list[count_test][countWordsのテスト][go]{
 func TestCountWords(t *testing.T) {
 	tests := []struct {
-		name string
-		word string
+		name, word string
 		want map[string]int
 	}{
 		{
@@ -372,7 +369,7 @@ func (c *Classifier) Train(category string, document string) {
 	// TODO: impliments
 }
 
-// Classify classify documents.
+// Classify classifies documents.
 func (c *Classifier) Classify(document string) (category string) {
 	// TODO: impliments
 }
@@ -395,7 +392,7 @@ type Classifier struct {
 	Threshold         float64
 }
 
-// NewClassifier inits classifier.
+// NewClassifier initializes classifier.
 func NewClassifier(categories []string, threshold float64) (c Classifier) {
 	c = Classifier{
 		Words:             make(map[string]map[string]uint64),
@@ -430,7 +427,7 @@ func (c *Classifier) Train(category string, document string) {
 }
 //}
 
-@<list>{train}では与えられた学習用データからClassifierのフィールドを更新していくだけです。分類ではこのフィールドに入った値を使って確率を計算していきます。
+@<list>{train}では与えられた学習用データから@<code>{Classifier}のフィールドを更新していくだけです。分類ではこのフィールドに入った値を使って確率を計算していきます。
 
 === ベイズ確率計算を実装する
 
@@ -565,7 +562,7 @@ func (c *Classifier) Classify(document string) string {
 
 === データセットの読み込み
 
-学習に使うデータセットは「Sentiment Labelled Sentences Data Set」です。このデータセットはドキュメントとネガティブ/ポジティブ(0/1）がセットになっているテキストファイルです@<list>{slsds}。サイト@<fn>{slsds}から「Data Folder」>「sentiment labelled sentences.zip」でzipファイルをダウンロードしておきましょう。
+学習に使うデータセットは「Sentiment Labelled Sentences Data Set」です。このデータセットはドキュメントとネガティブ/ポジティブ(0/1）がセットになっているテキストファイルです(@<list>{slsds})。サイト@<fn>{slsds}から「Data Folder」>「sentiment labelled sentences.zip」でzipファイルをダウンロードしておきましょう。
 
 //footnote[slsds][@<href>{https://archive.ics.uci.edu/ml/datasets/Sentiment+Labelled+Sentences}]
 
@@ -623,7 +620,7 @@ func loadNegaPosiDataset(file string) (map[string]string, error) {
 }
 //}
 
-この関数は標準パッケージの機能である@<code>{func (*Scanner) Scan}@<fn>{scan}を使って1行ずつ読み込んでデータをmapに格納していきます。Go初心者の方は1行ずつ読み込む鉄板の処理なので覚えておきましょう。
+この関数は標準パッケージの機能である@<code>{func (*Scanner) Scan}@<fn>{scan}を使って1行ずつ読み込んでデータを@<code>{map}に格納していきます。Go初心者の方は1行ずつ読み込む鉄板の処理なので覚えておきましょう。
 
 === いざ感情分析!!
 
@@ -691,6 +688,7 @@ func (c *Classifier) Encode(fileName string) error {
 	if err != nil {
 		log.Fatal(err)
 	}
+	f.Close()
 
 	err = gob.NewEncoder(f).Encode(&c)
 	if err != nil {
@@ -705,6 +703,7 @@ func (c *Classifier) Decode(fileName string) error {
 	if err != nil {
 		log.Fatal(err)
 	}
+	f.Close()
 
 	err = gob.NewDecoder(f).Decode(c)
 	if err != nil {
@@ -793,7 +792,7 @@ func (c *Classifier) pWordCategory(category string, word string) float64 {
 
 ==== Additive smoothings
 
-@<list>{ignore}だと単語を単に無視する為、正しい対策とはあまりいえません。そこで@<code>{スムーシング}という手法を使ってゼロ頻度問題を解決します。@<code>{Additive smoothings}はもっとも単純なスムージングの1つです。実際よりもわずかに全単語の出現率を上げて計算します。すべてのカウントに係数@<code>{δ}を追加します。通常は@<code>{0<δ≤1}です。基本的には@<code>{δ=1}として計算します。分子に1加え、分母に全単語数を足します。
+@<list>{ignore}だと単語を単に無視する為、正しい対策とはあまりいえません。そこで@<code>{スムージング}という手法を使ってゼロ頻度問題を解決します。@<code>{Additive smoothings}はもっとも単純なスムージングの1つです。実際よりもわずかに全単語の出現率を上げて計算します。すべてのカウントに係数@<code>{δ}を追加します。通常は@<code>{0<δ≤1}です。基本的には@<code>{δ=1}として計算します。分子に1加え、分母に全単語数を足します。
 
 //list[add][Additive smoothings の実装][go]{
 func (c *Classifier) pWordCategory(category string, word string) float64 {
@@ -803,7 +802,7 @@ func (c *Classifier) pWordCategory(category string, word string) float64 {
 }
 //}
 
-他にもさまざまなスムーシングがあるので調べてみてください。「An empirical study of smoothing techniques for
+他にもさまざまなスムージングがあるので調べてみてください。「An empirical study of smoothing techniques for
 language modeling」@<fn>{sm} というペーパーが非常に勉強になります。
 
 //footnote[sm][@<href>{http://u.cs.biu.ac.il/~yogo/courses/mt2013/papers/chen-goodman-99.pdf}]
