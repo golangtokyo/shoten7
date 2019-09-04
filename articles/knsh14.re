@@ -332,7 +332,171 @@ Gioを動かす部分、UIの描画などをハンドリングする部分、実
 
 == Gioへのコントリビュート
 Gioへ興味が湧いてきて、いろいろ使っているとバグを発見したり、修正したいことが出てきます。
-ぜひ積極的にコントリビュートしていきましょう。
+ぜひ積極的にGioのコミュニティに参加して、コントリビュートしていきましょう。
+
+=== 質問をする
+Gophers Slackには@<tt>{#gioui}というGioに関連した話題について議論するチャンネルがあります。
+使い方についての質問やベストプラクティスに関する質問など困ったことがあれば参加して聞いて見るとよいでしょう。
+Eliasさんもこのチャンネルを見てくださっているので、本人から意見がもらえることもあります。
+
+=== Gioに修正を投げる
+Gioはsourcehut@<fn>{knsh14_sourcehut_link}という日本ではなかなか見かけないホスティングサービスを使ってコードを管理しています。
+sourcehutはかなりシンプルな機能を提供しているサービスで、GitHubでの開発に慣れていると分かりづらいことが多いです。
+Pull Requestのようなブランチ間の差分をウェブ上でレビューする仕組みもないため、メーリングリストにパッチを送る必要があります。
+以前GitHubに移行するかどうかという議論がありましたが、GitHubにロックインされることを懸念した作者のEliasさんが移行する予定はないとしています。
+
+そのための手順について説明をします。
+私はGmailを使っています。
+なので、Gmailを利用したパッチ送信について説明します。
+なお、すでにローカルにリポジトリがcloneされている状態を想定しています。
+
+//footnote[knsh14_sourcehut_link][https://sourcehut.org/]
+
+=== 事前準備
+実際にパッチを投げる前にいくつか事前準備を行います。
+
+==== sourcehutでアカウントを作成する
+sourcehutのサイト@<fn>{knsh14_sourcehut_service_link}へアクセスし、アカウントを作成しておきます。
+この手順は必須ではありませんが、やっておくとうまく行かなかった際に実際に自分でリポジトリを作成して実験できます。
+
+//footnote[knsh14_sourcehut_service_link][https://git.sr.ht/]
+
+==== GmailのIMAPを有効にする
+Gmailの画面に行き、設定項目の「メール転送と POP/IMAP」を表示し、IMAPが有効にします。
+他の設定はデフォルトのままで大丈夫です。
+
+==== Gmailのアカウントでアプリパスワードを作成する
+まず初めにGoogleアカウントの二段階認証を有効にさせます。
+二段階認証が有効になると、アプリパスワードが作成できるようになります。
+
+セキュリティ項目のアプリパスワード生成画面で「アプリ」と「デバイス」を選択する画面が出てきます。
+アプリを「メール」、デバイスを「その他」にして「git send-email」と入力し、生成ボタンを押します。
+するとパスワードが表示されるので、パスワードマネージャーなどに記憶させます。
+
+==== gitの設定を追加する
+cloneされたリポジトリの中で@<tt>{.git/config}に@<list>{knsh14_gioui_repo_git_setting}の設定を行います。
+
+#@# textlint-disable
+//listnum[knsh14_gioui_repo_git_setting][Gioのリポジトリに設定する項目][gitconfig]{
+[sendemail]
+  to = ~eliasnaur/gio@lists.sr.ht
+  annotate = yes
+  smtpEncryption = tls
+  smtpServer = smtp.gmail.com
+  smtpUser = username@gmail.com
+  smtpServerPort = 587
+//}
+#@# textlint-enable
+
+@<tt>{sendmail.to}を設定するのはパッチの送り先がGioのメーリングリストしかないからです。
+この値が設定されているとデフォルトの送信先として選ばれます。
+@<tt>{sendmail.annotate}が有効になっていると、パッチを送信する際に確認画面を出してくれます。
+下の4行はGmail用の設定です。@<tt>{sendmail.smtpUser}の部分は自分のGmailアドレスに変更してください。
+
+=== 修正を行う
+取り入れて欲しい変更を実際に修正します。
+この操作は普段と同じようにブランチを切って修正します。
+
+1つだけ注意する必要があるのがコミットするときです。
+@<code>{git commit}コマンドを使いますがその際に@<code>{-s}もしくは@<code>{--signoff}オプションを付けてコミットする必要があります。
+このオプションを付けることで、Developer Certificate of Origin@<fn>{knsh14_certificate_of_origin}に同意し、自分の変更がGioのライセンスに属することを証明します。
+
+//footnote[knsh14_certificate_of_origin][https://developercertificate.org/]
+
+=== 実際にパッチを送信する
+では実際にパッチをメーリングリストに送信します。
+@<list>{knsh14_gio_git_send-email}は最新のコミットだけをパッチにして送るコマンドです。
+
+#@# textlint-disable
+//listnum[knsh14_gio_git_send-email][メーリングリストにパッチを送るためのコマンド][bash]{
+$ git send-email HEAD^
+//}
+#@# textlint-enable
+
+このコマンドを実行すると、エディタが開き、@<list>{knsh14_send_email_editor}の画面が開きます。
+
+#@# textlint-disable
+//listnum[knsh14_send_email_editor][git send-emailコマンド実行時][vim]{
+  1 From HASH ANSIC_Style_time
+  2 From: GIT_USERNAME <USERNAME@gmail.com>
+  3 Date: RFC1123Z_style_time
+  4 Subject: [PATCH] PATCH_TITLE
+  5 
+  6 Signed-off-by: GIT_USERNAME <USERNAME@gmail.com>
+  7 ---
+  ... ここにパッチの内容が表示されます。
+ 33 ---
+ 34 2.23.0
+ 35 
+//}
+#@# textlint-enable
+
+この画面でSubjectに自分が変更したパッケージのパスを自分で書き足す必要があります。
+これはリポジトリのスタイルで決められています。
+確認して問題なければ保存して、エディタを終了させます。
+
+成功すると@<list>{knsh14_send_email_annotate}のような確認画面が現れます。
+再度タイトル、内容を確認し、問題がなさそうならyを入力して進みます。
+
+#@# textlint-disable
+//listnum[knsh14_send_email_annotate][git send-emailコマンド実行前の確認画面][bash]{
+/PATH/TO/MY/PATCH/FILE.patch
+@<tt>{(mbox) Adding cc: GIT_USERNAME <USERNAME@gmail.com> from line 'From: GIT_USERNAME <USERNAME@gmail.com>'}
+@<tt>{(body) Adding cc: GIT_USERNAME <USERNAME@gmail.com> from line 'Signed-off-by: GIT_USERNAME <USERNAME@gmail.com>'}
+
+From: GIT_USERNAME <USERNAME@gmail.com>
+To: ~eliasnaur/gio@lists.sr.ht
+Cc: GIT_USERNAME <USERNAME@gmail.com>
+Subject: [PATCH] PATCH_TITLE
+Date: RFC1123Z_style_time
+Message-Id: <ID-USERNAME@gmail.com>
+X-Mailer: git-send-email 2.23.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+
+    The Cc list above has been expanded by additional
+    addresses found in the patch commit message. By default
+    send-email prompts before sending whenever this occurs.
+    This behavior is controlled by the sendemail.confirm
+    configuration setting.
+
+    For additional information, run 'git send-email --help'.
+    To retain the current behavior, but squelch this message,
+    run 'git config --global sendemail.confirm auto'.
+
+Send this email? ([y]es|[n]o|[e]dit|[q]uit|[a]ll): y
+
+//}
+#@# textlint-enable
+
+送信する際にパスワードが求められます。
+ここで事前準備で作成したアプリパスワードを入力します。
+そうすると送信されて、メーリングリストに自分のパッチが掲載されます。
+パッチ一覧@<fn>{knsh14_gio_patch_list_url}に自分のパッチが送られているか確認しましょう。
+
+#@# textlint-disable
+//listnum[knsh14_send_email_password][パッチ送信時のパスワード入力画面][bash]{
+Password for 'smtp://USERNAME@gmail.com@smtp.gmail.com:587':
+OK. Log says:
+Server: smtp.gmail.com
+MAIL FROM:<USERNAME@gmail.com>
+RCPT TO:<~eliasnaur/gio@lists.sr.ht>
+RCPT TO:<USERNAME@gmail.com>
+From: GIT_USERNAME <USERNAME@gmail.com>
+To: ~eliasnaur/gio@lists.sr.ht
+Cc: GIT_USERNAME <USERNAME@gmail.com>
+Subject: [PATCH] PATCH_TITLE
+Date: RFC1123Z style time
+Message-Id: <ID-USERNAME@gmail.com>
+X-Mailer: git-send-email 2.23.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+
+Result: 250 2.0.0 OK  1567093114 f63sm7776226pfa.144 - gsmtp
+//}
+#@# textlint-enable
+
+//footnote[knsh14_gio_patch_list_url][https://lists.sr.ht/~eliasnaur/gio]
 
 == まとめ
 GopherConで発表された新しいGUIライブラリGioについて説明しました。
