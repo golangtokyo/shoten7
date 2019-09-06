@@ -289,19 +289,76 @@ https://google.golang.org/ から各godocへリダイレクトする簡易Webサ
  * @<href>{https://godoc.org/golang.org/x/xerrors}
  * @<href>{https://github.com/golang/xerrors}
 
-新しいエラーの仕組み。
+Goでスタックトレースを含んだエラー処理を行ないたいならば、@<code>{github.com/pkg/errors}パッケージを使うのがデファクトスタンダードでした。
+@<code>{xerrors}パッケージはGo2に向けて提案された@<i>{Proposal: Go 2 Error Inspection}@<fn>{go2_error}をGo1向けに実装したライブラリです。
+@<code>{xerrors}パッケージの@<code>{Newf}（あるいは@<code>{Errof}）関数から生成されたエラーは内部にスタックトレースを持ちます。このスタックトレースは@<code>{%+v}フォーマットを使って出力することができます。
+また、@<code>{xerrors}パッケージはスタックトレース以外にもエラーの同値性を検証する@<code>{Is}関数、取得したエラーから具体的な型のオブジェクトを抽出できる@<code>{As}関数が提供されています。
 
-Go 1.13では@<code>{%w}でのラップや@<code>{Is}メソッド、@<code>{As}メソッドは正式に導入されました。
-しかし@<code>{%+w}や@<code>{%+v}によるスタックトレースの表示の採用は見送られました。
+//list[xerr_sample][xerrorsパッケージを使ったエラーハンドリング@<fn>{play_xerr}][go]{
+package main
 
-スタックトレースの表示が必要な場合は@<code>{xerrors}パッケージを利用して、不要な場合には標準ライブラリの@<code>{errors}パッケージを利用してください。
+import (
+	"fmt"
+
+	"golang.org/x/xerrors"
+)
+
+type MyError struct {
+	body string
+}
+
+func (_ *MyError) Error() string {
+	return "original error"
+}
+
+// 通常のエラーには存在しないメソッド
+func (me *MyError) Body() string {
+	return me.body
+}
+
+func main() {
+	base := &MyError{"original body"}
+	err := xerrors.Errorf("wraped: %w", base)
+	fmt.Printf("%+v\n", err)
+	// errの中にMyError型が含まれていればtrue
+	fmt.Println("xerrors.Is", xerrors.Is(err, base))
+
+	var me *MyError
+	// errの中からMyError型を抽出できたらmeに代入する
+	if xerrors.As(err, &me) {
+		fmt.Printf("body: %q\n", me.Body())
+
+	}
+}
+//}
+
+@<list>{xerr_sample}を実行した結果は次のとおりです。スタックトレースからファイル名と行数が取得できています。
+@<code>{Is}関数では、ネストしたエラーの型もチェックすることができます。
+また、@<code>{As}関数によってエラーの中に含まれている独自型の情報も取得することができました。
+
+//cmd{
+wraped:
+    main.main
+        /tmp/sandbox096453308/prog.go:24
+  - original error
+xerrors.Is true
+body: "original body"
+//}
+
+//footnote[play_xerr][@<href>{https://play.golang.org/p/9Vq2jTUiL5b}]
+
+このような機能を含む@<code>{xerrors}パッケージですが、2019年9月3日に公開されたGo 1.13で@<code>{%w}と@<code>{Errorf}関数を使ったエラーのラップや@<code>{Is}関数、@<code>{As}メソッドは正式に導入されました。
+しかし、@<code>{%+w}や@<code>{%+v}によるスタックトレースの表示の採用は見送られました。
+
+Go1.13の公式パッケージの@<code>{gerrors}パッケージでは依然としてスタックトレースを取得することができないため、スタックトレースの表示が必要な場合は@<code>{xerrors}パッケージを利用して、不要な場合には標準ライブラリの@<code>{errors}パッケージを利用してください。
 @<i>{Proposal: Go 2 Error Inspection}@<fn>{go2_error}
 
+//footnote[pkgerrors][@<href>{https://github.com/pkg/errors}]
 //footnote[go2_error][@<href>{https://go.googlesource.com/proposal/+/master/design/29934-error-values.md}]
 
 
 
-そな太さん @<fn>{sonatard}がまとめているQiitaの@<b>{xerrors - 関連情報}@<fn>{sonatard}の記事を参考にすると良いでしょう。
+そな太さん @<fn>{sonatard}がまとめているQiitaの@<i>{xerrors - 関連情報}@<fn>{sonatard}の記事を参考にするとよいでしょう。
 
 //footnote[sonatard][@<href>{https://twitter.com/sonatard}]
 //footnote[qiita_xerrors][@<href>{https://qiita.com/sonatard/items/802db82e7275f17fe702}]
