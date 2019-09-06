@@ -258,14 +258,19 @@ golang.org/x/text/transformパッケージを使う #golang
  * @<href>{https://godoc.org/golang.org/x/tour}
  * @<href>{https://github.com/golang/tour}
 
-A Tour of GoのWebサイトの実装。
-誤字や内容の修正が必要な場合はこのリポジトリで行なうことができます。
+A Tour of Go@<fn>{tog}というGoのチュートリアルサイトはみなさんご存知でしょうか。
+@<code>{tour}リポジトリにはA Tour of GoのWebサイトの実装が含まれています。
+同サイトの誤字や内容の修正が必要な場合はこのリポジトリから行なうことができます。
+
+//footnote[tog][@<href>{https://tour.golang.org}]
+
+
 
 === @<code>{golang.org/x/vgo}パッケージ
  * @<href>{https://godoc.org/golang.org/x/vgo}
  * @<href>{https://github.com/golang/vgo}
 
-Go1.10のころに発表されたGoのModules思想のプロトタイプである`vgo`コマンドの実装。
+Go1.10のころに発表されたGoのModules思想のプロトタイプである@<tt>{vgo}コマンドの実装。
 
 https://research.swtch.com/vgo
 
@@ -285,6 +290,21 @@ https://google.golang.org/ から各godocへリダイレクトする簡易Webサ
  * @<href>{https://github.com/golang/xerrors}
 
 新しいエラーの仕組み。
+
+Go 1.13では@<code>{%w}でのラップや@<code>{Is}メソッド、@<code>{As}メソッドは正式に導入されました。
+しかし@<code>{%+w}や@<code>{%+v}によるスタックトレースの表示の採用は見送られました。
+
+スタックトレースの表示が必要な場合は@<code>{xerrors}パッケージを利用して、不要な場合には標準ライブラリの@<code>{errors}パッケージを利用してください。
+@<i>{Proposal: Go 2 Error Inspection}@<fn>{go2_error}
+
+//footnote[go2_error][@<href>{https://go.googlesource.com/proposal/+/master/design/29934-error-values.md}]
+
+
+
+そな太さん @<fn>{sonatard}がまとめているQiitaの@<b>{xerrors - 関連情報}@<fn>{sonatard}の記事を参考にすると良いでしょう。
+
+//footnote[sonatard][@<href>{https://twitter.com/sonatard}]
+//footnote[qiita_xerrors][@<href>{https://qiita.com/sonatard/items/802db82e7275f17fe702}]
 
 =={detail} @<code>{golang.org/x}で提供されているパッケージを使ったコーディング
 ここまでで2019年9月現在存在する@<code>{golang.org/x}配下のパッケージを俯瞰的に確認しました。
