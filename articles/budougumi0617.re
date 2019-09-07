@@ -50,21 +50,18 @@ freee株式会社でバックエンドエンジニアをしている@<tt>{@budou
 
 //footnote[delve][@<href>{https://github.com/go-delve/delve}]
 
-=== @<code>{golang.org/x/benchmarks}パッケージ
- * @<href>{https://godoc.org/golang.org/x/benchmarks}
- * @<href>{https://github.com/golang/benchmarks}
-
-
-ベンチマークを実行するツールがいくつか含まれているリポジトリ。
-ベンチマークの流れはドライバーで実装されている。ツール作る際の共通化の参考になりそう
-https://github.com/golang/benchmarks/blob/master//driver/driver.go
-
-GCについての知見？
-https://twitter.com/budougumi0617/status/1163561278335406080
-
 === @<code>{golang.org/x/build}パッケージ
  * @<href>{https://godoc.org/golang.org/x/build}
  * @<href>{https://github.com/golang/build}
+
+Goの継続的デプロイや各リリースに関するエコシステムに関連するパッケージが同梱されているのが@<code>{x/build}パッケージです。
+リリースマイルストーンに関わる@<tt>{issue}一覧や@<tt>{Open}状態の@<tt>{review}一覧を確認できる@<tt>{developer dashboard}@<fn>{devgo}、
+@<tt>{Gerrit}と@<tt>{GitHub}をミラーリングする@<tt>{bot}、
+各@<tt>{review}に対して行われている継続的ビルドを一覧できる@<tt>{build dashboard}@<fn>{buildgo}などに関するパッケージが同梱されています。
+@<code>{cmd}パッケージ配下には多くのコマンドラインツールがあるので、コマンドラインツールを作成する際にも参考になるでしょう。
+
+//footnote[devgo][@<href>{https://dev.golang.org/}]
+//footnote[buildgo][@<href>{https://build.golang.org/}]
 
 === @<code>{golang.org/x/crypto}パッケージ
  * @<href>{https://godoc.org/golang.org/x/crypto}
@@ -77,10 +74,12 @@ https://twitter.com/budougumi0617/status/1163561278335406080
  * @<href>{https://godoc.org/golang.org/x/image}
  * @<href>{https://github.com/golang/image}
 
-標準パッケージでサポートしていない形式の実装も入っている。
-フォントもサポートしていたり、drawサブパッケージが便利。
-https://qiita.com/tebakane/items/b7a47379659d42364c8d
-https://text.baldanders.info/golang/resize-image/
+@<code>{x/image}パッケージは標準パッケージの@<code>{image}パッケージと完全互換なパッケージです。
+標準パッケージでサポートしていない@<tt>{TIFF}画像や@<tt>{BMP}画像に対する@<code>{encoder}/@<code>{decorder}を提供しています。
+また、文字描画に関する@<code>{font}サブパッケージ、標準パッケージの@<code>{image/draw}パッケージよりリッチな機能を提供する @<fn>{draw}@<code>{draw}サブパッケージも提供しています。
+
+
+//footnote[draw][@<href>{https://text.baldanders.info/golang/resize-image/}]
 
 === @<code>{golang.org/x/debug}パッケージ
  * @<href>{https://godoc.org/golang.org/x/debug}
@@ -268,6 +267,33 @@ Goは標準パッケージでベンチマークを取得する仕組みが提供
 分析結果については@<tt>{Go Performance Dashboard}@<fn>{perf}で確認することができます。
 
 //footnote[perf][@<href>{https://perf.golang.org/}]
+
+=== @<code>{golang.org/x/benchmarks}パッケージ
+ * @<href>{https://godoc.org/golang.org/x/benchmarks}
+ * @<href>{https://github.com/golang/benchmarks}
+
+@<code>{x/benchmarks}パッケージはいくつかのベンチマークコマンドの実装が含まれているリポジトリです。
+サブパッケージのコマンドはそれぞれがHTTPリクエスト、ガベージコレクタ、JSON Unmarshal/Marshalなどのベンチマークを実行します。
+正しく計測するにはどのようにベンチマークテストを実装すべきか、という知見が詰まっています。
+たとえば、ガーベッジコレクタのベンチマークでは完全に@<code>{GC}を完了するために二度@<code>{runtime.GC}メソッドを実行しています@<list>{bench_gc}。
+
+#@# textlint-disable
+
+//list[bench_gc][GCを完了するための実装][go]{
+// packageMemConsumption returns memory consumption of a single parsed package.
+func packageMemConsumption() int {
+  // One GC does not give precise results,
+  // because concurrent sweep may be still in progress.
+  runtime.GC()
+  runtime.GC()
+  ms0 := new(runtime.MemStats)
+//}
+
+#@# textlint-enable
+
+また、ベンチマークコマンドのメインロジックは@<code>{driver}パッケージで実装@<fn>{bench_driver}されており、ツールを作る際の共通化の参考にもなりそうです。
+
+//footnote[bench_driver][@<href>{https://github.com/golang/benchmarks/blob/master/driver/driver.go}]
 
 === @<code>{golang.org/x/sync}パッケージ
  * @<href>{https://godoc.org/golang.org/x/sync}
