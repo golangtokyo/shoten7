@@ -2,7 +2,7 @@
 
 == はじめに
 
-白ヤギコーポレーションでバックエンドエンジニアをしている@po3rin@<fn>{po3rin}です。仕事では記事レコメンドAPIをGoで実装しています。今回はGoとベイズ理論を使ったシンプルな記事分類の実装方法を紹介します。Naive Bayesの理論を簡単に学べるのはもちろんですが、Goでのテキスト前処理の方法や、学習済み分類器の保存方法なども含めてご紹介するので、今後Goで自然言語処理をする際に役立つかもしれません。今回実装するコードは@<code>{github.com/po3rin/gonbayes}@<fn>{gonbayes}というリポジトリ名でGitHubに公開しているので参考にしてください。
+白ヤギコーポレーションでバックエンドエンジニアをしている@po3rin@<fn>{po3rin}です。仕事では記事レコメンドAPIをGoで実装しています。今回はGoとベイズ理論を使ったシンプルな記事分類の実装方法を紹介します。Naive Bayesの理論を簡単に学べるのはもちろんですが、Goでのテキスト前処理の方法や、学習済み分類器の保存方法なども含めてご紹介します。本章でGoでも自然言語処理ができるというイメージを持っていただければ幸いです。今回実装するコードは@<code>{github.com/po3rin/gonbayes}@<fn>{gonbayes}というリポジトリ名でGitHubに公開しているので参考にしてください。
 
 #@# TODO: motivate
 
@@ -20,16 +20,16 @@
 //image[Bayes][ベイズの理論][scale=0.7]{
 //}
 
-一見すると難しそうに見えますが、１つずつ式の意味を見ていくとそれほど難しくはないです (@<table>{p})。
+一見すると難しそうに見えますが、１つずつ式の意味を見ていくとそれほど難しくはないです (@<table>{p})。ちなみに@<m>{P(B|A）}は@<em>{P B given A}と読みます。
 
 //table[p][確率の表記]{
 式	意味
 ------------------------------------
 P(A)	Aが起こる確率
-P(B|A)	Aが起こった時にBが起こる確率 (事後確率と呼ぶ)
+P(B|A)	ある事象 A が起こったという条件のもとでの事象 B の確率(事後確率)
 //}
 
-ドキュメントのカテゴリ分類を例にベイズの定理の使い方を見ていきましょう。知りたいのは「ドキュメントが与えられた時に、とあるカテゴリに分類される確率」です。これは@<table>{p}を見返すと@<m>{P(C|D）}と表せることがわかります(@<m>{C} はCategory、@<m>{D}はDocumentを表しています)。ベイズの理論より @<m>{P(C|D）}は@<m>{P(C）}カテゴリーの出現率と@<m>{P(D|C）}（カテゴリーが与えられた時のドキュメント出現率）の掛け算です。(@<m>{P(D）}（カテゴリー内のドキュメント出現率）はすべてのカテゴリで同じであるため無視できます）
+ドキュメントのカテゴリ分類を例にベイズの定理の使い方を見ていきましょう。知りたいのは「ドキュメントが与えられた時に、とあるカテゴリに分類される確率」です。これは@<table>{p}を見返すと@<m>{P(C|D）}と表せることがわかります(@<m>{C} はCategory、@<m>{D}はDocumentを表しています)。最終的に1つのドキュメントに対して各カテゴリごとの@<m>{P(C|D）}を計算して@<m>{P(C|D）}がもっとも大きい値のカテゴリにドキュメントを分類します。ベイズの理論より @<m>{P(C|D）}は@<m>{P(C）}カテゴリーの出現率と@<m>{P(D|C）}（カテゴリーが与えられた時のドキュメント出現率）の掛け算です。(カテゴリごとに@<m>{P(D）}は不変なのでカテゴリごとの@<m>{P(C|D）}の計算結果の大小関係に影響を及ぼしません。その為、@<m>{P(D）}の値は無視できます。)
 
 === 具体例からNaive Bayesの具体的な計算方法を理解する
 
@@ -79,7 +79,7 @@ Marvel	0/2	0/4	1/1
 Python and Go	2/4 * 1/4 = 1/8
 //}
 
-実は@<table>{pdc}の計算では本来あるべき単語の条件付き確率を無視し、各単語が互いに独立していると仮定してます。つまり単語がドキュメント内にランダムに現れると仮定しているのです。この過程がNaive BayesがNaiveたる所以です。ここまでこれば欲しかった@<m>{P(C|D）}を計算できます。復習ですが@<m>{P(C|D）}は@<m>{P(C）}と@<m>{P(D|C）}の掛け算です
+実は@<table>{pdc}の計算では本来あるべき単語の条件付き確率を無視し、各単語が互いに独立していると仮定してます。つまり単語がドキュメント内にランダムに現れると仮定しているのです。ここまでこれば欲しかった@<m>{P(C|D）}を計算できます。復習ですが@<m>{P(C|D）}は@<m>{P(C）}と@<m>{P(D|C）}の掛け算です
 
 //table[pcd][P(C|D）の例]{
 .	ドキュメントがITカテゴリに分類される確率(P(C|D）= P(D|C）*P(C）)
@@ -408,26 +408,24 @@ type Classifier struct {
 	TotalDocsInCategories  map[string]uint64
 	TotalDocs         uint64
 	TotalWordsInCategories map[string]uint64
-	Threshold         float64
 }
 
 // NewClassifier initializes classifier.
-func NewClassifier(categories []string, threshold float64) (c Classifier) {
-	c = Classifier{
+func NewClassifier(categories []string) *Classifier {
+	c := &Classifier{
 		Words:             make(map[string]map[string]uint64),
 		TotalDocsInCategories:  make(map[string]uint64),
 		TotalWordsInCategories: make(map[string]uint64),
-		Threshold:         threshold,
 	}
 
 	for _, category := range categories {
 		c.Words[category] = make(map[string]uint64)
 	}
-	return
+	return c
 }
 //}
 
-Goにおいてmapのゼロ値は@<code>{nil}なので明示的に@<code>{make}などで初期化しておく必要があります。@<code>{Clasifier}の用途がある程度想定されるならmapの初期化にcapsを設定しておくとよいかもしれません。@<code>{NewClassifier}の第一引数ではドキュメントをどのように分類するカテゴリ数を受けます。これはその数でmapを初期化する為です。第二引数の@<code>{threshold}は低い確率を足切りするための閾値です。閾値に関しては後ほど説明します。
+Goにおいてmapのゼロ値は@<code>{nil}なので明示的に@<code>{make}などで初期化しておく必要があります。@<code>{Clasifier}の用途がある程度想定されるならmapの初期化にcapsを設定しておくとよいかもしれません。@<code>{NewClassifier}の第一引数ではドキュメントをどのように分類するカテゴリ数を受けます。これはその数でmapを初期化する為です。
 
 === データセットからの学習を実装する
 
@@ -463,8 +461,8 @@ func (c *Classifier) pCategory(category string) float64 {
 }
 
 // P(D|C）の計算
-func (c *Classifier) pDocCategory(category string, document string) (p float64) {
-	p = 1.0
+func (c *Classifier) pDocCategory(category string, document string) float64 {
+	p := 1.0
 	for word := range countWords(document) {
 		p *= c.pWordCategory(category, word)
 	}
@@ -483,7 +481,7 @@ func (c *Classifier) pCategoryDocument(category string, document string) float64
 }
 //}
 
-@<list>{pcd}では@<m>{P(C）}と@<m>{P(D|C）}を計算する関数を実装し、それを使って　@<m>{P(C|D）}を計算しています(@<m>{P(C|D）} = @<m>{P(D|C）}*@<m>{P(C）}であることを思い出しましょう)。@<m>{P(D|C）}はカテゴリー内の単語出現確率(@<m>{P(w|C）})の掛け算でした。
+@<list>{pcd}では@<m>{P(C）}と@<m>{P(D|C）}を計算する関数を実装し、それを使って　@<m>{P(C|D）}を計算しています(@<m>{P(C|D）= P(D|C）P(C）}であることを思い出しましょう)。@<m>{P(D|C）}はカテゴリー内の各単語の出現確率(@<m>{P(w|C）})の掛け算でした。
 
 次に @<code>{Classifier.pCategoryDocument} を使って、ドキュメントに対してそれぞれのカテゴリに分類される確率を求める関数を作っておきましょう。
 
@@ -549,17 +547,18 @@ func TestP(t *testing.T) {
 }
 //}
 
-@<list>{p_test}の結果と最初に示したベイズ理論の図と結果が一致することを確認してください。
+@<list>{p_test}の結果と最初に示したベイズ理論の適用の具体例(@<table>{pdc})と結果が一致することを確認してください。
 
 === Naive Bayesを使って記事分類を実装する
 
-これで任意のドキュメントが与えられた時に、それぞれのカテゴリに何%の確率で分類されるのかをmapとして返す関数ができました。最後に@<code>{Classify}を実装しましょう。
+これで任意のドキュメントが与えられた時に、それぞれのカテゴリに何%の確率で分類されるのかを@<code>{map}として返す関数ができました。最後にドキュメントに対してどのカテゴリに分類されるかを返す関数@<code>{Classify}を実装しましょう。
 
 //list[classify][ドキュメントに対してどのカテゴリに分類されるかを返す関数][go]{
 // ./gonbayes.go
 
 // Classify classify documents.
 func (c *Classifier) Classify(document string) string {
+	// 各カテゴリごとの P(C|D)を計算
 	prob := c.P(document)
 
 	// 出現確率でソート
@@ -575,15 +574,8 @@ func (c *Classifier) Classify(document string) string {
 		return sp[i].probability > sp[j].probability
 	})
 
-	// 最も確率の高いカテゴリを返す (最も高い確率が閾値を下回ったら"unknown"と返す)
-	var category string
-	if sp[0].probability/sp[1].probability > c.Threshold {
-		category = sp[0].category
-	} else {
-		category = "unknown"
-	}
-
-	return category
+	// 最も確率の高いカテゴリを返す
+	return sp[0].category
 }
 //}
 
@@ -625,7 +617,7 @@ const (
 	negaLabel = "negative"
 )
 
-func loadNegaPosiDataset(file string) (map[string]string, error) {
+func loadDataset(file string) (map[string]string, error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return nil, err
@@ -673,11 +665,10 @@ func main() {
 
 	// Classifier の初期化
 	class := []string{posiLabel, negaLabel}
-	threshold := 1.4
-	classifier := gonbayes.NewClassifier(class, threshold)
+	classifier := gonbayes.NewClassifier(class)
 
 	// 「Sentiment Labelled Sentences Data Set」の読み込み
-	dataset, err := loadNegaPosiDataset(*f)
+	dataset, err := loadDataset(*f)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -727,7 +718,7 @@ func (c *Classifier) Encode(fileName string) error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	f.Close()
+	defer f.Close()
 
 	err = gob.NewEncoder(f).Encode(&c)
 	if err != nil {
@@ -742,7 +733,7 @@ func (c *Classifier) Decode(fileName string) error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	f.Close()
+	defer f.Close()
 
 	err = gob.NewDecoder(f).Decode(c)
 	if err != nil {
@@ -765,9 +756,8 @@ func main() {
 	flag.Parse()
 
 	class := []string{posiLabel, negaLabel}
-	threshold := 1.4
 
-	classifier := gonbayes.NewClassifier(class, threshold)
+	classifier := gonbayes.NewClassifier(class)
 
 	// 学習済みファイルを指定した場合、それをデコードして Classifier を生成する。
 	if *t != "" {
@@ -777,7 +767,7 @@ func main() {
 		}
 	// 新しく学習して Classifirerを　生成する。
 	} else {
-		dataset, err := loadNegaPosiDataset(*f)
+		dataset, err := loadDataset(*f)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -809,9 +799,9 @@ $ go run cmd/negaposi/main.go -s "this is wonderful" -t "negaposi_classifier.gob
 
 これで毎回学習を走らせなくても、感情分析ができるようになりました。もちろん@<code>{encoding/gob}はNaive Bayesのときだけでなく、ニューラルネットワークの実装で学習済みモデルを保存しておく用途でも使えます。一方でGo以外の言語で学習済みのモデルを使いたい場合はJSONなどにEncodeして利用してしまうのも一手です。
 
-== もっとNaive Bayesの精度をよくするには
+== ベイズ分類器の改善
 
-実はここまでの実装では分類の精度が高いとはいえません。１つずつ問題をみていきましょう。
+実はここまでの実装ではいくつかの問題があります。１つずつ問題をみていきましょう。
 
 === ゼロ頻度問題
 
@@ -841,8 +831,8 @@ func (c *Classifier) pWordCategory(category string, word string) float64 {
 // ./gonbayes.go
 
 func (c *Classifier) pWordCategory(category string, word string) float64 {
-	n = float64(c.Words[category][stem(word)]+1)
-	d = float64(c.TotalWordsInCategories[category]+c.TotalWords)
+	n := float64(c.Words[category][stem(word)]+1)
+	d := float64(c.TotalWordsInCategories[category]+c.TotalWords)
 	return n / d
 }
 //}
@@ -851,6 +841,39 @@ func (c *Classifier) pWordCategory(category string, word string) float64 {
 language modeling」@<fn>{sm} というペーパーが非常に勉強になります。
 
 //footnote[sm][@<href>{http://u.cs.biu.ac.il/~yogo/courses/mt2013/papers/chen-goodman-99.pdf}]
+
+=== アンダーフロー
+
+学習データが大きくなるとアンダーフローを起こしてしまう可能性があります。アンダーフローとは分母が大きくなりすぎて計算結果の指数部が小さくなり過ぎ、使用している記述方式で数値が表現できなくなることです。アンダーフローの対策として対数をとることが考えられます。@<m>{log(P(D|C）P(C））}は対数の公式@<m>{log(A・B）= logA + logB}から@<m>{log(P(D|C））+ log(P(C））}になります。さらに@<m>{log(P(D|C））}は各単語の確率の掛け算だったのでここも足し算に変換できます。最終的に@<img>{Log}ような式に変換できます。
+
+//image[Log][対数をとってオーバーフロー対策][scale=0.7]{
+//}
+
+Goのコードをアンダーフロー対応バージョンに変えていきましょう。
+
+//list[plog][対数をとってオーバーフロー対策した確率計算][go]{
+func (c *Classifier) pCategory(category string) float64 {
+	// 対数をとる
+	return math.Log(float64(c.TotalDocsInCategories[category]) / float64(c.TotalDocs))
+}
+
+func (c *Classifier) pDocCategory(category string, document string) float64 {
+	// ゼロ値で初期化
+	var p float64
+	for word := range countWords(document) {
+		// 対数をとって足していく処理に変更
+		p += math.Log(c.pWordCategory(category, word))
+	}
+	return p
+}
+
+func (c *Classifier) pCategoryDocument(category string, document string) float64 {
+	// 足し算に変更
+	return c.pDocCategory(category, document) + c.pCategory(category)
+}
+//}
+
+これで大きな学習データが来てもアンダーフローを起こさずに計算ができます。
 
 #@# absolute discounting
 #@# additive smoothing
