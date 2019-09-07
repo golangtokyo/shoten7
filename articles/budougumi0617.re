@@ -310,20 +310,36 @@ func packageMemConsumption() int {
 
 @<tt>{golang.org/x/text/transformパッケージを使う #golang}@<fn>{mercari_trans}
 
-
 //footnote[mercari_trans][@<href>{https://tech.mercari.com/entry/2017/12/05/154907}]
 
 === @<code>{golang.org/x/time}パッケージ
  * @<href>{https://godoc.org/golang.org/x/time}
  * @<href>{https://github.com/golang/time}
 
-`time`パッケージに補足的なパッケージです。現在提供されているのは`time/rate`パッケージのみ。
+@<code>{x/time}パッケージは標準パッケージの@<code>{time}パッケージの補足的なパッケージです。
+現在提供されているのは@<code>{rate}サブパッケージのみで、レートリミットを行なうための@<code>{rete.Limitter}構造体が含まれています。
+@<code>{rate.Limitter}構造体は排他制御の実装はもちろんのこと、複数の処理に重みを付けて制限することもでき、@<tt>{Go言語による並行処理}のサンプルコードでも利用されています。
+
+//footnote[cigo][@<href>{https://www.oreilly.co.jp/books/9784873118468/}]
 
 === @<code>{golang.org/x/tools}パッケージ
  * @<href>{https://godoc.org/golang.org/x/tools}
  * @<href>{https://github.com/golang/tools}
 
-20以上のツールや静的解析で利用する型などが含まれている。
+@<code>{x/tools}パッケージには便利な20以上のコマンドラインツールや、静的解析で利用するパッケージなどが含まれています。
+@<code>{cmd}サブパッケージの下に入っているコマンドラインツールは、@<code>{import}文の整形を行なう@<tt>{goimports}、@<tt>{LSP}（@<i>{Language  Server Protocol}）のGoクライアントである@<tt>{gopls}、リファクタリングツールである@<tt>{gorename}など開発に必須なものばかりです。
+また、@<code>{x/tools/go}サブパッケージ配下には@<code>{AST}（@<i>{Abstract Syntax Tree}）の解析を行なう @<code>{x/tools/go/ast}などの静的解析で利用するパッケージが多数含まれています。
+とくに@<code>{x/tools/go/analysis}サブパッケージはGoの静的解析をモージュル構造に再定義したパッケージで、@<code>{x/tools/go/analysis/passes}にはモジュール化された@<tt>{go vet}コマンドの実装が置かれています。
+静的解析やASTについては、@<tt>{@tenntenn}さん@<fn>{tenntenn}、@<tt>{@knsh14}さん@<fn>{knsh14}の@<tt>{逆引きGoによる静的解析入門}@<fn>{booth_kmt}@<fn>{booth_ten}という本で学習することができます。
+Web上では、@<tt>{tenntenn}さんによる@<tt>{Goにおける静的解析のモジュール化について}@<fn>{mercari_sa}や、@<tt>{@motemen}@<fn>{motemen}さんの@<tt>{GoのためのGo}@<fn>{motemen_go}を読むと理解しやすいです。
+
+//footnote[mercari_sa][@<href>{https://tech.mercari.com/entry/2018/12/16/150000}]
+//footnote[tenntenn][@<href>{https://twitter.com/tenntenn}]
+//footnote[knsh14][@<href>{https://twitter.com/knsh14}]
+//footnote[motemen][https://twitter.com/motemen]
+//footnote[booth_kmt][@<href>{https://booth.pm/ja/items/1319336}]
+//footnote[booth_ten][@<href>{https://booth.pm/ja/items/1319394}]
+//footnote[motemen_go][@<href>{https://motemen.github.io/go-for-go-book/}]
 
 === @<code>{golang.org/x/blog}パッケージ
  * @<href>{https://godoc.org/golang.org/x/blog}
