@@ -62,17 +62,6 @@ https://github.com/golang/benchmarks/blob/master//driver/driver.go
 GCについての知見？
 https://twitter.com/budougumi0617/status/1163561278335406080
 
-=== @<code>{golang.org/x/blog}パッケージ
- * @<href>{https://godoc.org/golang.org/x/blog}
- * @<href>{https://github.com/golang/blog}
-
-Goの仕様やツールの利用方法について知りたいと思ったとき、私たちはよく公式ブログである@<tt>{The Go Blog}@<fn>{goblog}をよく参照します。
-@<code>{x/blog}パッケージには@<tt>{The Go Blog}の記事がテキスト（@<code>{article}ファイル）として管理されています。
-正直@<tt>{The Go Blog}は検索性があまり高くありません。
-ブログ内容を全文検索したいとき、このリポジトリを利用すれば手元で@<tt>{grep}したり、@<tt>{GitHub}の検索機能を利用して記事を探すことができます。
- 
-//footnote[goblog][@<href>{https://blog.golang.org}]
- 
 === @<code>{golang.org/x/build}パッケージ
  * @<href>{https://godoc.org/golang.org/x/build}
  * @<href>{https://github.com/golang/build}
@@ -83,6 +72,15 @@ Goの仕様やツールの利用方法について知りたいと思ったとき
 
 @<code>{x/crypto}パッケージには標準パッケージに含まれていない暗号形式の実装が多数含まれています。
 暗号化は自分で実装せず、提供されているライブラリを使いましょう。
+
+=== @<code>{golang.org/x/image}パッケージ
+ * @<href>{https://godoc.org/golang.org/x/image}
+ * @<href>{https://github.com/golang/image}
+
+標準パッケージでサポートしていない形式の実装も入っている。
+フォントもサポートしていたり、drawサブパッケージが便利。
+https://qiita.com/tebakane/items/b7a47379659d42364c8d
+https://text.baldanders.info/golang/resize-image/
 
 === @<code>{golang.org/x/debug}パッケージ
  * @<href>{https://godoc.org/golang.org/x/debug}
@@ -190,15 +188,6 @@ a5947ff xerrors: require that error be type assertable to As's target
 20feca1 xerrors: copied files from x/exp/errors
 //}
 
-=== @<code>{golang.org/x/image}パッケージ
- * @<href>{https://godoc.org/golang.org/x/image}
- * @<href>{https://github.com/golang/image}
-
-標準パッケージでサポートしていない形式の実装も入っている。
-フォントもサポートしていたり、drawサブパッケージが便利。
-https://qiita.com/tebakane/items/b7a47379659d42364c8d
-https://text.baldanders.info/golang/resize-image/
-
 === @<code>{golang.org/x/lint}パッケージ
  * @<href>{https://godoc.org/golang.org/x/lint}
  * @<href>{https://github.com/golang/lint}
@@ -218,6 +207,17 @@ Goには静的解析ツールが豊富に存在しています。
 
 TODO: 星さんの章に参照をつける
 #@# @<chapref>{hajimehhoshi}
+
+
+=== @<code>{golang.org/x/vgo}パッケージ
+ * @<href>{https://godoc.org/golang.org/x/vgo}
+ * @<href>{https://github.com/golang/vgo}
+Go1.11から試験的に導入されているGoの新しい依存性管理の仕組みが@<i>{Go Modules}です@<fn>{modules_pro}。
+そして、Go1.10の頃にGo Modulesのプロトタイプ実装として公開されたのが@<code>{vgo}リポジトリと@<tt>{vgo}コマンドです。
+プロトタイプ実装のため、現在@<tt>{go}コマンドのサブコマンドになっている@<tt>{go mod}コマンドとは一部の挙動が異なります。現在使うことはないでしょうが、Russ Cox氏が当時公開した@<i>{Go & Versioning}の記事@<fn>{russ_vgo}を読むときに一緒に読むとGo Moudlesに至る過程を読み解く助けになるかもしれません。
+
+//footnote[modules_pro][@<href>{https://go.googlesource.com/proposal/+/master/design/24301-versioned-go.md}]
+//footnote[russ_vgo][@<href>{https://research.swtch.com/vgo}]
 
 === @<code>{golang.org/x/mod}パッケージ
  * @<href>{https://godoc.org/golang.org/x/mod}
@@ -252,8 +252,11 @@ LimitListenerなどがある。
  * @<href>{https://godoc.org/golang.org/x/oauth2}
  * @<href>{https://github.com/golang/oauth2}
 
-OAUth2.0を利用するためのリポジトリ。メジャーな企業の設定も入っている。appengineらへんはちょっと特殊な仕様になっているはず。
-RoundTripperらへんの実装の参考になる。
+Goで@<tt>{OAUth2.0}@<fn>{rfc6749}を利用した認可・認証処理を実装しているのが@<code>{x/oauth2}パッケージです。
+サブパッケージには@<tt>{Google}を始め、@<tt>{GitHub}や@<tt>{PayPal}などのメジャーな企業のエンドポイント情報などが定義されています。
+単に@<tt>{OAuth2.0}のライブラリとしてだけではなく、@<code>{http.RoundTripper}インターフェイスの実装の参考にもなります。
+
+//footnote[rfc6749][@<href>{https://tools.ietf.org/html/rfc6749}]
 
 === @<code>{golang.org/x/perf}パッケージ
  * @<href>{https://godoc.org/golang.org/x/perf}
@@ -262,15 +265,16 @@ RoundTripperらへんの実装の参考になる。
 Goは標準パッケージでベンチマークを取得する仕組みが提供されているなど、パフォーマンスに対する取り組みも活発です。
 @<code>{perf}パッケージにはパフォーマンスの計測結果を補完、解析するサーバシステムとパフォーマンスの測定結果をサーバに送信するクライアントの実装が含まれています。
 @<code>{storage}や@<code>{analysis}などの保存、分析のコードも公開されています。
+分析結果については@<tt>{Go Performance Dashboard}@<fn>{perf}で確認することができます。
 
- TODO: もうちょっとちゃんと書く。
+//footnote[perf][@<href>{https://perf.golang.org/}]
 
 === @<code>{golang.org/x/sync}パッケージ
  * @<href>{https://godoc.org/golang.org/x/sync}
  * @<href>{https://github.com/golang/sync}
 
 標準パッケージの@<code>{sync}パッケージの補完的なパッケージです。
-@<code>{syncmap.Map}は標準パッケージに取り込まれている。
+@<code>{x/sync/syncmap}パッケージに定義されている@<code>{syncmap.Map}は標準パッケージに取り込まれています。
 
 === @<code>{golang.org/x/text}パッケージ
  * @<href>{https://godoc.org/golang.org/x/text}
@@ -278,8 +282,10 @@ Goは標準パッケージでベンチマークを取得する仕組みが提供
 
 `text`パッケージの補完的なパッケージ
 
-golang.org/x/text/transformパッケージを使う #golang
-* @<href>{https://tech.mercari.com/entry/2017/12/05/154907}
+@<tt>{golang.org/x/text/transformパッケージを使う #golang}@<fn>{mercari_trans}
+
+
+//footnote[mercari_trans][@<href>{https://tech.mercari.com/entry/2017/12/05/154907}]
 
 === @<code>{golang.org/x/time}パッケージ
  * @<href>{https://godoc.org/golang.org/x/time}
@@ -293,6 +299,17 @@ golang.org/x/text/transformパッケージを使う #golang
 
 20以上のツールや静的解析で利用する型などが含まれている。
 
+=== @<code>{golang.org/x/blog}パッケージ
+ * @<href>{https://godoc.org/golang.org/x/blog}
+ * @<href>{https://github.com/golang/blog}
+
+Goの仕様やツールの利用方法について知りたいと思ったとき、私たちはよく公式ブログである@<tt>{The Go Blog}@<fn>{goblog}をよく参照します。
+@<code>{x/blog}パッケージには@<tt>{The Go Blog}の記事がテキスト（@<code>{article}ファイル）として管理されています。
+正直@<tt>{The Go Blog}は検索性があまり高くありません。
+ブログ内容を全文検索したいとき、このリポジトリを利用すれば手元で@<tt>{grep}したり、@<tt>{GitHub}の検索機能を利用して記事を探すことができます。
+ 
+//footnote[goblog][@<href>{https://blog.golang.org}]
+
 === @<code>{golang.org/x/tour}パッケージ
  * @<href>{https://godoc.org/golang.org/x/tour}
  * @<href>{https://github.com/golang/tour}
@@ -302,18 +319,6 @@ golang.org/x/text/transformパッケージを使う #golang
 同サイトの誤字や内容の修正が必要な場合はこのリポジトリから行なうことができます。
 
 //footnote[tog][@<href>{https://tour.golang.org}]
-
-
-
-=== @<code>{golang.org/x/vgo}パッケージ
- * @<href>{https://godoc.org/golang.org/x/vgo}
- * @<href>{https://github.com/golang/vgo}
-Go1.11から試験的に導入されているGoの新しい依存性管理の仕組みが@<i>{Go Modules}です@<fn>{modules_pro}。
-そして、Go1.10の頃にGo Modulesのプロトタイプ実装として公開されたのが@<code>{vgo}リポジトリと@<tt>{vgo}コマンドです。
-プロトタイプ実装のため、現在@<tt>{go}コマンドのサブコマンドになっている@<tt>{go mod}コマンドとは一部の挙動が異なります。現在使うことはないでしょうが、Russ Cox氏が当時公開した@<i>{Go & Versioning}の記事@<fn>{russ_vgo}を読むときに一緒に読むとGo Moudlesに至る過程を読み解く助けになるかもしれません。
-
-//footnote[modules_pro][@<href>{https://go.googlesource.com/proposal/+/master/design/24301-versioned-go.md}]
-//footnote[russ_vgo][@<href>{https://research.swtch.com/vgo}]
 
 === @<code>{golang.org/x/website}パッケージ
  * @<href>{https://godoc.org/golang.org/x/website}
@@ -340,43 +345,47 @@ Goでスタックトレースを含んだエラー処理を行ないたいなら
 @<code>{xerrors}パッケージの@<code>{Newf}（あるいは@<code>{Errof}）関数から生成されたエラーは内部にスタックトレースを持ちます。このスタックトレースはプリントフォーマットで@<code>{%+v} verbeを使って出力することができます。
 また、@<code>{xerrors}パッケージはスタックトレース以外にもエラーの同値性を検証する@<code>{Is}関数、取得したエラーから具体的な型のオブジェクトを抽出できる@<code>{As}関数が提供されています。
 
+#@# textlint-disable
+
 //list[xerr_sample][xerrorsパッケージを使ったエラーハンドリング@<fn>{play_xerr}][go]{
 package main
 
 import (
-	"fmt"
+  "fmt"
 
-	"golang.org/x/xerrors"
+  "golang.org/x/xerrors"
 )
 
 type MyError struct {
-	body string
+  body string
 }
 
 func (_ *MyError) Error() string {
-	return "original error"
+  return "original error"
 }
 
 // 通常のエラーには存在しないメソッド
 func (me *MyError) Body() string {
-	return me.body
+  return me.body
 }
 
 func main() {
-	base := &MyError{"original body"}
-	err := xerrors.Errorf("wraped: %w", base)
-	fmt.Printf("%+v\n", err)
-	// errの中にMyError型が含まれていればtrue
-	fmt.Println("xerrors.Is", xerrors.Is(err, base))
+  base := &MyError{"original body"}
+  err := xerrors.Errorf("wraped: %w", base)
+  fmt.Printf("%+v\n", err)
+  // errの中にMyError型が含まれていればtrue
+  fmt.Println("xerrors.Is", xerrors.Is(err, base))
 
-	var me *MyError
-	// errの中からMyError型を抽出できたらmeに代入する
-	if xerrors.As(err, &me) {
-		fmt.Printf("body: %q\n", me.Body())
+  var me *MyError
+  // errの中からMyError型を抽出できたらmeに代入する
+  if xerrors.As(err, &me) {
+    fmt.Printf("body: %q\n", me.Body())
 
-	}
+  }
 }
 //}
+
+#@# textlint-enable
 
 @<list>{xerr_sample}を実行した結果は次のとおりです。スタックトレースからファイル名と行数が取得できています。
 @<code>{Is}関数では、ネストしたエラーの型もチェックすることができます。
@@ -420,6 +429,8 @@ Go1.13の公式パッケージの@<code>{gerrors}パッケージでは依然と�
 @<code>{golang.org/x/oauth2}パッケージはGoでOAuth2.0形式の認証認可を扱うためのパッケージです。
 @<code>{GitHub}や@<code>{Google}、@<code>{PayPal}など各社の認可エンドポイントのURLが定義された構造体オブジェクトも含まれています。
 
+#@# textlint-disable
+
 //list[github_endpoint][GitHubのOAuth2.0用のエンドポイント]{
 // Copyright 2014 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
@@ -429,15 +440,17 @@ Go1.13の公式パッケージの@<code>{gerrors}パッケージでは依然と�
 package github // import "golang.org/x/oauth2/github"
 
 import (
-	"golang.org/x/oauth2"
+  "golang.org/x/oauth2"
 )
 
 // Endpoint is Github's OAuth 2.0 endpoint.
 var Endpoint = oauth2.Endpoint{
-	AuthURL:  "https://github.com/login/oauth/authorize",
-	TokenURL: "https://github.com/login/oauth/access_token",
+  AuthURL:  "https://github.com/login/oauth/authorize",
+  TokenURL: "https://github.com/login/oauth/access_token",
 }
 //}
+
+#@# textlint-enable
 
 実際に使うときは@<code>{TokenSource}構造体を起点に実装を行ないます。
 
