@@ -187,15 +187,22 @@ golintコマンドの実装
  * @<href>{https://godoc.org/golang.org/x/mobile}
  * @<href>{https://github.com/golang/mobile}
 
-gomobileの実装
-GoでiOSアプリやAndroidアプリを作ることができる
+
+@<tt>{gomobile}と呼ばれる@<code>{mobile}パッケージはGoのコードからAndroidおよびiOS向けのアプリケーションもしくはライブラリを出力することができます。
+本リポジトリの詳細は星さんが解説している章をご参照ください。
+
+TODO: 星さんの章に参照をつける
+#@# @<chapref>{hajimehhoshi}
 
 === @<code>{golang.org/x/mod}パッケージ
  * @<href>{https://godoc.org/golang.org/x/mod}
  * @<href>{https://github.com/golang/mod}
 
-go modulesに関するコードだけど今も最新仕様に追従できているのかは謎。
-ちゃんと更新履歴を確認しておく必要がある。
+Go Modulesでは@<i>{セマンティックバージョニング}@<fn>{semver}や@<i>{暗号化ハッシュ}（@<tt>{go.sum}）といった技術を用いて依存性管理を行なっています。
+これらのGo Modulesが利用している基礎技術の初期実装が@<code>{mode}パッケージに含まれています。
+@<code>{mode}パッケージに含まれている実装の多くはすでにGo本体の@<code>{internal}パッケージに取り込まれています@<fn>{mod_ref}。
+//footnote[semver][@<href>{https://semver.org/lang/ja/}]
+//footnote[mod_ref][@<href>{https://github.com/golang/go/tree/go1.13/src/cmd/go/internal}]
 
 === @<code>{golang.org/x/net}パッケージ
  * @<href>{https://godoc.org/golang.org/x/net}
@@ -258,7 +265,7 @@ golang.org/x/text/transformパッケージを使う #golang
  * @<href>{https://godoc.org/golang.org/x/tour}
  * @<href>{https://github.com/golang/tour}
 
-A Tour of Go@<fn>{tog}というGoのチュートリアルサイトはみなさんご存知でしょうか。
+@<i>{A Tour of Go}@<fn>{tog}というGoのチュートリアルサイトはみなさんご存知でしょうか。
 @<code>{tour}リポジトリにはA Tour of GoのWebサイトの実装が含まれています。
 同サイトの誤字や内容の修正が必要な場合はこのリポジトリから行なうことができます。
 
