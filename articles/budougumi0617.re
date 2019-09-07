@@ -181,7 +181,10 @@ https://text.baldanders.info/golang/resize-image/
  * @<href>{https://godoc.org/golang.org/x/lint}
  * @<href>{https://github.com/golang/lint}
 
-golintコマンドの実装
+Goには静的解析ツールが豊富に存在しています。
+デファクトスタンダードとなっている静的解析ツールのひとつである、@<tt>{golint}コマンドの実装が@<code>{lint}パッケージです。
+実装には15以上の静的解析がメソッドとして含まれています。
+自分で静的解析ツールを自作する前に、@<code>{lint}パッケージを一度読んでおくと何かヒントを得られるかもしれません。
 
 === @<code>{golang.org/x/mobile}パッケージ
  * @<href>{https://godoc.org/golang.org/x/mobile}
