@@ -290,11 +290,16 @@ Go1.11から試験的に導入されているGoの新しい依存性管理の仕
  * @<href>{https://godoc.org/golang.org/x/website}
  * @<href>{https://github.com/golang/website}
 
-Goの公式サイトのソースが管理されているリポジトリ。
-https://golang.org
+Goの公式サイトは御存知のとおり、@<tt>{golang.org}@<fn>{golangorg}にあります。
+公式サイトのHOME画面を管理しているのが@<code>{website}パッケージです。
+公式サイトのその他のページはGo本体のリポジトリに含まれていたりします@<fn>{go_doc}。
+Google Cloudにある@<i>{google.golang.org パッケージの一覧}@<fn>{googlegolangorg}から、各GoDocへリダイレクトする簡易Webサーバなどの実装@<fn>{google_pkg_list}も同梱されています。
 
-https://google.golang.org/ から各godocへリダイレクトする簡易Webサーバなどの実装もある。
 
+//footnote[go_doc][@<href>{https://github.com/golang/go/tree/go1.13/doc}]
+//footnote[golangorg][@<href>{https://golang.org}]
+//footnote[google_pkg_list][@<href>{https://cloud.google.com/go/google.golang.org}]
+//footnote[googlegolangorg][@<href>{https://github.com/golang/website/tree/master/cmd/googlegolangorg}]
 
 
 === @<code>{golang.org/x/xerrors}パッケージ
