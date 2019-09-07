@@ -6,7 +6,7 @@
 
 #@# textlint-enable
 
-freee株式会社でバックエンドエンジニアをしている@<code>{@budougumi0617}@<fn>{bd617_twitter}です。
+freee株式会社でバックエンドエンジニアをしている@<tt>{@budougumi0617}@<fn>{bd617_twitter}です。
 本章では2019年9月現在@<code>{golang.org/x}配下にある準公式パッケージについて紹介したいと思います。
 
 
@@ -28,23 +28,25 @@ freee株式会社でバックエンドエンジニアをしている@<code>{@bud
 最後に@<hd>{detail}で実践的な実装を含んだパッケージの詳細とサンプルコードを記載します。
 
 =={abst} @<code>{golang.org/x}配下にあるパッケージとは
-@<code>{golang.org/x}という@<code>{import path}から始まる準公式パッケージがあることをご存知でしょうか。
+@<code>{golang.org/x}という@<tt>{import path}から始まる準公式パッケージがあることをご存知でしょうか。
 準公式パッケージは公式パッケージに比べて互換性（@<i>{compatibility requirements}）の基準が低いなどの制約はありますが、便利なパッケージばかりです。
 また、Goに大きな新機能が追加される前の試験的な実装もこちらで公開されます。
-例を挙げると、Go1.7で@<code>{context}パッケージが追加される前は@<code>{golang.org/x/net/context}パッケージの@<code>{context.Context}でコンテキスト情報を扱っていました。
-最近ではGo Modules導入前の@<code>{vgo}パッケージ、まだ新しいエラーハンドリングのアプローチとして公開されている@<code>{xerrors}パッケージなども@<code>{golang.org/x}の下で公開されている準公式パッケージです。
+例を挙げると、Go1.7で@<code>{context}パッケージが追加される前は@<code>{golang.org/x/net/context}パッケージの@<code>{context.Context}でコンテキスト情報を扱う実装が開始されていました。
+最近ではGo Modules導入前の@<tt>{vgo}コマンド、また新しいエラーハンドリングのアプローチとして公開された@<code>{golang.org/x/xerrors}パッケージなども@<code>{golang.org/x}の下で公開されている準公式パッケージです。
 
 
 =={summary} @<code>{golang.org/x}で提供されているパッケージ一覧
-それでは、早速@<code>{golang.org/x}から提供されているパッケージを見ていきましょう。
-サブパッケージまでひとつひとつ紹介していくと途方のない数になってしまうため、ここでは@<tt>{GitHub}上のリポジトリ単位で紹介していきます。
+それでは、早速@<code>{golang.org/x}配下から提供されているパッケージを見ていきましょう。
+サブパッケージまでひとつひとつ紹介していくと途方のない数になってしまうため、ここでは@<tt>{GitHub}上のリポジトリ単位で紹介していきます。また以降の文中では@<code>{golang.org/x/package}パッケージは簡略化のため@<code>{x/package}パッケージと表記します。
 
 
 === @<code>{golang.org/x/arch}パッケージ
  * @<href>{https://godoc.org/golang.org/x/arch}
  * @<href>{https://github.com/golang/arch}
 
-マシンアーキテクチャ依存のコードが同梱されています。アセンブラ別の実装が含まれており、Goのデバッガーである@<tt>{Delve}@<tt>{dlv}コマンド）@<fn>{delve}などで利用されています。
+@<code>{x/arch}パッケージはマシンアーキテクチャ依存のコードが同梱されています。
+アセンブラ別の実装が含まれており、Goのデバッガーである@<tt>{Delve}（@<tt>{dlv}コマンド）@<fn>{delve}などで利用されています。
+システムコールを扱いたい場合は参考になりそうです。
 
 //footnote[delve][@<href>{https://github.com/go-delve/delve}]
 
@@ -64,10 +66,13 @@ https://twitter.com/budougumi0617/status/1163561278335406080
  * @<href>{https://godoc.org/golang.org/x/blog}
  * @<href>{https://github.com/golang/blog}
 
-Go Blogのソースが置かれているリポジトリ。
-正直Go Blogは検索性があまり高くない。ブログ内容を検索したいとき、手元でgrepしたり、GitHub上で検索できる。
- * @<href>{https://blog.golang.org}
-
+Goの仕様やツールの利用方法について知りたいと思ったとき、私たちはよく公式ブログである@<tt>{The Go Blog}@<fn>{goblog}をよく参照します。
+@<code>{x/blog}パッケージには@<tt>{The Go Blog}の記事がテキスト（@<code>{article}ファイル）として管理されています。
+正直@<tt>{The Go Blog}は検索性があまり高くありません。
+ブログ内容を全文検索したいとき、このリポジトリを利用すれば手元で@<tt>{grep}したり、@<tt>{GitHub}の検索機能を利用して記事を探すことができます。
+ 
+//footnote[goblog][@<href>{https://blog.golang.org}]
+ 
 === @<code>{golang.org/x/build}パッケージ
  * @<href>{https://godoc.org/golang.org/x/build}
  * @<href>{https://github.com/golang/build}
@@ -76,48 +81,63 @@ Go Blogのソースが置かれているリポジトリ。
  * @<href>{https://godoc.org/golang.org/x/crypto}
  * @<href>{https://github.com/golang/crypto}
 
-標準パッケージに含まれていない暗号形式の実装が含まれている。
-暗号化は自分で実装せず提供されているライブラリを使いましょう。
+@<code>{x/crypto}パッケージには標準パッケージに含まれていない暗号形式の実装が多数含まれています。
+暗号化は自分で実装せず、提供されているライブラリを使いましょう。
 
 === @<code>{golang.org/x/debug}パッケージ
  * @<href>{https://godoc.org/golang.org/x/debug}
  * @<href>{https://github.com/golang/debug}
 
 
-debugツールであるviewcoreコマンドの実装が入っている。
-コアファイルの解析方法を知りたいときに役立つのかもしれない。
-正直delveで良いと思う。
+デバッグツールである@<tt>{viewcore}コマンドの実装が入っています。
+コアファイルの解析方法を知りたいときに実装が参考になるでしょう。
+ただ、実際にデバッグ情報が知りたいならば、正直@<tt>{Delve}を利用したほうが効率的です。
 
-viewcoreコマンドの挙動は以下のように試すことができる。
-macOS Mojaveではうまくコアダンプファイルを作れなかったのでDockerでLinux環境を用意することをオススメします。
-//list[clash][無限ループで完了しないコード]{
+==== @<tt>{viewcore}コマンドの利用方法
+（この機会以外で利用しそうにないので、）@<tt>{viewcore}コマンドの挙動を確認します。
+私の@<tt>{macOS Mojave}ではうまくコアダンプファイルを作れなかったので、もし手元で確認される方は@<tt>{Docker}で@<tt>{Linux}環境を用意することをオススメします。
+今回は実行中のGoのプロセスにシグナルを送信し、無理やりコアダンプを取得しました。
+事前に@<tt>{go言語のデバッガ（delveとgdb)とcore dump}@<fn>{qiita_cd}の記事を参考に@<list>{clash}のサンプルコードを用意しました。
+
+//footnote[qiita_cd][body]
+
+#@# textlint-disable
+
+//list[clash][無限ループで完了しないコード][go]{
 package main
 
 import "fmt"
 
 func goroutineA(c1 chan int, c2 chan int) {
-    _ = <-c2
-    c1 <- 1
-    return
+  _ = <-c2
+  c1 <- 1
+  return
 }
 
 func goroutineB(c1 chan int, c2 chan int) {
-    fmt.Println("c1", <-c1)
-    c2 <- 2
-    return
+  fmt.Println("c1", <-c1)
+  c2 <- 2
+  return
 }
 
 func main() {
-    c1 := make(chan int)
-    c2 := make(chan int)
+  c1 := make(chan int)
+  c2 := make(chan int)
 
-    go goroutineA(c1,c2)
-    go goroutineB(c1,c2)
+  go goroutineA(c1,c2)
+  go goroutineB(c1,c2)
 
-    for {
-    }
+  for {
+  }
 }
 //}
+
+#@# textlint-enable
+
+サンプルコードを@<tt>{Docker}上で実行し、シグナルで終了させてコアダンプファイルを生成します。
+コアダンプファイル内の@<tt>{goroutine}情報を@<tt>{viewcore}コマンドで確認してみたのが、次のコマンドラインの実行結果です。
+
+#@# textlint-disable
 
 //cmd{
 $ docker run --rm --name sandbox -it golang:1.12.9-buster /bin/bash
@@ -145,16 +165,18 @@ G stacksize=800
 ...
 //}
 
+#@# textlint-enable
 
-コアファイルの取得方法はここ。
-https://golang.org/doc/gdb
+コアファイルの取得方法は @<tt>{Debugging Go Code with GDB}@<fn>{debug_gdb}を参考にしました。
+
+//footnote[debug_gdb][@<href>{https://golang.org/doc/gdb}]
 
 === @<code>{golang.org/x/exp}パッケージ
 * @<href>{https://godoc.org/golang.org/x/exp}
 * @<href>{https://github.com/golang/exp}
 
 試験的に実装されたコードが内包されています。
-例を挙げると、x/xerrorsも元はこのリポジトリで実装されていました。
+例を挙げると、@<code>{x/xerrors}パッケージも元はこのリポジトリで実装されていました。
 定期的にチェックしておくと、Goの新しい機能を先取りできるかも？
 
 //cmd{
@@ -237,11 +259,18 @@ RoundTripperらへんの実装の参考になる。
  * @<href>{https://godoc.org/golang.org/x/perf}
  * @<href>{https://github.com/golang/perf}
 
+Goは標準パッケージでベンチマークを取得する仕組みが提供されているなど、パフォーマンスに対する取り組みも活発です。
+@<code>{perf}パッケージにはパフォーマンスの計測結果を補完、解析するサーバシステムとパフォーマンスの測定結果をサーバに送信するクライアントの実装が含まれています。
+@<code>{storage}や@<code>{analysis}などの保存、分析のコードも公開されています。
+
+ TODO: もうちょっとちゃんと書く。
+
 === @<code>{golang.org/x/sync}パッケージ
  * @<href>{https://godoc.org/golang.org/x/sync}
  * @<href>{https://github.com/golang/sync}
 
-`sync`パッケージの補完的なパッケージ。`syncmap.Map`は標準パッケージに取り込まれている。
+標準パッケージの@<code>{sync}パッケージの補完的なパッケージです。
+@<code>{syncmap.Map}は標準パッケージに取り込まれている。
 
 === @<code>{golang.org/x/text}パッケージ
  * @<href>{https://godoc.org/golang.org/x/text}
