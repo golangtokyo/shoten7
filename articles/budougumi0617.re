@@ -269,10 +269,12 @@ A Tour of Go@<fn>{tog}というGoのチュートリアルサイトはみなさ�
 === @<code>{golang.org/x/vgo}パッケージ
  * @<href>{https://godoc.org/golang.org/x/vgo}
  * @<href>{https://github.com/golang/vgo}
+Go1.11から試験的に導入されているGoの新しい依存性管理の仕組みが@<i>{Go Modules}です@<fn>{modules_pro}。
+そして、Go1.10の頃にGo Modulesのプロトタイプ実装として公開されたのが@<code>{vgo}リポジトリと@<tt>{vgo}コマンドです。
+プロトタイプ実装のため、現在@<tt>{go}コマンドのサブコマンドになっている@<tt>{go mod}コマンドとは一部の挙動が異なります。現在使うことはないでしょうが、Russ Cox氏が当時公開した@<i>{Go & Versioning}の記事@<fn>{russ_vgo}を読むときに一緒に読むとGo Moudlesに至る過程を読み解く助けになるかもしれません。
 
-Go1.10のころに発表されたGoのModules思想のプロトタイプである@<tt>{vgo}コマンドの実装。
-
-https://research.swtch.com/vgo
+//footnote[modules_pro][@<href>{https://go.googlesource.com/proposal/+/master/design/24301-versioned-go.md}]
+//footnote[russ_vgo][@<href>{https://research.swtch.com/vgo}]
 
 === @<code>{golang.org/x/website}パッケージ
  * @<href>{https://godoc.org/golang.org/x/website}
@@ -291,7 +293,7 @@ https://google.golang.org/ から各godocへリダイレクトする簡易Webサ
 
 Goでスタックトレースを含んだエラー処理を行ないたいならば、@<code>{github.com/pkg/errors}パッケージを使うのがデファクトスタンダードでした。
 @<code>{xerrors}パッケージはGo2に向けて提案された@<i>{Proposal: Go 2 Error Inspection}@<fn>{go2_error}をGo1向けに実装したライブラリです。
-@<code>{xerrors}パッケージの@<code>{Newf}（あるいは@<code>{Errof}）関数から生成されたエラーは内部にスタックトレースを持ちます。このスタックトレースは@<code>{%+v}フォーマットを使って出力することができます。
+@<code>{xerrors}パッケージの@<code>{Newf}（あるいは@<code>{Errof}）関数から生成されたエラーは内部にスタックトレースを持ちます。このスタックトレースはプリントフォーマットで@<code>{%+v} verbeを使って出力することができます。
 また、@<code>{xerrors}パッケージはスタックトレース以外にもエラーの同値性を検証する@<code>{Is}関数、取得したエラーから具体的な型のオブジェクトを抽出できる@<code>{As}関数が提供されています。
 
 //list[xerr_sample][xerrorsパッケージを使ったエラーハンドリング@<fn>{play_xerr}][go]{
@@ -347,8 +349,10 @@ body: "original body"
 
 //footnote[play_xerr][@<href>{https://play.golang.org/p/9Vq2jTUiL5b}]
 
-このような機能を含む@<code>{xerrors}パッケージですが、2019年9月3日に公開されたGo 1.13で@<code>{%w}と@<code>{Errorf}関数を使ったエラーのラップや@<code>{Is}関数、@<code>{As}メソッドは正式に導入されました。
-しかし、@<code>{%+w}や@<code>{%+v}によるスタックトレースの表示の採用は見送られました。
+このような機能を含む@<code>{xerrors}パッケージですが、2019年9月3日に公開されたGo1.13で@<code>{xerrors}パッケージで定義された関数が公式パッケージの@<code>{errors}パッケージに正式に導入されました。
+しかし、@<code>{%+w}や@<code>{%+v}によるスタックトレースの表示の採用は見送られています@<fn>{xerr_frame}。
+
+//footnote[xerr_frame][Go1.13のエラーオブジェクトは内部にスタックトレース（@<code>{Frame}）情報を持っていない]
 
 Go1.13の公式パッケージの@<code>{gerrors}パッケージでは依然としてスタックトレースを取得することができないため、スタックトレースの表示が必要な場合は@<code>{xerrors}パッケージを利用して、不要な場合には標準ライブラリの@<code>{errors}パッケージを利用してください。
 @<i>{Proposal: Go 2 Error Inspection}@<fn>{go2_error}
