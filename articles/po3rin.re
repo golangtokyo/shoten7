@@ -329,7 +329,7 @@ Goの標準パッケージでは@<em>{Thompson NFA}という正規表現の実�
 
 確率を計算する際に便利なように単語数をカウントする関数も実装しておきます。その際に今まで作ってきた関数を使います。
 
-//list[count][テキストクリーニングのテスト][go]{
+//list[count][テキストクリーニングした上で単語数のカウント][go]{
 // ./utils.go
 
 func countWords(document string) (wordCount map[string]int) {
@@ -348,7 +348,7 @@ func countWords(document string) (wordCount map[string]int) {
 
 これでドキュメントに単語がそれぞれ何個あったかを返す関数ができました。@<list>{export_test_sw}と同じようにテストしたい関数を公開した後にテストを書いて動作を確認しましょう。
 
-//list[count_test][countWordsのテスト][go]{
+//list[count_test][countWordsのexport][go]{
 // ./utils_test.go
 
 func TestCountWords(t *testing.T) {
@@ -717,7 +717,7 @@ positive
 
 == 学習済み分類器を gob パッケージで保存する
 
-分類を実行する度に同じデータセットから同じ学習を行って分類器を生成するのは無駄だと気づいたかもしれません。最後に学習済みの@<code>{Classifier}をいつでも呼び出せるように修正しましょう。その為には標準パッケージである@<code>{encoding/gob}@<fn>{gob}を利用します。Goではデータ構造のシリアライズのために標準でいくつかのパッケージが用意されていますがGo内でデータ構造を使うのであればXMLやJSONなどにではなくバイナリエンコーディングした形で保存して読み込み時などで効率性を上げたいところです。そのような目的で@<code>{encoding/gob}が誕生しています。もちろんデータ構造さえ自明であればそのままEncodeできるので使用感としてもとてもシンプルに収まります。早速　@<code>{Classifier}に新しいメソッドを定義して学習済みの@<code>{Classifier}をEncode & Decodeできるようにしておきましょう。
+分類を実行する度に同じデータセットから同じ学習を行って分類器を生成するのは無駄だと気づいたかもしれません。学習済みの@<code>{Classifier}をいつでも呼び出せるように修正しましょう。その為には標準パッケージである@<code>{encoding/gob}@<fn>{gob}を利用します。Goではデータ構造のシリアライズのために標準でいくつかのパッケージが用意されていますがGo内でデータ構造を使うのであればXMLやJSONなどではなくバイナリエンコーディングした形で保存して、読み込み時などで効率性を上げたいところです。そのような目的で@<code>{encoding/gob}が誕生しています。データ構造さえ自明であればそのままEncodeできるので使用感としてもとてもシンプルに収まります。早速　@<code>{Classifier}に新しいメソッドを定義して学習済みの@<code>{Classifier}をEncode & Decodeできるようにしておきましょう。
 
 //footnote[gob][@<href>{https://golang.org/pkg/encoding/gob/}]
 
@@ -775,7 +775,8 @@ func main() {
 	classifier := gonb.NewClassifier(class)
 
 	if *c != "" {
-		// 学習済みモデルのファイルパスを指定した場合、それをデコードして Classifier を生成する。
+		// 学習済みモデルのファイルパスを指定した場合
+		// それをデコードして Classifier を生成する。
 		err := classifier.Decode(*c)
 		if err != nil {
 			log.Fatal(err)
