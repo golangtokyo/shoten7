@@ -1,8 +1,10 @@
 = 前書き
 
-前書きなのだ。
+@<tt>{golang.tokyo}@<fn>{golangtokyo}はプログラミング言語のGoの導入企業のメンバーが集まり、Goの普及を推進するコミュニティです。
+東京でトークイベント、ハンズオン、etcのイベントを開催しています。
+本書は@<tt>{golang.tokyo}運営メンバー有志（+日頃懇意にしていただるGopherさん）が集まりGoに関連するいろいろを執筆したものになります。
 
-
+//footnote[golangtokyo][@<href>{https://golangtokyo.github.io/}]
 
 == 免責事項
 
