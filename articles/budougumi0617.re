@@ -219,14 +219,66 @@ Go Modulesでは@<i>{セマンティックバージョニング}@<fn>{semver}や
  * @<href>{https://godoc.org/golang.org/x/net}
  * @<href>{https://github.com/golang/net}
 
-ネットワーク関連のexpな実装が多く含まれている。http2、websocketとか。 
-ちょっとサンプルコード書きたいなー。
-もしくはgRPCとかkubernetsで使われているかな？
+@<code>{x/net}パッケージにはネットワーク関連の試験的な実装が含まれています。
+@<tt>{WebSocket}プロトコル用の@<code>{websocket}サブパッケージもありますが、@<tt>{GoDoc}では@<code>{github.com/gorilla/websocket}@<fn>{gorilla}の利用を推奨しています@<fn>{godoc_ws}。
+@<code>{http2}サブパッケージには@<tt>{HTTP/2}プロトコルに関わる実装が含まれています。
+が、@<code>{http2}サブパッケージに含まれる実装は低レイヤーの実装です。
+通常の実装ユーザーがGoで@<tt>{HTTP/2}プロトコルを利用したい場合は、標準の@<code>{net/http}パッケージの利用で十分であると@<code>{http2}サブパッケージの@<tt>{GoDoc}に明記されています@<fn>{godoc_http2}。
+また、@<code>{html}サブパッケージを用いれば@<tt>{HTML}を構造解析をして構文木を取得することもできます。
+@<list>{exp_html_parse}@<fn>{play_findlink}は@<code>{html}サブパッケージの@<tt>{Examples}@<fn>{html_example}にあった構文木をパースするサンプルコードを少し改変したものです。
 
-WebSocketについてはgorillaパッケージなどのほうが優れていることが言及されている。
-* @<href>{https:://golang.org/x/net/websocket}
-* @<href>{https://godoc.org/golang.org/x/net/websocket}
+#@# textlint-desable
 
+//list[exp_html_parse][HTML情報から構文木を取得する][go]{
+package main
+
+import (
+  "fmt"
+  "log"
+  "strings"
+
+  "golang.org/x/net/html"
+)
+
+const s = `<p>Links:</p>
+<ul>
+  <li><a href="foo">Foo</a>
+  <li><a href="/bar/baz">BarBaz</a>
+</ul>`
+
+func findLink(n *html.Node) {
+  if n.Type == html.ElementNode && n.Data == "a" {
+    for _, a := range n.Attr {
+      if a.Key == "href" {
+        fmt.Println(a.Val)
+        break
+      }
+    }
+  }
+  for c := n.FirstChild; c != nil; c = c.NextSibling {
+    findLink(c)
+  }
+}
+
+func main() {
+  doc, err := html.Parse(strings.NewReader(s))
+  if err != nil {
+    log.Fatal(err)
+  }
+  findLink(doc)
+}
+//}
+
+#@# textlint-enable
+
+その他、@<code>{x/http}パッケージにはGo1.7以前に利用されていた@<code>{context}サブパッケージも含まれています。
+
+
+//footnote[godoc_ws][@<href>{https://godoc.org/golang.org/x/net/websocket}]
+//footnote[gorilla][@<href>{https://github.com/gorilla/websocket}]
+//footnote[godoc_http2][@<href>{https://godoc.org/golang.org/x/net/http2}]
+//footnote[html_example][@<href>{https://godoc.org/golang.org/x/net/html#example-Parse}]
+//footnote[play_findlink][@<href>{https://play.golang.org/p/Rl0DwfDe9wM}]
 
 LimitListenerなどがある。
 * @<href>{https://heartbeats.jp/hbblog/2015/10/golang-limitlistener.html}
@@ -528,7 +580,10 @@ TODO: コードを貼る
 
 TODO: 実用系のパッケージを使ったサンプルコードを時間があるかぎり書いていく。
 
+#@# textlint-disable
 
-== まとめ
+== おわりに
+
+#@# textlint-enable
 
 TODO: 準公式パッケージを使ってよいGoライフを的な感じでまとめる。
