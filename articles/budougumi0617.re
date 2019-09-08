@@ -193,10 +193,8 @@ Goには静的解析ツールが豊富に存在しています。
 
 
 @<tt>{gomobile}と呼ばれる@<code>{x/mobile}パッケージはGoのコードからAndroidおよびiOS向けのアプリケーションもしくはライブラリを出力できます。
-本リポジトリの詳細は星さんが解説している章をご参照ください。
+本リポジトリの詳細は @<code>{@hajimehoshi}が解説している@<chapref>{hajimehoshi}をご参照ください。
 
-TODO: 星さんの章に参照をつける
-#@# @<chapref>{hajimehhoshi}
 
 
 === @<code>{golang.org/x/vgo}パッケージ
@@ -397,7 +395,7 @@ Goの仕様やツールの利用方法について知りたいと思ったとき
 @<code>{x/blog}パッケージには@<tt>{The Go Blog}の記事がテキスト（@<code>{article}ファイル）として管理されています。
 正直@<tt>{The Go Blog}は検索性があまり高くありません。
 ブログ内容を全文検索したいとき、このリポジトリを利用すれば手元で@<tt>{grep}したり、@<tt>{GitHub}の検索機能を利用して記事を探すことができます。
- 
+
 //footnote[goblog][@<href>{https://blog.golang.org}]
 
 === @<code>{golang.org/x/build}パッケージ
