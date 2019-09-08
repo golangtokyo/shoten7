@@ -7,7 +7,7 @@
 #@# textlint-enable
 
 freee株式会社でバックエンドエンジニアをしている@<tt>{@budougumi0617}@<fn>{bd617_twitter}です。
-本章では2019年9月現在@<code>{golang.org/x}配下にある準公式パッケージについて紹介したいと思います。
+本章では2019年9月現在@<code>{golang.org/x}配下にある準公式パッケージについて紹介します。
 
 
 
@@ -23,20 +23,24 @@ freee株式会社でバックエンドエンジニアをしている@<tt>{@budou
  * 準公式パッケージで提供されるコードを利用することでコーディングの品質を上げる（車輪の再発明を避ける）
  * 今後リリースされるGoのバージョンに取り込まれるであろう、新しいGoの仕組みを先取りして学習する
 
-まず、@<hd>{abst}では@<code>{golang.org/x}配下にあるパッケージの位置づけを簡単に述べます。
+まず、@<hd>{abst}では@<code>{golang.org/x}配下にあるパッケージの位置付けを簡単に述べます。
 @<hd>{summary}では、@<code>{golang.org/x}配下にあるすべてのパッケージの簡単な紹介を述べます。
 最後に@<hd>{detail}で実践的な実装を含んだパッケージの詳細とサンプルコードを記載します。
 
 =={abst} @<code>{golang.org/x}配下にあるパッケージとは
-@<code>{golang.org/x}という@<tt>{import path}から始まる準公式パッケージがあることをご存知でしょうか。
+@<code>{golang.org/x}という@<code>{import}パスから始まる準公式パッケージがあることをご存じでしょうか。
 準公式パッケージは公式パッケージに比べて互換性（@<i>{compatibility requirements}）の基準が低いなどの制約はありますが、便利なパッケージばかりです。
 また、Goに大きな新機能が追加される前の試験的な実装もこちらで公開されます。
 例を挙げると、Go1.7で@<code>{context}パッケージが追加される前は@<code>{golang.org/x/net/context}パッケージの@<code>{context.Context}でコンテキスト情報を扱う実装が開始されていました。
-最近ではGo Modules導入前の@<tt>{vgo}コマンド、また新しいエラーハンドリングのアプローチとして公開された@<code>{golang.org/x/xerrors}パッケージなども@<code>{golang.org/x}の下で公開されている準公式パッケージです。
 
+#@# textlint-disable
+
+最近ではGo Modules導入前の@<tt>{vgo}コマンドや新しいエラーハンドリングのアプローチとして公開された@<code>{golang.org/x/xerrors}パッケージなども@<code>{golang.org/x}の下で公開されている準公式パッケージです。
+
+#@# textlint-enable
 
 =={summary} @<code>{golang.org/x}で提供されているパッケージ一覧
-それでは、早速@<code>{golang.org/x}配下から提供されているパッケージを見ていきましょう。
+それでは、さっそく@<code>{golang.org/x}配下から提供されているパッケージを見ていきましょう。
 サブパッケージまでひとつひとつ紹介していくと途方のない数になってしまうため、ここでは@<tt>{GitHub}上のリポジトリ単位で紹介していきます。また以降の文中では@<code>{golang.org/x/package}パッケージは簡略化のため@<code>{x/package}パッケージと表記します。
 
 
@@ -45,7 +49,7 @@ freee株式会社でバックエンドエンジニアをしている@<tt>{@budou
  * @<href>{https://github.com/golang/arch}
 
 @<code>{x/arch}パッケージはマシンアーキテクチャ依存のコードが同梱されています。
-アセンブラ別の実装が含まれており、Goのデバッガーである@<tt>{Delve}（@<tt>{dlv}コマンド）@<fn>{delve}などで利用されています。
+アセンブラ別の実装が含まれており、Goのデバッガである@<tt>{Delve}（@<tt>{dlv}コマンド）@<fn>{delve}などで利用されています。
 システムコールを扱いたい場合は参考になりそうです。
 
 //footnote[delve][@<href>{https://github.com/go-delve/delve}]
@@ -75,7 +79,7 @@ freee株式会社でバックエンドエンジニアをしている@<tt>{@budou
 
 デバッグツールである@<tt>{viewcore}コマンドの実装が入っています。
 コアファイルの解析方法を知りたいときに実装が参考になるでしょう。
-ただ、実際にデバッグ情報が知りたいならば、正直@<tt>{Delve}を利用したほうが効率的です。
+ただ、実際にデバッグ情報が知りたいなら、正直@<tt>{Delve}を利用したほうが効率的です。
 
 ==== @<tt>{viewcore}コマンドの利用方法
 （この機会以外で利用しそうにないので、）@<tt>{viewcore}コマンドの挙動を確認します。
@@ -160,7 +164,7 @@ G stacksize=800
  * @<href>{https://github.com/golang/exp}
 
 試験的に実装されたコードが含まれているのが@<code>{x/exp}パッケージです。
-リポジトリをウォッチしていると、Goのエッジな開発情報が手に入るかもしれません。
+リポジトリをウォッチしていると、Goのエッジな開発情報が手に入るでしょう。
 例を挙げると、@<code>{x/xerrors}パッケージも元はこのリポジトリで実装されており、@<code>{golang/xerrors}リポジトリのコミットログを確認すると、@<code>{x/exp}パッケージからコピーされてリポジトリへのコミットが始まったことがわかります。
 
 //cmd{
@@ -181,14 +185,14 @@ a5947ff xerrors: require that error be type assertable to As's target
 Goには静的解析ツールが豊富に存在しています。
 デファクトスタンダードとなっている静的解析ツールのひとつである、@<tt>{golint}コマンドの実装が@<code>{lint}パッケージです。
 実装には15以上の静的解析がメソッドとして含まれています。
-自分で静的解析ツールを自作する前に、@<code>{lint}パッケージを一度読んでおくと何かヒントを得られるかもしれません。
+自分で静的解析ツールを自作する前に、@<code>{lint}パッケージを一度読んでおくと何かヒントを得られるでしょう。
 
 === @<code>{golang.org/x/mobile}パッケージ
  * @<href>{https://godoc.org/golang.org/x/mobile}
  * @<href>{https://github.com/golang/mobile}
 
 
-@<tt>{gomobile}と呼ばれる@<code>{mobile}パッケージはGoのコードからAndroidおよびiOS向けのアプリケーションもしくはライブラリを出力することができます。
+@<tt>{gomobile}と呼ばれる@<code>{mobile}パッケージはGoのコードからAndroidおよびiOS向けのアプリケーションもしくはライブラリを出力できます。
 本リポジトリの詳細は星さんが解説している章をご参照ください。
 
 TODO: 星さんの章に参照をつける
@@ -199,8 +203,8 @@ TODO: 星さんの章に参照をつける
  * @<href>{https://godoc.org/golang.org/x/vgo}
  * @<href>{https://github.com/golang/vgo}
 Go1.11から試験的に導入されているGoの新しい依存性管理の仕組みが@<i>{Go Modules}です@<fn>{modules_pro}。
-そして、Go1.10の頃にGo Modulesのプロトタイプ実装として公開されたのが@<code>{vgo}リポジトリと@<tt>{vgo}コマンドです。
-プロトタイプ実装のため、現在@<tt>{go}コマンドのサブコマンドになっている@<tt>{go mod}コマンドとは一部の挙動が異なります。現在使うことはないでしょうが、Russ Cox氏が当時公開した@<i>{Go & Versioning}の記事@<fn>{russ_vgo}を読むときに一緒に読むとGo Moudlesに至る過程を読み解く助けになるかもしれません。
+そして、Go1.10のころにGo Modulesのプロトタイプ実装として公開されたのが@<code>{vgo}リポジトリと@<tt>{vgo}コマンドです。
+プロトタイプ実装のため、現在@<tt>{go}コマンドのサブコマンドになっている@<tt>{go mod}コマンドとは一部の挙動が異なります。現在使うことはないでしょうが、Russ Cox氏が当時公開した@<i>{Go & Versioning}の記事@<fn>{russ_vgo}を読むときに一緒に読むとGo Moudlesに至る過程を読み解く助けになるでしょう。
 
 //footnote[modules_pro][@<href>{https://go.googlesource.com/proposal/+/master/design/24301-versioned-go.md}]
 //footnote[russ_vgo][@<href>{https://research.swtch.com/vgo}]
@@ -209,7 +213,7 @@ Go1.11から試験的に導入されているGoの新しい依存性管理の仕
  * @<href>{https://godoc.org/golang.org/x/mod}
  * @<href>{https://github.com/golang/mod}
 
-Go Modulesでは@<i>{セマンティックバージョニング}@<fn>{semver}や@<i>{暗号化ハッシュ}（@<tt>{go.sum}）といった技術を用いて依存性管理を行なっています。
+Go Modulesでは@<i>{セマンティックバージョニング}@<fn>{semver}や@<i>{暗号化ハッシュ}（@<tt>{go.sum}）といった技術を用いて依存性管理を実施しています。
 これらのGo Modulesが利用している基礎技術の初期実装が@<code>{mode}パッケージに含まれています。
 @<code>{mode}パッケージに含まれている実装の多くはすでにGo本体の@<code>{internal}パッケージに取り込まれています@<fn>{mod_ref}。
 //footnote[semver][@<href>{https://semver.org/lang/ja/}]
@@ -222,12 +226,12 @@ Go Modulesでは@<i>{セマンティックバージョニング}@<fn>{semver}や
 @<code>{x/net}パッケージにはネットワーク関連の試験的な実装が含まれています。
 @<tt>{WebSocket}プロトコル用の@<code>{websocket}サブパッケージもありますが、@<tt>{GoDoc}では@<code>{github.com/gorilla/websocket}@<fn>{gorilla}の利用を推奨しています@<fn>{godoc_ws}。
 @<code>{http2}サブパッケージには@<tt>{HTTP/2}プロトコルに関わる実装が含まれています。
-が、@<code>{http2}サブパッケージに含まれる実装は低レイヤーの実装です。
+が、@<code>{http2}サブパッケージに含まれる実装は低レイヤの実装です。
 通常の実装ユーザーがGoで@<tt>{HTTP/2}プロトコルを利用したい場合は、標準の@<code>{net/http}パッケージの利用で十分であると@<code>{http2}サブパッケージの@<tt>{GoDoc}に明記されています@<fn>{godoc_http2}。
 また、@<code>{html}サブパッケージを用いれば@<tt>{HTML}を構造解析をして構文木を取得することもできます。
 @<list>{exp_html_parse}@<fn>{play_findlink}は@<code>{html}サブパッケージの@<tt>{Examples}@<fn>{html_example}にあった構文木をパースするサンプルコードを少し改変したものです。
 
-#@# textlint-desable
+#@# textlint-disable
 
 //list[exp_html_parse][HTML情報から構文木を取得する][go]{
 package main
@@ -271,7 +275,7 @@ func main() {
 
 #@# textlint-enable
 
-その他、@<code>{x/http}パッケージにはGo1.7以前に利用されていた@<code>{context}サブパッケージも含まれています。
+そのほか、@<code>{x/http}パッケージにはGo1.7以前に利用されていた@<code>{context}サブパッケージも含まれています。
 
 
 //footnote[godoc_ws][@<href>{https://godoc.org/golang.org/x/net/websocket}]
@@ -292,7 +296,7 @@ LimitListenerなどがある。
 
 Goで@<tt>{OAUth2.0}@<fn>{rfc6749}を利用した認可・認証処理を実装しているのが@<code>{x/oauth2}パッケージです。
 サブパッケージには@<tt>{Google}を始め、@<tt>{GitHub}や@<tt>{PayPal}などのメジャーな企業のエンドポイント情報などが定義されています。
-単に@<tt>{OAuth2.0}のライブラリとしてだけではなく、@<code>{http.RoundTripper}インターフェイスの実装の参考にもなります。
+単に@<tt>{OAuth2.0}のライブラリとしてだけではなく、@<code>{http.RoundTripper}インタフェースの実装の参考にもなります。
 
 //footnote[rfc6749][@<href>{https://tools.ietf.org/html/rfc6749}]
 
@@ -303,7 +307,7 @@ Goで@<tt>{OAUth2.0}@<fn>{rfc6749}を利用した認可・認証処理を実装�
 Goは標準パッケージでベンチマークを取得する仕組みが提供されているなど、パフォーマンスに対する取り組みも活発です。
 @<code>{perf}パッケージにはパフォーマンスの計測結果を補完、解析するサーバシステムとパフォーマンスの測定結果をサーバに送信するクライアントの実装が含まれています。
 @<code>{storage}や@<code>{analysis}などの保存、分析のコードも公開されています。
-分析結果については@<tt>{Go Performance Dashboard}@<fn>{perf}で確認することができます。
+分析結果については@<tt>{Go Performance Dashboard}@<fn>{perf}で確認できます。
 
 //footnote[perf][@<href>{https://perf.golang.org/}]
 
@@ -314,7 +318,7 @@ Goは標準パッケージでベンチマークを取得する仕組みが提供
 @<code>{x/benchmarks}パッケージはいくつかのベンチマークコマンドの実装が含まれているリポジトリです。
 サブパッケージのコマンドはそれぞれがHTTPリクエスト、ガベージコレクタ、JSON Unmarshal/Marshalなどのベンチマークを実行します。
 正しく計測するにはどのようにベンチマークテストを実装すべきか、という知見が詰まっています。
-たとえば、ガーベッジコレクタのベンチマークでは完全に@<code>{GC}を完了するために二度@<code>{runtime.GC}メソッドを実行しています@<list>{bench_gc}。
+たとえば、ガベージコレクタのベンチマークでは完全に@<code>{GC}を完了するために二度@<code>{runtime.GC}メソッドを実行しています@<list>{bench_gc}。
 
 #@# textlint-disable
 
@@ -346,7 +350,7 @@ func packageMemConsumption() int {
  * @<href>{https://github.com/golang/text}
 
 @<code>{x/text}パッケージは@<i>{Internationalization}（@<tt>{i18n}）や@<i>{Localization}（@<tt>{i10n}）に関するパッケージが含まれているパッケージです。
-エンコーディングを変換できる@<code>{encoding}サブパッケージ群や、数値を通貨を変換する@<code>{currency}サブパッケージなどの国際化・ローカライズのためのパッケージが揃っています。
+エンコーディングを変換できる@<code>{encoding}サブパッケージ群や、数値を通貨を変換する@<code>{currency}サブパッケージなどの国際化・ローカライズのためのパッケージがそろっています。
 エンコーディングの変換や国際化方法は次の記事を参考にしてください。
 
  * @<tt>{Go 言語の文字エンコーディング変換}@<fn>{spiegel_enc} by @<tt>{@spiegel}さん@<fn>{spiegel}
@@ -365,7 +369,7 @@ func packageMemConsumption() int {
  * @<href>{https://github.com/golang/time}
 
 @<code>{x/time}パッケージは標準パッケージの@<code>{time}パッケージの補足的なパッケージです。
-現在提供されているのは@<code>{rate}サブパッケージのみで、レートリミットを行なうための@<code>{rete.Limitter}構造体が含まれています。
+現在提供されているのは@<code>{rate}サブパッケージのみで、レートリミットを行うための@<code>{rete.Limitter}構造体が含まれています。
 @<code>{rate.Limitter}構造体は排他制御の実装はもちろんのこと、複数の処理に重みを付けて制限することもでき、@<tt>{Go言語による並行処理}のサンプルコードでも利用されています。
 
 //footnote[cigo][@<href>{https://www.oreilly.co.jp/books/9784873118468/}]
@@ -375,9 +379,9 @@ func packageMemConsumption() int {
  * @<href>{https://github.com/golang/tools}
 
 @<code>{x/tools}パッケージには便利な20以上のコマンドラインツールや、静的解析で利用するパッケージなどが含まれています。
-@<code>{cmd}サブパッケージの下に入っているコマンドラインツールは、@<code>{import}文の整形を行なう@<tt>{goimports}、@<tt>{LSP}（@<i>{Language  Server Protocol}）のGoクライアントである@<tt>{gopls}、リファクタリングツールである@<tt>{gorename}など開発に必須なものばかりです。
-また、@<code>{x/tools/go}サブパッケージ配下には@<code>{AST}（@<i>{Abstract Syntax Tree}）の解析を行なう @<code>{x/tools/go/ast}などの静的解析で利用するパッケージが多数含まれています。
-とくに@<code>{x/tools/go/analysis}サブパッケージはGoの静的解析をモージュル構造に再定義したパッケージで、@<code>{x/tools/go/analysis/passes}にはモジュール化された@<tt>{go vet}コマンドの実装が置かれています。
+@<code>{cmd}サブパッケージの下に入っているコマンドラインツールは、@<code>{import}文の整形を行う@<tt>{goimports}、@<tt>{LSP}（@<i>{Language  Server Protocol}）のGoクライアントである@<tt>{gopls}、リファクタリングツールである@<tt>{gorename}など開発に必須なものばかりです。
+また、@<code>{x/tools/go}サブパッケージ配下には@<code>{AST}（@<i>{Abstract Syntax Tree}）の解析を行う @<code>{x/tools/go/ast}などの静的解析で利用するパッケージが多数含まれています。
+得に@<code>{x/tools/go/analysis}サブパッケージはGoの静的解析をモージュル構造に再定義したパッケージで、@<code>{x/tools/go/analysis/passes}にはモジュール化された@<tt>{go vet}コマンドの実装が置かれています。
 静的解析やASTについては、次の電子書籍や記事に日本語でわかりやすくまとまっています。
 
  * @<tt>{逆引きGoによる静的解析入門}@<fn>{booth_kmt}@<fn>{booth_ten} by @<tt>{@tenntenn}さん@<fn>{tenntenn}、@<tt>{@knsh14}さん@<fn>{knsh14}
@@ -420,9 +424,9 @@ Goの継続的デプロイや各リリースに関するエコシステムに関
  * @<href>{https://godoc.org/golang.org/x/tour}
  * @<href>{https://github.com/golang/tour}
 
-@<i>{A Tour of Go}@<fn>{tog}というGoのチュートリアルサイトはみなさんご存知でしょうか。
+Go未経験者Goを始めるとき、大半は@<tt>{A Tour of Go}@<fn>{tog}というチュートリアルサイトで勉強をするでしょう。
 @<code>{tour}リポジトリにはA Tour of GoのWebサイトの実装が含まれています。
-同サイトの誤字や内容の修正が必要な場合はこのリポジトリから行なうことができます。
+同サイトの誤字や内容の修正が必要な場合はこのリポジトリから行うことができます。
 
 //footnote[tog][@<href>{https://tour.golang.org}]
 
@@ -430,9 +434,9 @@ Goの継続的デプロイや各リリースに関するエコシステムに関
  * @<href>{https://godoc.org/golang.org/x/website}
  * @<href>{https://github.com/golang/website}
 
-Goの公式サイトは御存知のとおり、@<tt>{golang.org}@<fn>{golangorg}にあります。
+Goの公式サイトはご存じのとおり、@<tt>{golang.org}@<fn>{golangorg}にあります。
 公式サイトのHOME画面を管理しているのが@<code>{website}パッケージです。
-公式サイトのその他のページはGo本体のリポジトリに含まれていたりします@<fn>{go_doc}。
+リリースノートなどのページはGo本体のリポジトリなどに含まれていたりします@<fn>{go_doc}。
 Google Cloudにある@<i>{google.golang.org パッケージの一覧}@<fn>{googlegolangorg}から、各GoDocへリダイレクトする簡易Webサーバなどの実装@<fn>{google_pkg_list}も同梱されています。
 
 
@@ -446,9 +450,9 @@ Google Cloudにある@<i>{google.golang.org パッケージの一覧}@<fn>{googl
  * @<href>{https://godoc.org/golang.org/x/xerrors}
  * @<href>{https://github.com/golang/xerrors}
 
-Goでスタックトレースを含んだエラー処理を行ないたいならば、@<code>{github.com/pkg/errors}パッケージを使うのがデファクトスタンダードでした。
+2018年まではGoでスタックトレースを含んだエラー処理を行うなら、@<code>{github.com/pkg/errors}パッケージを使うのがデファクトスタンダードでした。
 @<code>{xerrors}パッケージはGo2に向けて提案された@<i>{Proposal: Go 2 Error Inspection}@<fn>{go2_error}をGo1向けに実装したライブラリです。
-@<code>{xerrors}パッケージの@<code>{Newf}（あるいは@<code>{Errof}）関数から生成されたエラーは内部にスタックトレースを持ちます。このスタックトレースはプリントフォーマットで@<code>{%+v} verbeを使って出力することができます。
+@<code>{xerrors}パッケージの@<code>{Newf}（あるいは@<code>{Errof}）関数から生成されたエラーは内部にスタックトレースを持ちます。このスタックトレースはプリントフォーマットで@<code>{%+v} verbeを使って出力できます。
 また、@<code>{xerrors}パッケージはスタックトレース以外にもエラーの同値性を検証する@<code>{Is}関数、取得したエラーから具体的な型のオブジェクトを抽出できる@<code>{As}関数が提供されています。
 
 #@# textlint-disable
@@ -494,8 +498,8 @@ func main() {
 #@# textlint-enable
 
 @<list>{xerr_sample}を実行した結果は次のとおりです。スタックトレースからファイル名と行数が取得できています。
-@<code>{Is}関数では、ネストしたエラーの型もチェックすることができます。
-また、@<code>{As}関数によってエラーの中に含まれている独自型の情報も取得することができました。
+@<code>{Is}関数では、ネストしたエラーの型もチェックできます。
+また、@<code>{As}関数によってエラーの中に含まれている独自型の情報も取得できました。
 
 //cmd{
 wraped:
@@ -508,12 +512,13 @@ body: "original body"
 
 //footnote[play_xerr][@<href>{https://play.golang.org/p/9Vq2jTUiL5b}]
 
-このような機能を含む@<code>{xerrors}パッケージですが、2019年9月3日に公開されたGo1.13で@<code>{xerrors}パッケージで定義された関数が公式パッケージの@<code>{errors}パッケージに正式に導入されました。
+このような機能を含む@<code>{xerrors}パッケージですが、2019年9月3日に公開されたGo1.13で@<code>{xerrors}パッケージに定義された関数が公式パッケージの@<code>{errors}パッケージへ正式に導入されました。
 しかし、@<code>{%+w}や@<code>{%+v}によるスタックトレースの表示の採用は見送られています@<fn>{xerr_frame}。
 
 //footnote[xerr_frame][Go1.13のエラーオブジェクトは内部にスタックトレース（@<code>{Frame}）情報を持っていない]
 
-Go1.13の公式パッケージの@<code>{gerrors}パッケージでは依然としてスタックトレースを取得することができないため、スタックトレースの表示が必要な場合は@<code>{xerrors}パッケージを利用して、不要な場合には標準ライブラリの@<code>{errors}パッケージを利用してください。
+Go1.13の公式パッケージの@<code>{gerrors}パッケージでは依然としてスタックトレースを取得できません。
+スタックトレースの表示が必要な場合は@<code>{xerrors}パッケージを利用して、不要な場合には標準ライブラリの@<code>{errors}パッケージを利用してください。
 @<i>{Proposal: Go 2 Error Inspection}@<fn>{go2_error}
 
 //footnote[pkgerrors][@<href>{https://github.com/pkg/errors}]
@@ -527,7 +532,7 @@ Go1.13の公式パッケージの@<code>{gerrors}パッケージでは依然と�
 //footnote[qiita_xerrors][@<href>{https://qiita.com/sonatard/items/802db82e7275f17fe702}]
 
 =={detail} @<code>{golang.org/x}で提供されているパッケージを使ったコーディング
-ここまでで2019年9月現在存在する@<code>{golang.org/x}配下のパッケージを俯瞰的に確認しました。
+前節で2019年9月現在存在する@<code>{golang.org/x}配下のパッケージを俯瞰的に確認しました。
 本節では、実際に業務やOSSでも利用できる実用的なパッケージの利用方法を紹介します。
 
 === @<code>{golang.org/x/oauth2}
@@ -558,7 +563,7 @@ var Endpoint = oauth2.Endpoint{
 
 #@# textlint-enable
 
-実際に使うときは@<code>{TokenSource}構造体を起点に実装を行ないます。
+実際に使うときは@<code>{TokenSource}構造体を起点に実装を行います。
 
 TODO: コードを貼る
 
@@ -572,7 +577,7 @@ TODO: コードを貼る
 
 TODO: コードを貼る
 
-最後はRoundTripperインターフェイスを実装したTransportオブジェクトを利用する方法です。
+最後はRoundTripperインタフェースを実装したTransportオブジェクトを利用する方法です。
 こちらをHttpClientに用いることでOAuth2以外の機能を付与した状態でClientを利用できます。
 TODO: コードを貼る
 
