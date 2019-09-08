@@ -87,7 +87,7 @@ freee株式会社でバックエンドエンジニアをしている@<tt>{@budou
 今回は実行中のGoのプロセスにシグナルを送信し、無理やりコアダンプを取得しました。
 事前に@<tt>{go言語のデバッガ（delveとgdb)とcore dump}@<fn>{qiita_cd}の記事を参考に@<list>{clash}のサンプルコードを用意しました。
 
-//footnote[qiita_cd][body]
+//footnote[qiita_cd][@<href>{https://qiita.com/YasunoriGoto1/items/abd0d23262a72e2be9bf}]
 
 #@# textlint-disable
 
@@ -165,7 +165,7 @@ G stacksize=800
 
 試験的に実装されたコードが含まれているのが@<code>{x/exp}パッケージです。
 リポジトリをウォッチしていると、Goのエッジな開発情報が手に入るでしょう。
-例を挙げると、@<code>{x/xerrors}パッケージも元はこのリポジトリで実装されており、@<code>{golang/xerrors}リポジトリのコミットログを確認すると、@<code>{x/exp}パッケージからコピーされてリポジトリへのコミットが始まったことがわかります。
+例を挙げると、@<code>{x/xerrors}パッケージも元はこのリポジトリで実装されており、@<code>{github.com/golang/xerrors}リポジトリのコミットログを確認すると、@<code>{x/exp}パッケージからコピーされてリポジトリへのコミットが始まったことがわかります。
 
 //cmd{
 $ git log --oneline wrap.go
@@ -183,16 +183,16 @@ a5947ff xerrors: require that error be type assertable to As's target
  * @<href>{https://github.com/golang/lint}
 
 Goには静的解析ツールが豊富に存在しています。
-デファクトスタンダードとなっている静的解析ツールのひとつである、@<tt>{golint}コマンドの実装が@<code>{lint}パッケージです。
+デファクトスタンダードとなっている静的解析ツールのひとつである、@<tt>{golint}コマンドの実装が@<code>{x/lint}パッケージです。
 実装には15以上の静的解析がメソッドとして含まれています。
-自分で静的解析ツールを自作する前に、@<code>{lint}パッケージを一度読んでおくと何かヒントを得られるでしょう。
+自分で静的解析ツールを自作する前に、@<code>{x/lint}パッケージを一度読んでおくと何かヒントを得られるでしょう。
 
 === @<code>{golang.org/x/mobile}パッケージ
  * @<href>{https://godoc.org/golang.org/x/mobile}
  * @<href>{https://github.com/golang/mobile}
 
 
-@<tt>{gomobile}と呼ばれる@<code>{mobile}パッケージはGoのコードからAndroidおよびiOS向けのアプリケーションもしくはライブラリを出力できます。
+@<tt>{gomobile}と呼ばれる@<code>{x/mobile}パッケージはGoのコードからAndroidおよびiOS向けのアプリケーションもしくはライブラリを出力できます。
 本リポジトリの詳細は星さんが解説している章をご参照ください。
 
 TODO: 星さんの章に参照をつける
@@ -203,7 +203,7 @@ TODO: 星さんの章に参照をつける
  * @<href>{https://godoc.org/golang.org/x/vgo}
  * @<href>{https://github.com/golang/vgo}
 Go1.11から試験的に導入されているGoの新しい依存性管理の仕組みが@<i>{Go Modules}です@<fn>{modules_pro}。
-そして、Go1.10のころにGo Modulesのプロトタイプ実装として公開されたのが@<code>{vgo}リポジトリと@<tt>{vgo}コマンドです。
+そして、Go1.10のころにGo Modulesのプロトタイプ実装として公開されたのが@<code>{x/vgo}パッケージと@<tt>{vgo}コマンドです。
 プロトタイプ実装のため、現在@<tt>{go}コマンドのサブコマンドになっている@<tt>{go mod}コマンドとは一部の挙動が異なります。現在使うことはないでしょうが、Russ Cox氏が当時公開した@<i>{Go & Versioning}の記事@<fn>{russ_vgo}を読むときに一緒に読むとGo Moudlesに至る過程を読み解く助けになるでしょう。
 
 //footnote[modules_pro][@<href>{https://go.googlesource.com/proposal/+/master/design/24301-versioned-go.md}]
@@ -214,7 +214,7 @@ Go1.11から試験的に導入されているGoの新しい依存性管理の仕
  * @<href>{https://github.com/golang/mod}
 
 Go Modulesでは@<i>{セマンティックバージョニング}@<fn>{semver}や@<i>{暗号化ハッシュ}（@<tt>{go.sum}）といった技術を用いて依存性管理を実施しています。
-これらのGo Modulesが利用している基礎技術の初期実装が@<code>{mode}パッケージに含まれています。
+これらのGo Modulesが利用している基礎技術の初期実装が@<code>{x/mode}パッケージに含まれています。
 @<code>{mode}パッケージに含まれている実装の多くはすでにGo本体の@<code>{internal}パッケージに取り込まれています@<fn>{mod_ref}。
 //footnote[semver][@<href>{https://semver.org/lang/ja/}]
 //footnote[mod_ref][@<href>{https://github.com/golang/go/tree/go1.13/src/cmd/go/internal}]
@@ -284,17 +284,11 @@ func main() {
 //footnote[html_example][@<href>{https://godoc.org/golang.org/x/net/html#example-Parse}]
 //footnote[play_findlink][@<href>{https://play.golang.org/p/Rl0DwfDe9wM}]
 
-LimitListenerなどがある。
-* @<href>{https://heartbeats.jp/hbblog/2015/10/golang-limitlistener.html}
-
-テストの参考になりそう。
-* @<href>{https://github.com/golang/net/blob/master/nettest/conntest.go}
-
 === @<code>{golang.org/x/oauth2}パッケージ
  * @<href>{https://godoc.org/golang.org/x/oauth2}
  * @<href>{https://github.com/golang/oauth2}
 
-Goで@<tt>{OAUth2.0}@<fn>{rfc6749}を利用した認可・認証処理を実装しているのが@<code>{x/oauth2}パッケージです。
+@<tt>{OAuth2.0}@<fn>{rfc6749}を利用した認可・認証処理をGoで実装しているのが@<code>{x/oauth2}パッケージです。
 サブパッケージには@<tt>{Google}を始め、@<tt>{GitHub}や@<tt>{PayPal}などのメジャーな企業のエンドポイント情報などが定義されています。
 単に@<tt>{OAuth2.0}のライブラリとしてだけではなく、@<code>{http.RoundTripper}インタフェースの実装の参考にもなります。
 
@@ -305,8 +299,8 @@ Goで@<tt>{OAUth2.0}@<fn>{rfc6749}を利用した認可・認証処理を実装�
  * @<href>{https://github.com/golang/perf}
 
 Goは標準パッケージでベンチマークを取得する仕組みが提供されているなど、パフォーマンスに対する取り組みも活発です。
-@<code>{perf}パッケージにはパフォーマンスの計測結果を補完、解析するサーバシステムとパフォーマンスの測定結果をサーバに送信するクライアントの実装が含まれています。
-@<code>{storage}や@<code>{analysis}などの保存、分析のコードも公開されています。
+@<code>{x/perf}パッケージにはパフォーマンスの計測結果を補完、解析するサーバシステムとパフォーマンスの測定結果をサーバに送信するクライアントの実装が含まれています。
+@<code>{storage}サブパッケージや@<code>{analysis}サブパッケージなどの保存、分析用のコードも公開されています。
 分析結果については@<tt>{Go Performance Dashboard}@<fn>{perf}で確認できます。
 
 //footnote[perf][@<href>{https://perf.golang.org/}]
@@ -318,7 +312,7 @@ Goは標準パッケージでベンチマークを取得する仕組みが提供
 @<code>{x/benchmarks}パッケージはいくつかのベンチマークコマンドの実装が含まれているリポジトリです。
 サブパッケージのコマンドはそれぞれがHTTPリクエスト、ガベージコレクタ、JSON Unmarshal/Marshalなどのベンチマークを実行します。
 正しく計測するにはどのようにベンチマークテストを実装すべきか、という知見が詰まっています。
-たとえば、ガベージコレクタのベンチマークでは完全に@<code>{GC}を完了するために二度@<code>{runtime.GC}メソッドを実行しています@<list>{bench_gc}。
+たとえば、@<list>{bench_gc}に引用したガベージコレクタのベンチマークコードでは完全に@<code>{GC}を完了するために二度@<code>{runtime.GC}メソッドを実行しています。
 
 #@# textlint-disable
 
@@ -369,8 +363,8 @@ func packageMemConsumption() int {
  * @<href>{https://github.com/golang/time}
 
 @<code>{x/time}パッケージは標準パッケージの@<code>{time}パッケージの補足的なパッケージです。
-現在提供されているのは@<code>{rate}サブパッケージのみで、レートリミットを行うための@<code>{rete.Limitter}構造体が含まれています。
-@<code>{rate.Limitter}構造体は排他制御の実装はもちろんのこと、複数の処理に重みを付けて制限することもでき、@<tt>{Go言語による並行処理}のサンプルコードでも利用されています。
+現在提供されているのは@<code>{rate}サブパッケージのみで、レートリミットを行うための@<code>{rate.Limitter}構造体が含まれています。
+@<code>{rate.Limitter}構造体は排他制御の実装はもちろんのこと、複数の処理に重みを付けて制限することもでき、@<tt>{Go言語による並行処理}@<fn>{cigo}のサンプルコードでも利用されています。
 
 //footnote[cigo][@<href>{https://www.oreilly.co.jp/books/9784873118468/}]
 
@@ -380,9 +374,9 @@ func packageMemConsumption() int {
 
 @<code>{x/tools}パッケージには便利な20以上のコマンドラインツールや、静的解析で利用するパッケージなどが含まれています。
 @<code>{cmd}サブパッケージの下に入っているコマンドラインツールは、@<code>{import}文の整形を行う@<tt>{goimports}、@<tt>{LSP}（@<i>{Language  Server Protocol}）のGoクライアントである@<tt>{gopls}、リファクタリングツールである@<tt>{gorename}など開発に必須なものばかりです。
-また、@<code>{x/tools/go}サブパッケージ配下には@<code>{AST}（@<i>{Abstract Syntax Tree}）の解析を行う @<code>{x/tools/go/ast}などの静的解析で利用するパッケージが多数含まれています。
-得に@<code>{x/tools/go/analysis}サブパッケージはGoの静的解析をモージュル構造に再定義したパッケージで、@<code>{x/tools/go/analysis/passes}にはモジュール化された@<tt>{go vet}コマンドの実装が置かれています。
-静的解析やASTについては、次の電子書籍や記事に日本語でわかりやすくまとまっています。
+また、@<code>{go}サブパッケージ配下には@<code>{AST}（@<i>{Abstract Syntax Tree}）の解析を行う @<code>{x/tools/go/ast}などの静的解析で利用するパッケージが多数含まれています。
+得に@<code>{go/analysis}サブパッケージはGoの静的解析をモージュル構造に再定義したパッケージで、@<code>{x/tools/go/analysis/passes}にはモジュール化された@<tt>{go vet}コマンドの実装が置かれています。
+静的解析やASTについては、次の電子書籍や記事にわかりやすくまとまっています。
 
  * @<tt>{逆引きGoによる静的解析入門}@<fn>{booth_kmt}@<fn>{booth_ten} by @<tt>{@tenntenn}さん@<fn>{tenntenn}、@<tt>{@knsh14}さん@<fn>{knsh14}
  * @<tt>{Goにおける静的解析のモジュール化について}@<fn>{mercari_sa} by @<tt>{@tenntenn}さん
@@ -411,7 +405,7 @@ Goの仕様やツールの利用方法について知りたいと思ったとき
  * @<href>{https://github.com/golang/build}
 
 Goの継続的デプロイや各リリースに関するエコシステムに関連するパッケージが同梱されているのが@<code>{x/build}パッケージです。
-リリースマイルストーンに関わる@<tt>{issue}一覧や@<tt>{Open}状態の@<tt>{review}一覧を確認できる@<tt>{developer dashboard}@<fn>{devgo}、
+リリースマイルストーンに関わる@<tt>{issue}一覧や@<tt>{Open}状態の@<tt>{CL}（@<tt>{Change List}）一覧を確認できる@<tt>{developer dashboard}@<fn>{devgo}、
 @<tt>{Gerrit}と@<tt>{GitHub}をミラーリングする@<tt>{bot}、
 各@<tt>{review}に対して行われている継続的ビルドの結果を一覧できる@<tt>{build dashboard}@<fn>{buildgo}などに関するパッケージが同梱されています。
 @<code>{cmd}パッケージ配下には多くのコマンドラインツールがあるので、コマンドラインツールを作成する際にも参考になるでしょう。
@@ -424,8 +418,8 @@ Goの継続的デプロイや各リリースに関するエコシステムに関
  * @<href>{https://godoc.org/golang.org/x/tour}
  * @<href>{https://github.com/golang/tour}
 
-Go未経験者Goを始めるとき、大半は@<tt>{A Tour of Go}@<fn>{tog}というチュートリアルサイトで勉強をするでしょう。
-@<code>{tour}リポジトリにはA Tour of GoのWebサイトの実装が含まれています。
+Go未経験者がGoを始めるとき、大半は@<tt>{A Tour of Go}@<fn>{tog}というチュートリアルサイトで勉強するでしょう。
+@<code>{x/tour}パッケージにはA Tour of GoのWebサイトの実装が含まれています。
 同サイトの誤字や内容の修正が必要な場合はこのリポジトリから行うことができます。
 
 //footnote[tog][@<href>{https://tour.golang.org}]
@@ -435,7 +429,7 @@ Go未経験者Goを始めるとき、大半は@<tt>{A Tour of Go}@<fn>{tog}と�
  * @<href>{https://github.com/golang/website}
 
 Goの公式サイトはご存じのとおり、@<tt>{golang.org}@<fn>{golangorg}にあります。
-公式サイトのHOME画面を管理しているのが@<code>{website}パッケージです。
+公式サイトのHOME画面を管理しているのが@<code>{x/website}パッケージです。
 リリースノートなどのページはGo本体のリポジトリなどに含まれていたりします@<fn>{go_doc}。
 Google Cloudにある@<i>{google.golang.org パッケージの一覧}@<fn>{googlegolangorg}から、各GoDocへリダイレクトする簡易Webサーバなどの実装@<fn>{google_pkg_list}も同梱されています。
 
@@ -451,9 +445,9 @@ Google Cloudにある@<i>{google.golang.org パッケージの一覧}@<fn>{googl
  * @<href>{https://github.com/golang/xerrors}
 
 2018年まではGoでスタックトレースを含んだエラー処理を行うなら、@<code>{github.com/pkg/errors}パッケージを使うのがデファクトスタンダードでした。
-@<code>{xerrors}パッケージはGo2に向けて提案された@<i>{Proposal: Go 2 Error Inspection}@<fn>{go2_error}をGo1向けに実装したライブラリです。
-@<code>{xerrors}パッケージの@<code>{Newf}（あるいは@<code>{Errof}）関数から生成されたエラーは内部にスタックトレースを持ちます。このスタックトレースはプリントフォーマットで@<code>{%+v} verbeを使って出力できます。
-また、@<code>{xerrors}パッケージはスタックトレース以外にもエラーの同値性を検証する@<code>{Is}関数、取得したエラーから具体的な型のオブジェクトを抽出できる@<code>{As}関数が提供されています。
+@<code>{x/xerrors}パッケージはGo2に向けて提案された@<i>{Proposal: Go 2 Error Inspection}@<fn>{go2_error}をGo1向けに実装したライブラリです。
+@<code>{x/xerrors}パッケージの@<code>{Newf}（あるいは@<code>{Errof}）関数から生成されたエラーは内部にスタックトレースを持ちます。このスタックトレースはプリントフォーマットで@<code>{%+v} verbeを使って出力できます。
+また、@<code>{x/xerrors}パッケージはスタックトレース以外にもエラーの同値性を検証する@<code>{Is}関数、取得したエラーから具体的な型のオブジェクトを抽出できる@<code>{As}関数が提供されています。
 
 #@# textlint-disable
 
@@ -512,22 +506,17 @@ body: "original body"
 
 //footnote[play_xerr][@<href>{https://play.golang.org/p/9Vq2jTUiL5b}]
 
-このような機能を含む@<code>{xerrors}パッケージですが、2019年9月3日に公開されたGo1.13で@<code>{xerrors}パッケージに定義された関数が標準パッケージの@<code>{errors}パッケージへ正式に導入されました。
+このような機能を含む@<code>{x/xerrors}パッケージですが、2019年9月3日に公開されたGo1.13で@<code>{x/xerrors}パッケージに定義された関数が標準パッケージの@<code>{errors}パッケージへ正式に導入されました。
 しかし、@<code>{%+w}や@<code>{%+v}によるスタックトレースの表示の採用は見送られています@<fn>{xerr_frame}。
 
 //footnote[xerr_frame][Go1.13のエラーオブジェクトは内部にスタックトレース（@<code>{Frame}）情報を持っていない]
 
-Go1.13の標準パッケージの@<code>{gerrors}パッケージでは依然としてスタックトレースを取得できません。
-スタックトレースの表示が必要な場合は@<code>{xerrors}パッケージを利用して、不要な場合には標準ライブラリの@<code>{errors}パッケージを利用してください。
-@<i>{Proposal: Go 2 Error Inspection}@<fn>{go2_error}
-
+Go1.13の標準パッケージの@<code>{errors}パッケージでは依然としてスタックトレースを取得できません。
+スタックトレースの表示が必要な場合は@<code>{x/xerrors}パッケージを利用して、不要な場合には標準ライブラリの@<code>{errors}パッケージを利用してください。
+そな太さん @<fn>{sonatard}がまとめている@<tt>{Qiita}の@<tt>{xerrors - 関連情報}@<fn>{sonatard}の記事を参考にするとよいでしょう。
+`
 //footnote[pkgerrors][@<href>{https://github.com/pkg/errors}]
 //footnote[go2_error][@<href>{https://go.googlesource.com/proposal/+/master/design/29934-error-values.md}]
-
-
-
-そな太さん @<fn>{sonatard}がまとめているQiitaの@<i>{xerrors - 関連情報}@<fn>{sonatard}の記事を参考にするとよいでしょう。
-
 //footnote[sonatard][@<href>{https://twitter.com/sonatard}]
 //footnote[qiita_xerrors][@<href>{https://qiita.com/sonatard/items/802db82e7275f17fe702}]
 
@@ -537,7 +526,7 @@ Go1.13の標準パッケージの@<code>{gerrors}パッケージでは依然と�
 
 === @<code>{golang.org/x/oauth2}
 
-@<code>{golang.org/x/oauth2}パッケージはGoでOAuth2.0形式の認証認可を扱うためのパッケージです。
+@<code>{x/oauth2}パッケージはGoでOAuth2.0形式の認証認可を扱うためのパッケージです。
 @<code>{GitHub}や@<code>{Google}、@<code>{PayPal}など各社の認可エンドポイントのURLが定義された構造体オブジェクトも含まれています。
 
 #@# textlint-disable
@@ -584,6 +573,12 @@ TODO: コードを貼る
 
 
 TODO: 実用系のパッケージを使ったサンプルコードを時間があるかぎり書いていく。
+LimitListenerなどがある。
+* @<href>{https://heartbeats.jp/hbblog/2015/10/golang-limitlistener.html}
+
+テストの参考になりそう。
+* @<href>{https://github.com/golang/net/blob/master/nettest/conntest.go}
+
 
 #@# textlint-disable
 
