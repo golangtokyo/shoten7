@@ -506,7 +506,7 @@ body: "original body"
 
 //footnote[play_xerr][@<href>{https://play.golang.org/p/9Vq2jTUiL5b}]
 
-このような機能を含む@<code>{x/xerrors}パッケージですが、2019年9月3日に公開されたGo1.13で@<code>{x/xerrors}パッケージに定義された関数が標準パッケージの@<code>{errors}パッケージへ正式に導入されました。
+このような機能を含む@<code>{x/xerrors}パッケージですが、2019年9月3日に公開されたGo1.13で大半の関数が標準パッケージの@<code>{errors}パッケージへ正式に導入されました。
 しかし、@<code>{%+w}や@<code>{%+v}によるスタックトレースの表示の採用は見送られています@<fn>{xerr_frame}。
 
 //footnote[xerr_frame][Go1.13のエラーオブジェクトは内部にスタックトレース（@<code>{Frame}）情報を持っていない]
@@ -586,4 +586,13 @@ LimitListenerなどがある。
 
 #@# textlint-enable
 
-TODO: 準標準パッケージを使ってよいGoライフを的な感じでまとめる。
+本章では@<code>{golag.org/x}配下にある準標準パッケージを紹介しました。
+準標準パッケージは別のパッケージで@<tt>{import}して使うものばかりではなく、Goのために提供されているWebサイトやエコシステムのためのパッケージも多数存在しました。
+私は「便利な準標準パッケージをこの機会にみつけるぞ」という気持ちで今回の執筆を開始しました。
+結果として、コード以外でもこの原稿を書くまで知らなかった@<tt>{Go Development Dashboard}などの存在も知り、学びを得ることができました。
+#@# textlint-disable
+今回サンプルコードを紹介できなかった準標準パッケージも試してみてブログ@<fn>{myblog}で紹介できたらと思います。
+#@# textlint-enable
+みなさんも気になった準標準パッケージがあればぜひリポジトリやGoDocを読んでみてください。
+
+//footnote[myblog][@<href>{https://budougumi0617.github.io/}]
