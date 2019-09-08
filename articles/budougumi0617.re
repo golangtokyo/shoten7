@@ -156,12 +156,12 @@ G stacksize=800
 //footnote[debug_gdb][@<href>{https://golang.org/doc/gdb}]
 
 === @<code>{golang.org/x/exp}パッケージ
-* @<href>{https://godoc.org/golang.org/x/exp}
-* @<href>{https://github.com/golang/exp}
+ * @<href>{https://godoc.org/golang.org/x/exp}
+ * @<href>{https://github.com/golang/exp}
 
-試験的に実装されたコードが内包されています。
-例を挙げると、@<code>{x/xerrors}パッケージも元はこのリポジトリで実装されていました。
-定期的にチェックしておくと、Goの新しい機能を先取りできるかも？
+試験的に実装されたコードが含まれているのが@<code>{x/exp}パッケージです。
+リポジトリをウォッチしていると、Goのエッジな開発情報が手に入るかもしれません。
+例を挙げると、@<code>{x/xerrors}パッケージも元はこのリポジトリで実装されており、@<code>{golang/xerrors}リポジトリのコミットログを確認すると、@<code>{x/exp}パッケージからコピーされてリポジトリへのコミットが始まったことがわかります。
 
 //cmd{
 $ git log --oneline wrap.go
