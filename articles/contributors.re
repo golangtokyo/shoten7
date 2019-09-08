@@ -1,4 +1,7 @@
 = 著者/デザイナー紹介
+=== Goとベイズ理論でゼロからシンプルな記事分類を実装してみよう！ / @po3rin
+東京に住むエンジニアです。仕事ではGoを使ったBtoB向けの記事レコメンドサービスを開発・運用しています。名古屋大学でPythonを使って生物物理シミュレーション最適化手法を研究していました。自然言語処理、画像処理に興味があります。
+
 === @<tt>{gomobile}の現況解説 / @hajimehoshi
 ソフトウェアエンジニア。
 Goでゲームを作ること、またゲームを作るものを作ることに興味がある。
@@ -12,4 +15,3 @@ Designer, Illustrator@<br>{}
 product designer working at Mercari, Inc.@<br>{}
 Love Gopher@<br>{}
 note I wrote→ @<href>{https://note.mu/tottie}
-
