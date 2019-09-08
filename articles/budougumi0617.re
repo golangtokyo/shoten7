@@ -50,19 +50,6 @@ freee株式会社でバックエンドエンジニアをしている@<tt>{@budou
 
 //footnote[delve][@<href>{https://github.com/go-delve/delve}]
 
-=== @<code>{golang.org/x/build}パッケージ
- * @<href>{https://godoc.org/golang.org/x/build}
- * @<href>{https://github.com/golang/build}
-
-Goの継続的デプロイや各リリースに関するエコシステムに関連するパッケージが同梱されているのが@<code>{x/build}パッケージです。
-リリースマイルストーンに関わる@<tt>{issue}一覧や@<tt>{Open}状態の@<tt>{review}一覧を確認できる@<tt>{developer dashboard}@<fn>{devgo}、
-@<tt>{Gerrit}と@<tt>{GitHub}をミラーリングする@<tt>{bot}、
-各@<tt>{review}に対して行われている継続的ビルドを一覧できる@<tt>{build dashboard}@<fn>{buildgo}などに関するパッケージが同梱されています。
-@<code>{cmd}パッケージ配下には多くのコマンドラインツールがあるので、コマンドラインツールを作成する際にも参考になるでしょう。
-
-//footnote[devgo][@<href>{https://dev.golang.org/}]
-//footnote[buildgo][@<href>{https://build.golang.org/}]
-
 === @<code>{golang.org/x/crypto}パッケージ
  * @<href>{https://godoc.org/golang.org/x/crypto}
  * @<href>{https://github.com/golang/crypto}
@@ -306,11 +293,20 @@ func packageMemConsumption() int {
  * @<href>{https://godoc.org/golang.org/x/text}
  * @<href>{https://github.com/golang/text}
 
-`text`パッケージの補完的なパッケージ
+@<code>{x/text}パッケージは@<i>{Internationalization}（@<tt>{i18n}）や@<i>{Localization}（@<tt>{i10n}）に関するパッケージが含まれているパッケージです。
+エンコーディングを変換できる@<code>{encoding}サブパッケージ群や、数値を通貨を変換する@<code>{currency}サブパッケージなどの国際化・ローカライズのためのパッケージが揃っています。
+エンコーディングの変換や国際化方法は次の記事を参考にしてください。
 
-@<tt>{golang.org/x/text/transformパッケージを使う #golang}@<fn>{mercari_trans}
+ * @<tt>{Go 言語の文字エンコーディング変換}@<fn>{spiegel_enc} by @<tt>{@spiegel}さん@<fn>{spiegel}
+ * @<tt>{golang.org/x/text/messageでI18N}@<fn>{ymotongpoo_i18n} by @<tt>{@ymotongpoo}さん@<fn>{ymotongpoo}
+ * @<tt>{golang.org/x/text/transformパッケージを使う #golang}@<fn>{mercari_trans} by @<tt>{@tenntenn}さん@<fn>{tenntenn}
 
+//footnote[tenntenn][@<href>{https://twitter.com/tenntenn}]
 //footnote[mercari_trans][@<href>{https://tech.mercari.com/entry/2017/12/05/154907}]
+//footnote[ymotongpoo_i18n][@<href>{https://ymotongpoo.hatenablog.com/entry/2018/12/25/163455}]
+//footnote[ymotongpoo][@<href>{https://twitter.com/ymotongpoo}]
+//footnote[spiegel_enc][@<href>{https://text.baldanders.info/golang/transform-character-encoding/}]
+//footnote[spiegel][@<href>{https://twitter.com/spiegel_2007}]
 
 === @<code>{golang.org/x/time}パッケージ
  * @<href>{https://godoc.org/golang.org/x/time}
@@ -330,13 +326,15 @@ func packageMemConsumption() int {
 @<code>{cmd}サブパッケージの下に入っているコマンドラインツールは、@<code>{import}文の整形を行なう@<tt>{goimports}、@<tt>{LSP}（@<i>{Language  Server Protocol}）のGoクライアントである@<tt>{gopls}、リファクタリングツールである@<tt>{gorename}など開発に必須なものばかりです。
 また、@<code>{x/tools/go}サブパッケージ配下には@<code>{AST}（@<i>{Abstract Syntax Tree}）の解析を行なう @<code>{x/tools/go/ast}などの静的解析で利用するパッケージが多数含まれています。
 とくに@<code>{x/tools/go/analysis}サブパッケージはGoの静的解析をモージュル構造に再定義したパッケージで、@<code>{x/tools/go/analysis/passes}にはモジュール化された@<tt>{go vet}コマンドの実装が置かれています。
-静的解析やASTについては、@<tt>{@tenntenn}さん@<fn>{tenntenn}、@<tt>{@knsh14}さん@<fn>{knsh14}の@<tt>{逆引きGoによる静的解析入門}@<fn>{booth_kmt}@<fn>{booth_ten}という本で学習することができます。
-Web上では、@<tt>{tenntenn}さんによる@<tt>{Goにおける静的解析のモジュール化について}@<fn>{mercari_sa}や、@<tt>{@motemen}@<fn>{motemen}さんの@<tt>{GoのためのGo}@<fn>{motemen_go}を読むと理解しやすいです。
+静的解析やASTについては、次の電子書籍や記事に日本語でわかりやすくまとまっています。
+
+ * @<tt>{逆引きGoによる静的解析入門}@<fn>{booth_kmt}@<fn>{booth_ten} by @<tt>{@tenntenn}さん@<fn>{tenntenn}、@<tt>{@knsh14}さん@<fn>{knsh14}
+ * @<tt>{Goにおける静的解析のモジュール化について}@<fn>{mercari_sa} by @<tt>{@tenntenn}さん
+ * @<tt>{GoのためのGo}@<fn>{motemen_go} by @<tt>{@motemen}@<fn>{motemen}さん
 
 //footnote[mercari_sa][@<href>{https://tech.mercari.com/entry/2018/12/16/150000}]
-//footnote[tenntenn][@<href>{https://twitter.com/tenntenn}]
 //footnote[knsh14][@<href>{https://twitter.com/knsh14}]
-//footnote[motemen][https://twitter.com/motemen]
+//footnote[motemen][@<href>{https://twitter.com/motemen}]
 //footnote[booth_kmt][@<href>{https://booth.pm/ja/items/1319336}]
 //footnote[booth_ten][@<href>{https://booth.pm/ja/items/1319394}]
 //footnote[motemen_go][@<href>{https://motemen.github.io/go-for-go-book/}]
@@ -351,6 +349,20 @@ Goの仕様やツールの利用方法について知りたいと思ったとき
 ブログ内容を全文検索したいとき、このリポジトリを利用すれば手元で@<tt>{grep}したり、@<tt>{GitHub}の検索機能を利用して記事を探すことができます。
  
 //footnote[goblog][@<href>{https://blog.golang.org}]
+
+=== @<code>{golang.org/x/build}パッケージ
+ * @<href>{https://godoc.org/golang.org/x/build}
+ * @<href>{https://github.com/golang/build}
+
+Goの継続的デプロイや各リリースに関するエコシステムに関連するパッケージが同梱されているのが@<code>{x/build}パッケージです。
+リリースマイルストーンに関わる@<tt>{issue}一覧や@<tt>{Open}状態の@<tt>{review}一覧を確認できる@<tt>{developer dashboard}@<fn>{devgo}、
+@<tt>{Gerrit}と@<tt>{GitHub}をミラーリングする@<tt>{bot}、
+各@<tt>{review}に対して行われている継続的ビルドの結果を一覧できる@<tt>{build dashboard}@<fn>{buildgo}などに関するパッケージが同梱されています。
+@<code>{cmd}パッケージ配下には多くのコマンドラインツールがあるので、コマンドラインツールを作成する際にも参考になるでしょう。
+
+//footnote[devgo][@<href>{https://dev.golang.org/}]
+//footnote[buildgo][@<href>{https://build.golang.org/}]
+
 
 === @<code>{golang.org/x/tour}パッケージ
  * @<href>{https://godoc.org/golang.org/x/tour}
