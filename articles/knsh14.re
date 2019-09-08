@@ -340,6 +340,7 @@ Gophers Slackには@<tt>{#gioui}というGioに関連した話題について議
 Eliasさんもこのチャンネルを見てくださっているので、本人から意見がもらえることもあります。
 
 === Gioに修正を投げる
+#@# textlint-disable
 Gioはsourcehut@<fn>{knsh14_sourcehut_link}という日本ではなかなか見かけないホスティングサービスを使ってコードを管理しています。
 sourcehutはかなりシンプルな機能を提供しているサービスで、GitHubでの開発に慣れていると分かりづらいことが多いです。
 Pull Requestのようなブランチ間の差分をウェブ上でレビューする仕組みもないため、メーリングリストにパッチを送る必要があります。
@@ -349,11 +350,15 @@ Pull Requestのようなブランチ間の差分をウェブ上でレビュー�
 私はGmailを使っています。
 なので、Gmailを利用したパッチ送信について説明します。
 なお、すでにローカルにリポジトリがcloneされている状態を想定しています。
-
+#@# textlint-enable
 //footnote[knsh14_sourcehut_link][https://sourcehut.org/]
 
+
+#@# textlint-disable
 === 事前準備
 実際にパッチを投げる前にいくつか事前準備を行います。
+
+#@# textlint-enable
 
 ==== sourcehutでアカウントを作成する
 sourcehutのサイト@<fn>{knsh14_sourcehut_service_link}へアクセスし、アカウントを作成しておきます。
@@ -365,7 +370,9 @@ sourcehutのサイト@<fn>{knsh14_sourcehut_service_link}へアクセスし、�
 Gmailの画面に行き、設定項目の「メール転送と POP/IMAP」を表示し、IMAPが有効にします。
 他の設定はデフォルトのままで大丈夫です。
 
+#@# textlint-disable
 ==== Gmailのアカウントでアプリパスワードを作成する
+
 まず初めにGoogleアカウントの二段階認証を有効にさせます。
 二段階認証が有効になると、アプリパスワードが作成できるようになります。
 
@@ -375,6 +382,7 @@ Gmailの画面に行き、設定項目の「メール転送と POP/IMAP」を表
 
 ==== gitの設定を追加する
 cloneされたリポジトリの中で@<tt>{.git/config}に@<list>{knsh14_gioui_repo_git_setting}の設定を行います。
+#@# textlint-enable
 
 #@# textlint-disable
 //listnum[knsh14_gioui_repo_git_setting][Gioのリポジトリに設定する項目][gitconfig]{
@@ -394,12 +402,14 @@ cloneされたリポジトリの中で@<tt>{.git/config}に@<list>{knsh14_gioui_
 下の4行はGmail用の設定です。@<tt>{sendmail.smtpUser}の部分は自分のGmailアドレスに変更してください。
 
 === 修正を行う
+#@# textlint-disable
 取り入れて欲しい変更を実際に修正します。
 この操作は普段と同じようにブランチを切って修正します。
 
 1つだけ注意する必要があるのがコミットするときです。
 @<code>{git commit}コマンドを使いますがその際に@<code>{-s}もしくは@<code>{--signoff}オプションを付けてコミットする必要があります。
 このオプションを付けることで、Developer Certificate of Origin@<fn>{knsh14_certificate_of_origin}に同意し、自分の変更がGioのライセンスに属することを証明します。
+#@# textlint-enable
 
 //footnote[knsh14_certificate_of_origin][https://developercertificate.org/]
 
@@ -469,10 +479,12 @@ Send this email? ([y]es|[n]o|[e]dit|[q]uit|[a]ll): y
 //}
 #@# textlint-enable
 
+#@# textlint-disable
 送信する際にパスワードが求められます。
 ここで事前準備で作成したアプリパスワードを入力します。
 そうすると送信されて、メーリングリストに自分のパッチが掲載されます。
 パッチ一覧@<fn>{knsh14_gio_patch_list_url}に自分のパッチが送られているか確認しましょう。
+#@# textlint-enable
 
 #@# textlint-disable
 //listnum[knsh14_send_email_password][パッチ送信時のパスワード入力画面][bash]{

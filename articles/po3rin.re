@@ -1,3 +1,4 @@
+#@# textlint-disable
 = Goとベイズ理論でゼロからシンプルな記事分類を実装してみよう！
 
 == はじめに
@@ -887,3 +888,4 @@ func (c *Classifier) pCategoryDocument(category string, document string) float64
 == おわりに
 
 本章では Go とベイズ理論を使ったシンプルな記事分類の実装方法を紹介しました。是非みなさんもGoで自然言語処理に挑戦してみてください！
+#@# textlint-enable
