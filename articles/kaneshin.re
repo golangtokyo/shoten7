@@ -1,5 +1,5 @@
 = Secure Coding Practices in Go
-
+#@# textlint-disable
 == はじめに
 
 株式会社エウレカのkaneshin@<fn>{kaneshin}です。普段はエウレカの技術戦略やエンジニア組織のマネジメントについて策定や執行をしつつ、Goをメインとしたツールやアプリケーションを開発しています。
@@ -151,7 +151,7 @@ func Signup(ctx context.Context, email, password string) error {
 
 @<code>{bcrypt.GenerateFromPassword}関数で平文のパスワードをハッシュ化しています。ここで保存したハッシュをアカウントログイン時に比較して問題ないかの確認を行います。
 
-//list[bcrypto_signup][アカウントのログイン検証][go]{
+//list[bcrypto_login][アカウントのログイン検証][go]{
 import "golang.org/x/crypto/bcrypt"
 
 var ErrMismatchedCredentials = errors.New("wrong email or password given")
@@ -298,7 +298,7 @@ func do() error {
 
 ラップさせたエラーをアンラップするには@<code>{Unwrap}関数を使用します。
 
-//list[usage_xerrors][エラーのアンラップ][go]{
+//list[usage_xerrors2][エラーのアンラップ][go]{
 func main() {
   err1 := do()
   if err1 != nil {
@@ -330,3 +330,5 @@ Goのログパッケージで有名なものとして、様々なフォーマッ
 また、GoのセキュアコーディングについてOWASPがまとめているリポジトリ@<fn>{owasp_go_scp}もありますので興味がある方はぜひご覧ください。
 
 //footnote[owasp_go_scp][@<href>{https://github.com/OWASP/Go-SCP}]
+
+#@# textlint-enable
