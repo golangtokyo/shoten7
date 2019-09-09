@@ -556,8 +556,214 @@ func CallbackHandler(rw http.ResponseWriter, req *http.Request) {
 //}
 #@# textlint-enable
 
-=== @<code>{golang.org/x/time/rate}パッケージの利用例
+=== @<code>{golang.org/x/time/rate}サブパッケージの利用例
+何かサービスを作っていると、あるリソースへのアクセスやリクエストの数を制限したいことがあります。
+そんなときに利用できるのがレートリミットと呼ばれる流量制限の仕組みです。
+@<code>{x/time/rate}サブパッケージはトークンバケット（@<i>{Token Bucket}@<fn>{limilis}）方式のレートリミットを実装したパッケージです。
 
+//footnote[tb][@<href>{https://en.wikipedia.org/wiki/Token_bucket}]
+//footnote[limilis][@<href>{単純な帯域制限を行う実装として@<code>{x/net/netutil}パッケージに@<code>{LmitListenr}構造体もあります}]
+
+トークンバケットアルゴリズムでは、一定間隔で増え続けるトークン数と最大トークン数が決まっている@<tt>{バケット}が存在します。
+あるアクションが行われるには、バケットに既定数のトークンが必要になります。アクション実行時にトークンは消費されます。
+そのためバケットにあるトークン数のよりもアクションに必要なトークン数が多いならばトークンの回復を待つ必要があります。
+このようなアルゴリズムを@<code>{x/time/rate}サブパッケージを通してどのように利用するのか確認してみます。
+
+@<list>{rate1}は@<code>{rate.Limiter}構造体の初期化方法です。
+@<code>{x/time/rate}サブパッケージはこの@<code>{rate.Limiter}構造体を通して利用します。
+変数@<code>{r}と@<code>{b}に記載されたコメントのとおり、トークンの発行間隔とバケットが保持できる最大トークン数で初期化します。
+
+#@# textlint-disable
+//list[rate1][@<code>{*rate.Limitter}オブジェクトの取得方法][go]{
+r = rate.Limit(2) // 1秒間に増加するトークン数
+b = 5             // 最大トークン数
+l := rate.NewLimiter(r, b)
+//}
+#@# textlint-enable
+
+@<list>{rate2}は@<code>{*rate.Limitter}オブジェクトがもつレートリミット制御用の主要メソッドです@<fn>{godoc_rate}。
+@<code>{rate.Limiter}構造体はこの3種類のメソッドを使ってレートリミットを実現します。
+
+//footnote[godoc_rate][@<href>{https://godoc.org/golang.org/x/time/rate}]
+
+#@# textlint-disable
+//list[rate2][レートリミットを実現するためのメソッド一覧][go]{
+func (lim *Limiter) Allow() bool
+func (lim *Limiter) Wait(ctx context.Context) (err error)
+func (lim *Limiter) Reserve() *Reservation
+
+// Reserveメソッドが返す*Reservationオブジェクトで利用できるメソッド
+func (r *Reservation) Cancel()
+func (r *Reservation) Delay() time.Duration
+//}
+#@# textlint-enable
+
+以降のサンプルコードでは@<list>{rate3}のような@<code>{*rate.Limiter}オブジェクトのラッパー構造体と、動作確認用の@<code>{main}関数を利用します。
+実行条件として今回は最大トークン数が5個のバケットに毎秒2個のアクセストークンが追加されるような条件で設定します。
+ラッパーに@<list>{rate2}で確認した各メソッドを利用したメソッドを実装し、アクションを10回発生させ、挙動の違いを確認しましょう。
+
+
+#@# textlint-disable
+//list[rate3][@<code>{*rate.Limiter}オブジェクトのラッパーと動作確認用の実装]{
+// LimitConn is Limiter wrapper.
+type LimitConn struct {
+  lim *rate.Limiter
+}
+
+func main() {
+  log.SetFlags(log.Ltime)
+
+  n = 10            // 発生するアクション数
+  r = rate.Limit(2) // 1秒間に増加するトークン数
+  m = 5             // 最大トークン数
+
+  lc := &LimitConn{
+    lim: rate.NewLimiter(r, m),
+  }
+  var wg sync.WaitGroup
+
+  for i := 0; i < n; i++ {
+    wg.Add(1)
+    go func(i int) {
+      defer wg.Done()
+      // 後述するレートリミットを実装したLimitConnのメソッドをここで実行する
+    }(i)
+  }
+
+  wg.Wait()
+}
+//}
+#@# textlint-enable
+
+@<list>{rate4}は@<code>{Allow}メソッドを使ったレートリミットの実装です。
+レートリミットで制限される状況で、対象のアクションを破棄あるいはスキップしてよいなら@<code>{Allow}メソッドを使います。
+
+#@# textlint-disable
+//list[rate4][@<code>{Allow}メソッドを利用したレートリミットの実装]{
+func (lc *LimitConn) allow(i int) {
+  if !lc.lim.Allow() {
+    log.Printf("allow: cancel %d\n", i)
+    return
+  }
+  log.Printf("allow: done %d!\n", i)
+}
+
+// main関数内ではこのように利用される
+  for i := 0; i < n; i++ {
+    wg.Add(1)
+    go func(i int) {
+      defer wg.Done()
+      lc.wait(i)
+    }(i)
+  }
+//}
+#@# textlint-enable
+
+@<code>{Allow}メソッドを使って前述の@<code>{main}関数を実行した結果が次の出力です@<fn>{play_allow}。
+@<code>{*rate.Limiter}オブジェクトのバケットは初期化時に最大トークン数が@<code>{5}個の状態になっています。
+そのため、@<code>{5}個のアクションは実行されますが、残りの@<code>{5}個はトークンを取得できずそのままキャンセルされています。
+
+//footnote[play_allow][@<href>{https://play.golang.org/p/KuNawacdEFe}]
+
+#@# textlint-disable
+//cmd{
+07:56:10 allow: done 9!
+07:56:10 allow: done 5!
+07:56:10 allow: done 2!
+07:56:10 allow: done 0!
+07:56:10 allow: done 1!
+07:56:10 allow: cancel 3
+07:56:10 allow: cancel 4
+07:56:10 allow: cancel 7
+07:56:10 allow: cancel 8
+07:56:10 allow: cancel 6
+//}
+#@# textlint-enable
+
+@<list>{rate5}は@<code>{Wait}メソッドを使ったレートリミットの実装です。
+@<code>{Wait}メソッドを使った場合は必要なトークンが回復するまでアクションの実行を待機できます。
+
+#@# textlint-disable
+//list[rate5][@<code>{Wait}メソッドを利用したレートリミットの実装]{
+func (lc *LimitConn) wait(i int) {
+	if err := lc.lim.Wait(context.Background()); err != nil {
+		log.Printf("wait: %v\n", err)
+		return
+	}
+	log.Printf("wait: done %d!\n", i)
+}
+//}
+#@# textlint-enable
+
+@<code>{Wait}メソッドを使って前述の@<code>{main}関数を実行した結果が次の出力です@<fn>{play_wait}。
+最初の@<code>{5}個のアクションは即座に実行されます。
+残りの@<code>{5}個のアクションは毎秒@<code>{2}個ずつ実行されています。
+1秒間に増加するトークン数を@<code>{2}個@<code>{r = rate.Limit(2)}と設定しているためです。
+
+//footnote[play_wait][@<href>{https://play.golang.org/p/lBtSotFqAZF}]
+
+#@# textlint-disable
+//cmd{
+07:56:07 wait: done 2!
+07:56:07 wait: done 9!
+07:56:07 wait: done 3!
+07:56:07 wait: done 4!
+07:56:07 wait: done 5!
+07:56:08 wait: done 6!
+07:56:08 wait: done 0!
+07:56:09 wait: done 7!
+07:56:09 wait: done 8!
+07:56:10 wait: done 1!
+//}
+#@# textlint-enable
+
+@<list>{rate6}は@<code>{Reserve}メソッドを使ったレートリミットの実装です。
+@<code>{Reserve}メソッドを使った場合は返り値で@<code>{*rate.Reservation}オブジェクトが取得できます。
+同オブジェクトの@<code>{Delay}メソッドを使えば@<code>{Wait}メソッドのときのようにアクションを待機できます。
+また、@<code>{Delay}メソッドでアクションをキャンセルすることもできます。
+@<list>{rate6}では動作確認のため、与えられた整数が偶数のときはキャンセルするようにしています。
+
+#@# textlint-disable
+//list[rate6][@<code>{Reserve}メソッドを利用したレートリミットの実装]{
+func (lc *LimitConn) reserve(i int) {
+  r := lc.lim.Reserve()
+  if i%2 == 0 {
+    log.Printf("reserve: cancel %d!\n", i)
+    r.Cancel()
+    return
+    }
+  if !r.OK() {
+    log.Printf("reserve: not ok %d!\n", i)
+    return
+  }
+  time.Sleep(r.Delay())
+  log.Printf("reserve: done %d!\n", i)
+}
+//}
+#@# textlint-enable
+
+@<code>{Reserve}メソッドを使って前述の@<code>{main}関数を実行した結果が次の出力です@<fn>{play_reserve}。
+キャンセルが実行されるとトークンが回復するので、
+TODO: 続きを書く。
+
+//footnote[play_reserve][@<href>{https://play.golang.org/p/qR9S9mUgHVk}]
+
+#@# textlint-disable
+//cmd{
+08:49:33 reserve: cancel 0!
+08:49:33 reserve: done 9!
+08:49:33 reserve: done 1!
+08:49:33 reserve: cancel 6!
+08:49:33 reserve: cancel 8!
+08:49:33 reserve: cancel 2!
+08:49:33 reserve: done 5!
+08:49:33 reserve: cancel 4!
+08:49:34 reserve: done 7!
+08:49:35 reserve: done 3!
+//}
+#@# textlint-enable
+
+TODO: トークン消費量を可変にすることもできる。
 
 === @<code>{golang.org/x/xerrors}パッケージの利用例
 
