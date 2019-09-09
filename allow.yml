@@ -2,6 +2,8 @@
 # 独自の正規表現記法でパターンとして許可することも可能です。
 # https://github.com/textlint/regexp-string-matcher#regexp-like-string
 - "Module"
+- "module"
+- "android"
 - "/TODO:.*/"
 - "メンテナンス"
 - "/\/\/footnote.*/"
