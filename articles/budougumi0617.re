@@ -60,6 +60,8 @@ freee株式会社でバックエンドエンジニアをしている@<tt>{@budou
 
 @<code>{x/crypto}パッケージには標準パッケージに含まれていない暗号形式の実装が多数含まれています。
 暗号化は自分で実装せず、提供されているライブラリを使いましょう。
+@<code>{@kaneshin}さん執筆の@<chapref>{kaneshin}には@<code>{x/crypto/bcrypt}サブパッケージの利用例があります。
+そちらもご参照ください。
 
 === @<code>{golang.org/x/image}パッケージ
  * @<href>{https://godoc.org/golang.org/x/image}
@@ -193,7 +195,7 @@ Goには静的解析ツールが豊富に存在しています。
 
 
 @<tt>{gomobile}と呼ばれる@<code>{x/mobile}パッケージはGoのコードからAndroidおよびiOS向けのアプリケーションもしくはライブラリを出力できます。
-本リポジトリの詳細は @<code>{@hajimehoshi}が解説している@<chapref>{hajimehoshi}をご参照ください。
+本リポジトリの詳細は@<code>{@hajimehoshi}さんが解説している@<chapref>{hajimehoshi}をご参照ください。
 
 
 
