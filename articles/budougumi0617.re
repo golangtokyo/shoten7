@@ -362,7 +362,7 @@ func packageMemConsumption() int {
 
 @<code>{x/time}パッケージは標準パッケージの@<code>{time}パッケージの補足的なパッケージです。
 現在提供されているのは@<code>{rate}サブパッケージのみで、レートリミットを行うための@<code>{rate.Limitter}構造体が含まれています。
-@<code>{rate.Limitter}構造体は排他制御の実装はもちろんのこと、複数の処理に重みを付けて制限することもでき、@<tt>{Go言語による並行処理}@<fn>{cigo}のサンプルコードでも利用されています。
+@<code>{rate.Limitter}構造体は排他制御の実装はもちろんのこと、複数の処理に重みを付けて制限することもでき、@<tt>{Go言語による並行処理}@<fn>{cigo}の@<tt>{5.5 流量制限}の章でも利用されています。
 
 //footnote[cigo][@<href>{https://www.oreilly.co.jp/books/9784873118468/}]
 
@@ -438,13 +438,130 @@ Google Cloudにある@<i>{google.golang.org パッケージの一覧}@<fn>{googl
 //footnote[googlegolangorg][@<href>{https://github.com/golang/website/tree/master/cmd/googlegolangorg}]
 
 
-=== @<code>{golang.org/x/xerrors}パッケージ
+==={errors_summary} @<code>{golang.org/x/xerrors}パッケージ
  * @<href>{https://godoc.org/golang.org/x/xerrors}
  * @<href>{https://github.com/golang/xerrors}
 
 2018年まではGoでスタックトレースを含んだエラー処理を行うなら、@<code>{github.com/pkg/errors}パッケージを使うのがデファクトスタンダードでした。
 @<code>{x/xerrors}パッケージはGo2に向けて提案された@<i>{Proposal: Go 2 Error Inspection}@<fn>{go2_error}をGo1向けに実装したライブラリです。
 @<code>{x/xerrors}パッケージの@<code>{Newf}（あるいは@<code>{Errof}）関数から生成されたエラーは内部にスタックトレースを持ちます。このスタックトレースはプリントフォーマットで@<code>{%+v} verbeを使って出力できます。
+また、@<code>{x/xerrors}パッケージはスタックトレース以外にもエラーの同値性を検証する@<code>{Is}関数、取得したエラーから具体的な型のオブジェクトを抽出できる@<code>{As}関数が提供されています。
+2019年9月3日に公開されたGo1.13で@<code>{x/xerrors}パッケージに含まれる大半の関数が標準パッケージの@<code>{errors}パッケージへ正式に導入されました@<fn>{go113_err}。
+しかし、@<code>{%+w}や@<code>{%+v}によるスタックトレースの表示の採用は見送られています@<fn>{xerr_frame}。
+
+//footnote[go2_error][@<href>{https://go.googlesource.com/proposal/+/master/design/29934-error-values.md}]
+//footnote[xerr_frame][Go1.13のエラーオブジェクトは内部にスタックトレース（@<code>{Frame}）情報を持っていない]
+//footnote[go113_err][@<href>{https://golang.org/doc/go1.13#error_wrapping}]
+
+=={detail} @<code>{golang.org/x}で提供されているパッケージを使ったコーディング
+前節で2019年9月現在存在する@<code>{golang.org/x}配下のパッケージを俯瞰的に確認しました。
+本節では、実際に業務やOSSでも利用できる実用的なパッケージの利用方法を紹介します。
+
+=== @<code>{golang.org/x/oauth2}パッケージの利用例
+
+@<code>{x/oauth2}パッケージはGoでOAuth2.0形式の認証認可を扱うためのパッケージです。
+@<code>{GitHub}や@<code>{Google}、@<code>{PayPal}など各社の認可エンドポイントのURLが定義された構造体オブジェクトも含まれています。
+@<code>{github_endpoint}は@<code>{x/oauth2/github}サブパッケージ内に定義された@<tt>{GitHub}のエンドポイント情報です。
+
+#@# textlint-disable
+
+//list[github_endpoint][GitHubのOAuth2.0用のエンドポイント]{
+// Copyright 2014 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package github provides constants for using OAuth2 to access Github.
+package github // import "golang.org/x/oauth2/github"
+
+import (
+  "golang.org/x/oauth2"
+)
+
+// Endpoint is Github's OAuth 2.0 endpoint.
+var Endpoint = oauth2.Endpoint{
+  AuthURL:  "https://github.com/login/oauth/authorize",
+  TokenURL: "https://github.com/login/oauth/access_token",
+}
+//}
+
+#@# textlint-enable
+
+ここでは、一番ポピュラーである認可コード@<i>{Authorization Code}）フローでの使い方を見てみましょう。
+@<code>{x/oauth2}パッケージでは、@<code>{Config}構造体を中心に認可・認証を行います。
+認可元に登録した（あるいは発行された）情報から認可エンドポイントへのアクセスするためのURLを作成する手順が@<list>{oauth2_example1}です。
+
+#@# textlint-disable
+//list[oauth2_example1][認可エンドポイントへのリクエスト]{
+ctx := context.Background()
+conf := &oauth2.Config{
+    ClientID:     "YOUR_CLIENT_ID",
+    ClientSecret: "YOUR_CLIENT_SECRET",
+    Scopes:       []string{"SCOPE1", "SCOPE2"},
+    RedirectURL: "https://clienturl.com/callback"
+    Endpoint: oauth2.Endpoint{
+        AuthURL:  "https://provider.com/o/oauth2/auth",
+        TokenURL: "https://provider.com/o/oauth2/token",
+    },
+}
+
+url := conf.AuthCodeURL("dummy-state", oauth2.AccessTypeOffline)
+// 生成されたurlを使って、認可画面にアクセスできる。
+//}
+#@# textlint-enable
+
+認可画面で認可に成功すると、認可元は@<code>{RedirectURL}に認可コードを返してきます。
+クライアント側は@<list>{oauth2_example2}のようにその認可コードを使ってトークンエンドポイントからトークンを発行するハンドラを実装することになります。
+
+#@# textlint-disable
+//list[oauth2_example2][コールバックURLに設定するハンドラ]{
+func CallbackHandler(rw http.ResponseWriter, req *http.Request) {
+    // 厳密にはクエリ内のstateも確認する必要がある。
+    code := req.URL.Query().Get("code")
+
+    tok, err := conf.Exchange(ctx, code)
+    if err != nil {
+      log.Fatal(err)
+    }
+
+    // tok（*oauth2.Token）オブジェクトを保存する
+    // 処理の成否をhttp.ResponseWriterに書き込む
+//}
+#@# textlint-enable
+
+@<code>{*oauth2.Token}オブジェクトが取得できれば、@<code>{*oauth2.Config}オブジェクトと組み合わせて@<code>{*http.Client}オブジェクトが取得できます。
+この@<code>{*http.Client}はリクエストヘッダにトークンを自動で埋め込んでくれます。
+また、アクセストークンがリクエスト送信前に@<tt>{Expire}していても、自動トークンリフレッシュをしてくれる優れものです。
+何らかの理由で独自定義した@<code>{*http.Client}オブジェクトを利用したい場合もあるかもしれません。
+その場合は@<code>{http.RoundTripper}インタフェースを満たした@<code>{*oauth.Transport}オブジェクトも生成できます。
+この@<code>{*oauth.Transport}オブジェクトも自動でトークンリフレッシュをしてくれます。
+
+#@# textlint-disable
+//list[oauth2_example3][取得したトークンを使ってHTTPクライントを生成する]{
+  ctx := context.Background()
+  // confはこれまで同様*oauth2.Configオブジェクト
+  client := conf.Client(ctx, tok)
+
+  // 通常のhttp.Clientと同様に利用できる。
+  client.Get("...")
+
+  // 
+  myclient := &http.Client{
+    Transport: &oauth2.Transport{
+      Source: conf.TokenSource(ctx),
+    },
+  }
+  myclient.Get("...")
+//}
+#@# textlint-enable
+
+=== @<code>{golang.org/x/time/rate}パッケージの利用例
+
+
+=== @<code>{golang.org/x/xerrors}パッケージの利用例
+
+@<code>{x/xerrors}パッケージを使ったエラー表現をみていきます。
+@<code>{x/xerrors}パッケージの@<code>{Newf}（あるいは@<code>{Errof}）関数から生成されたエラーは内部にスタックトレースを持ちます。
+このスタックトレースはプリントフォーマットで@<code>{%+v} verbeを使って出力できます。
 また、@<code>{x/xerrors}パッケージはスタックトレース以外にもエラーの同値性を検証する@<code>{Is}関数、取得したエラーから具体的な型のオブジェクトを抽出できる@<code>{As}関数が提供されています。
 
 #@# textlint-disable
@@ -504,79 +621,13 @@ body: "original body"
 
 //footnote[play_xerr][@<href>{https://play.golang.org/p/9Vq2jTUiL5b}]
 
-このような機能を含む@<code>{x/xerrors}パッケージですが、2019年9月3日に公開されたGo1.13で大半の関数が標準パッケージの@<code>{errors}パッケージへ正式に導入されました。
-しかし、@<code>{%+w}や@<code>{%+v}によるスタックトレースの表示の採用は見送られています@<fn>{xerr_frame}。
-
-//footnote[xerr_frame][Go1.13のエラーオブジェクトは内部にスタックトレース（@<code>{Frame}）情報を持っていない]
-
-Go1.13の標準パッケージの@<code>{errors}パッケージでは依然としてスタックトレースを取得できません。
+前述したとおり、Go1.13の標準パッケージの@<code>{errors}パッケージでは依然としてスタックトレースを取得できません。
 スタックトレースの表示が必要な場合は@<code>{x/xerrors}パッケージを利用して、不要な場合には標準ライブラリの@<code>{errors}パッケージを利用してください。
 そな太さん @<fn>{sonatard}がまとめている@<tt>{Qiita}の@<tt>{xerrors - 関連情報}@<fn>{sonatard}の記事を参考にするとよいでしょう。
-`
+
 //footnote[pkgerrors][@<href>{https://github.com/pkg/errors}]
-//footnote[go2_error][@<href>{https://go.googlesource.com/proposal/+/master/design/29934-error-values.md}]
 //footnote[sonatard][@<href>{https://twitter.com/sonatard}]
 //footnote[qiita_xerrors][@<href>{https://qiita.com/sonatard/items/802db82e7275f17fe702}]
-
-=={detail} @<code>{golang.org/x}で提供されているパッケージを使ったコーディング
-前節で2019年9月現在存在する@<code>{golang.org/x}配下のパッケージを俯瞰的に確認しました。
-本節では、実際に業務やOSSでも利用できる実用的なパッケージの利用方法を紹介します。
-
-=== @<code>{golang.org/x/oauth2}
-
-@<code>{x/oauth2}パッケージはGoでOAuth2.0形式の認証認可を扱うためのパッケージです。
-@<code>{GitHub}や@<code>{Google}、@<code>{PayPal}など各社の認可エンドポイントのURLが定義された構造体オブジェクトも含まれています。
-
-#@# textlint-disable
-
-//list[github_endpoint][GitHubのOAuth2.0用のエンドポイント]{
-// Copyright 2014 The Go Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
-// Package github provides constants for using OAuth2 to access Github.
-package github // import "golang.org/x/oauth2/github"
-
-import (
-  "golang.org/x/oauth2"
-)
-
-// Endpoint is Github's OAuth 2.0 endpoint.
-var Endpoint = oauth2.Endpoint{
-  AuthURL:  "https://github.com/login/oauth/authorize",
-  TokenURL: "https://github.com/login/oauth/access_token",
-}
-//}
-
-#@# textlint-enable
-
-実際に使うときは@<code>{TokenSource}構造体を起点に実装を行います。
-
-TODO: コードを貼る
-
-
-oauth2パッケージの設計は利用者に対してとても親切な点があります。
-それは、利用者がどこまでoauth2パッケージをどのレベルで利用したいか選択できる点です。
-一番簡単な方法は、@<code>{TokenSource}オブジェクトからクライアントを生成する方法です。
-TODO: コードを貼る
-
-また、トークン情報を別の用途で利用する場合はTokenオブジェクトを生成します。これも自動的にトークンリフレッシュが行われます。
-
-TODO: コードを貼る
-
-最後はRoundTripperインタフェースを実装したTransportオブジェクトを利用する方法です。
-こちらをHttpClientに用いることでOAuth2以外の機能を付与した状態でClientを利用できます。
-TODO: コードを貼る
-
-
-
-TODO: 実用系のパッケージを使ったサンプルコードを時間があるかぎり書いていく。
-LimitListenerなどがある。
-* @<href>{https://heartbeats.jp/hbblog/2015/10/golang-limitlistener.html}
-
-テストの参考になりそう。
-* @<href>{https://github.com/golang/net/blob/master/nettest/conntest.go}
-
 
 #@# textlint-disable
 
