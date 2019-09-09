@@ -17,6 +17,10 @@ Goでゲームを作ること、またゲームを作るものを作ることに
 Goのことをよくつぶやきます。毎週ブログも書いてます。@<br>{}
 @<href>{https://budougumi0617.github.io/}
 
+==== Secure Coding Practices in Go / @kaneshin0120
+エウレカでPairsの技術面やっています。Go言語やC言語が好きですが数学の最適化理論が大好きです。
+最近はWebフロントをやることも多いです。マネジメントもやっているなんでも屋さんです。
+
 ==== 表紙・裏表紙 / @<tt>{@tottie_designer}
 Designer, Illustrator.
 メルカリでUXUI、デザインシステムを作っています。
