@@ -14,8 +14,10 @@
 むしろ、後方互換性がうまく保たれ、よい実装が登場すればGo1.Xでリリースされることすらあるでしょう。
 
 本稿ではGoにおけるジェネリクスの必要性については議論しません。
-その点について知りたい場合は、Goの公式ブログの記事"Why Generics"を参照するとよいでしょう。
+その点について知りたい場合は、Goの公式ブログの記事"Why Generics?"@<fn>{why-generics}を参照するとよいでしょう。
 また本稿では、他の言語のジェネリクスやそれに類する機能との比較は行いません。
+
+//footnote[why-generics][@<href>{https://blog.golang.org/why-generics}]
 
 == 型パラメタ
 
@@ -23,7 +25,7 @@
 型パラメタを用いることで特定の型に限定しないジェネリックな関数や型を定義できます。
 型パラメタを用いて定義した関数や型を使用する際には、型引数として具体的な型を指定します。
 
-たとえば、任意の型のスライスを引数に受け取るような関数@<code>{Print}は、型パラメタを用いると@<list>{Print_T}ように定義できます。
+たとえば、任意の型のスライスを引数に受け取るような関数@<code>{Print}は、型パラメタを用いると@<list>{Print_T}のように定義できます。
 型パラメタは、関数と引数の間に書くことができ、ここでは型パラメタとして@<code>{T}型を設けています。
 
 //list[Print_T][型パラメタを用いた例][go]{
@@ -35,7 +37,7 @@ func Print(type T)(s []T) {
 //}
 
 関数@<code>{Print}を呼び出すには、引数となるスライスのほかに、そのスライスの型を型引数として指定する必要があります。
-たとえば、@<code>{int}型のスライスを引数に渡したい場合は、@<list>{Print_int}ように型引数として@<code>{int}型を渡す必要があります。
+たとえば、@<code>{int}型のスライスを引数に渡したい場合は、@<list>{Print_int}のように型引数として@<code>{int}型を渡す必要があります。
 
 //list[Print_int][型引数としてint型を指定した例][go]{
 Print(int)([]int{1, 2, 3})
@@ -62,7 +64,7 @@ func Stringify(type T)(s []T) (ret []string) {
 @<code>{T}型は任意の型であるため、@<code>{v.String()}のように呼び出せるとは限りません。
 @<code>{int}型のように@<code>{String}メソッドを定義していない型も型引数として指定できてしまうからです。
 
-そこで@<code>{T}型に制約を入れるコントラクトという概念を導入されました。
+そこで@<code>{T}型に制約を入れるコントラクトという概念が導入されました。
 @<list>{Stringify_with_contract}のように、型パラメタの後ろにコントラクトを指定することで@<code>{T}型を@<code>{stringer}コントラクトで制限できます。
 なお、ここでは@<code>{stringer}コントラクトは、@<code>{String}メソッドを実装している型に限定するコントラクトとします。
 
@@ -168,9 +170,9 @@ contract viaStrings(To, From) {
 }
 //}
 
-@<code>{viastrings}コントラクトは、型パラメタ@<code>{To}と@<code>{From}に対してコントラクトを定義しています。@<code>{To}型は@<code>{Set}メソッド、@<code>{From}型は@<code>{String}メソッドを定義している型であることが規定されています。
+@<code>{viaStrings}コントラクトは、型パラメタ@<code>{To}と@<code>{From}に対してコントラクトを定義しています。@<code>{To}型は@<code>{Set}メソッド、@<code>{From}型は@<code>{String}メソッドを定義している型であることが規定されています。
 
-@<code>{viastrings}コントラクトは@<list>{multiple_typeparam_contract}のように記述することで型パラメタ@<code>{To}と@<code>{From}に対して制約を設けています。
+@<code>{viaStrings}コントラクトは@<list>{multiple_typeparam_contract}のように記述することで型パラメタ@<code>{To}と@<code>{From}に対して制約を設けています。
 @<code>{SetViaStrings}関数は、引数で指定された@<code>{From}型のスライスの要素に対して、@<code>{String}メソッドを呼び出すことで@<code>{string}型の値を取得しています。そして、@<code>{To}型のスライスの要素に@<code>{Set}メソッドを用いてその値を設定しています。
 
 //list[use_multiple_typeparam_contract][複数の型パラメタに対するコントラクトの指定][go]{
@@ -186,7 +188,7 @@ func SetViaStrings(type To, From viaStrings)(s []From) []To {
 == 型パラメタと型定義
 
 型パラメタは関数定義だけではなく型定義に用いることができます。
-たとえば、任意の型のベクトルを表す@<code>{Vector}型は次のように定義できます。
+たとえば、任意の型のベクトルを表す@<code>{Vector}型は@<list>{typeparam_typedef}のように定義できます。
 
 //list[typeparam_typedef][型パラメタを用いた型の定義][go]{
 type Vector(type Element) []Element
@@ -199,7 +201,7 @@ var v Vector(int)
 //}
 
 型パラメタを用いて定義され型にも今までどおりメソッドを設けることができます。
-@<code>{Vector}型の値に要素を追加する@<code>{Push}メソッドは@<list>{typeparam_method}に定義できます。
+@<code>{Vector}型の値に要素を追加する@<code>{Push}メソッドは@<list>{typeparam_method}のように定義できます。
 
 //list[typeparam_method][型パラメタを用いた型のメソッド][go]{
 func (v *Vector(Element)) Push(x Element) { *v = append(*v, x) }
@@ -742,6 +744,7 @@ var f2 func((x(T)))
 
 非ジェネリックなコードがジェネリックなコードをインスタンス化せずに
 参照することは不可能なためリフレクションで情報を取得することはできません。
+
 
 == コントラクトの詳細
 === メソッド
