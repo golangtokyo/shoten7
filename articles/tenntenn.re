@@ -737,6 +737,32 @@ var f1 func(_ x(T))
 var f2 func((x(T)))
 //}
 
+== 型パラメタを用いた型のインタフェースへの埋め込み
+
+@<list>{interface_embedded}のように、型パラメタを用いた型のインタフェースへの埋め込みを考えた場合、
+記述にあいまいさが残ります。
+
+//list[interface_embedded][記述にあいまいさを含む型パラメタを用いた型のインタフェースへの埋め込み][go]{
+type I1(type T) interface {
+  M(T)
+}
+
+type I2 interface {
+  I1(int)
+}
+//}
+
+@<code>{I2}インタフェースは型引数に@<code>{int}型が指定されている型@<code>{I1(int)}を埋め込んだ
+インタフェースではなく、引数が@<code>{int}型のメソッド@<code>{I1}を持つインタフェースとして認識されます。
+
+前者として明示的に記述したい場合には、@<list>{interface_embedded2}のように@<code>{()}でくくって記述します。
+
+//list[interface_embedded2][あいまいさを無くしたI2インタフェースへのI1インタフェースの埋め込み][go]{
+type I2 interface {
+  (I1(int))
+}
+//}
+
 == リフレクション
 
 リフレクションに関しては変更はありません。
@@ -748,7 +774,60 @@ var f2 func((x(T)))
 参照することは不可能なためリフレクションで情報を取得することはできません。
 
 == コントラクトの詳細
-=== メソッド
+
+=== ポインタメソッド
+
+@<list>{pointer_method}のように、@<code>{Set}メソッドを規定する@<code>{setter}コントラクトと
+それを満たすように定義された@<code>{MyInt}型を考えます。
+
+実装された@<code>{Set}メソッドのレシーバは@<code>{MyInt}型ではなく@<code>{*MyInt}型であるため、
+@<code>{Init(MyInt)("1")}のように記述することはできません。
+
+一方、@<code>{Init(*MyInt)("2")}のように記述してもコンパイルエラーにはなりません。
+しかし、@<code>{Init}関数内で定義された変数@<code>{r}が@<code>{var r T}のように定義されているため
+@<code>{*MyInt}を指定した場合に値がゼロ値である@<code>{nil}になってしまいます。
+そのため、@<code>{Init}のレシーバ値が@<code>{nil}になり、@<code>{Set}メソッド内でパニックが発生します。
+
+//list[pointer_method][ポインタメソッドとコントラクトを用いた際の問題][go]{
+contract setter(T) {
+  T Set(string)
+}
+
+func Init(type T setter)(s string) T {
+  var r T
+  r.Set(s)
+  return r
+}
+
+type MyInt int
+func (p *MyInt) Set(s string) {
+  v, err := strconv.Atoi(s)
+  if err != nil {
+    log.Fatal("Init failed", err)
+  }
+  *p = MyInt(v) // pがnilだとここでパニックが発生
+}
+
+// MyInt型はSetメソッドを持っていないためコンパイルエラー
+var Init1 = Init(MyInt)("1")
+
+// Init関数内の変数rはnilになるため、うまく動かない
+var Init2 = Init(*MyInt)("2")
+//}
+
+これを回避するために、@<list>{contractg_pointer_method}のように
+コントラクトで規定しているメソッドのレシーバにポインタを指定することができます。
+
+//list[contractg_pointer_method][ポインタレシーバを指定したコントラクト][go]{
+contract setter(T) {
+  *T Set(string)
+}
+//}
+
+こうすることで@<code>{Init(MyInt)("1")}のように記述でき、
+@<code>{Init}関数内の変数@<code>{r}は@<code>{nil}になりません。
+一方、レシーバが@<code>{**MyInt}型として扱われるため、
+@<code>{Init(*MyInt)("2")}と記述することはできなくなります。
 
 === 演算子
 === コントラクト内の型
@@ -758,3 +837,8 @@ var f2 func((x(T)))
 === コントラクトにおける型についての観察（？）
 === 型変換
 === 型なしの定数
+
+== おわりに
+
+本稿ではGoの新しいコントラクトについて、Design Docを元に解説を行いました。
+コントラクトがどのように設計され提案されているか知るきっかけになれば幸いです。
