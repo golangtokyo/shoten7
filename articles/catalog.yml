@@ -2,10 +2,10 @@ PREDEF:
   - preface.re
 
 CHAPS:
-  - knsh14.re
-  - po3rin.re
-  - hajimehoshi.re
-  - kaneshin.re
+#  - knsh14.re
+#  - po3rin.re
+#  - hajimehoshi.re
+#  - kaneshin.re
   - tenntenn.re
 
 APPENDIX:
