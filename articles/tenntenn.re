@@ -1,6 +1,8 @@
 = Goの新しいコントラクト
 
+#@# textlint-disable
 == はじめに
+#@# textlint-enable
 
 株式会社メルペイのバックエンドエンジニアの@tenntenn@<fn>{tenntenn}です。
 本稿はGopherCon 2019のIan Lance Taylor氏の"Generics in Go"@<fn>{goingenerics-liveblog}というセッションとその後公開されたDesign Doc@<fn>{contract-draft2}を元に書いています。サンプルコードなどは一部を除き、Design Docから引用しています。
@@ -71,9 +73,9 @@ func Stringify(type T)(s []T) (ret []string) {
 //list[Stringify_with_contract][コントラクトを用いた例][go]{
 // 型TはStringメソッドを実装している型に限定される
 func Stringify(type T stringer)(s []T) (ret []string) {
-    for _, v := range s {
-        ret = append(ret, v.String())
-    }
+  for _, v := range s {
+    ret = append(ret, v.String())
+  }
 }
 //}
 
@@ -314,8 +316,8 @@ func (n MyInt) M(type T)(v T) {
 
 //list[contract_embedded][コントラストの埋め込み]{
 contract PrintStringer(X) {
-	stringer(X)
-	X Print()
+  stringer(X)
+  X Print()
 }
 //}
 
@@ -323,8 +325,8 @@ contract PrintStringer(X) {
 
 //list[contract_embedded_same][コントラストの埋め込み]{
 contract PrintStringer(X) {
-	X string() string
-	X Print()
+  X string() string
+  X Print()
 }
 //}
 
@@ -657,17 +659,6 @@ type Pair(type T) struct { f1, f2 T }
 var V = Pair{1, 2} // Pair(int){1, 2}のように推論される
 //}
 
-== 関数のインスタンス化
-
-Goでは関数を引数を渡さず参照することによって関数自体を値として扱うことができます（関数のインスタンス化）。
-型パラメタをもつ関数の場合、コンパイル時に型パラメタが解決されている必要があるため直接的にはインスタンス化できません。
-しかし、@<list>{PrintInts}のように型引数を指定することによって関数のインスタンス化を行うことが可能です。
-
-//list[PrintInts][型パラメタを持つ関数のインスタンス化][go]{
-// PrintIntsの型はfunc([]int)になる
-var PrintInts = Print(int)
-//}
-
 == 型アサーションと型スイッチ
 
 Goではインタフェースを実際の値に基づき型変換を
@@ -691,6 +682,17 @@ func ReadByte(type T reader)(r T) (byte, error) {
   _, err := r.Read(b[:])
   return b[0], err
 }
+//}
+
+== 関数のインスタンス化
+
+Goでは関数を引数を渡さず参照することによって関数自体を値として扱うことができます（関数のインスタンス化）。
+型パラメタをもつ関数の場合、コンパイル時に型パラメタが解決されている必要があるため直接的にはインスタンス化できません。
+しかし、@<list>{PrintInts}のように型引数を指定することによって関数のインスタンス化を行うことが可能です。
+
+//list[PrintInts][型パラメタを持つ関数のインスタンス化][go]{
+// PrintIntsの型はfunc([]int)になる
+var PrintInts = Print(int)
 //}
 
 == 型リテラルにおける型のインスタンス化
@@ -745,9 +747,9 @@ var f2 func((x(T)))
 非ジェネリックなコードがジェネリックなコードをインスタンス化せずに
 参照することは不可能なためリフレクションで情報を取得することはできません。
 
-
 == コントラクトの詳細
 === メソッド
+
 === 演算子
 === コントラクト内の型
 === 制約の連言と選言
