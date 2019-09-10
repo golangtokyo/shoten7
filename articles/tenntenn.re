@@ -795,7 +795,7 @@ contract setter(T) {
 
 func Init(type T setter)(s string) T {
   var r T
-  r.Set(s)
+  r.Set(s) // rは関数内で定義された変数
   return r
 }
 
@@ -828,6 +828,38 @@ contract setter(T) {
 @<code>{Init}関数内の変数@<code>{r}は@<code>{nil}になりません。
 一方、レシーバが@<code>{**MyInt}型として扱われるため、
 @<code>{Init(*MyInt)("2")}と記述することはできなくなります。
+
+=== 値メソッドとポインタメソッド
+
+@<code>{contract_stringer2}のように、コントラクトで規定した
+メソッドのレシーバがポインタではない場合を考えます。
+
+//list[contract_stringer2][stringerコントラクトの定義][go]{
+contract stringer(T) {
+  T String() string
+}
+//}
+
+混乱を避けるため、@<list>{LookupAsString}で定義された@<code>{LookupAsString}関数のように
+ジェネリックな関数内でのジェネリックな型のメソッド呼び出しはポインタメソッドが呼び出されます。
+必要に応じてコンパイル時に一時的な変数が差し込まれ、そのポインタを用いてメソッドを呼び出します。
+
+//list[LookupAsString][ポインタメソッドを暗黙的に呼び出す例][go]{
+func LookupAsString(type T stringer)(m map[int]T, k int) string {
+  // T型のメソッドとして呼び出されるが
+  // 必要に応じて一時的な変数を挟んでポインタメソッドを呼び出す
+  return m[k].String()
+}
+
+type MyInt int
+func (p *MyInt) String() { return strconv.Itoa(int(*p)) }
+func F(m map[int]MyInt) string {
+  // *MyInt型ではなく、MyInt型を指定
+  return LookupAsString(MyInt)(m, 0)
+}
+//}
+
+なお、この仕様は不適切なコードを生むと判断された場合には再検討される可能性があります。
 
 === 演算子
 === コントラクト内の型
