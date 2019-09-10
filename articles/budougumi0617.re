@@ -533,7 +533,7 @@ func CallbackHandler(rw http.ResponseWriter, req *http.Request) {
 @<code>{*oauth2.Token}オブジェクトが取得できれば、@<code>{*oauth2.Config}オブジェクトと組み合わせて@<code>{*http.Client}オブジェクトが取得できます。
 この@<code>{*http.Client}はリクエストヘッダにトークンを自動で埋め込んでくれます。
 また、アクセストークンがリクエスト送信前に@<tt>{Expire}していても、自動トークンリフレッシュをしてくれる優れものです。
-何らかの理由で独自定義した@<code>{*http.Client}オブジェクトを利用したい場合もあるかもしれません。
+何らかの理由で独自定義した@<code>{*http.Client}オブジェクトを利用したい場合もあります。
 その場合は@<code>{http.RoundTripper}インタフェースを満たした@<code>{*oauth.Transport}オブジェクトも生成できます。
 この@<code>{*oauth.Transport}オブジェクトも自動でトークンリフレッシュをしてくれます。
 
@@ -565,8 +565,8 @@ func CallbackHandler(rw http.ResponseWriter, req *http.Request) {
 //footnote[limilis][単純な帯域制限を行う実装として@<code>{x/net/netutil}パッケージに@<code>{LmitListenr}構造体もあります]
 
 トークンバケットアルゴリズムでは、一定間隔で増え続けるトークン数と最大トークン数が決まっている@<tt>{バケット}が存在します。
-あるアクションが行われるには、バケットに既定数のトークンが必要になります。アクション実行時にトークンは消費されます。
-そのためバケットにあるトークン数のよりもアクションに必要なトークン数が多いならばトークンの回復を待つ必要があります。
+あるアクションが行われるには、バケットにアクションごとに指定される数のトークンが必要になります。アクション実行時にトークンは消費されます。
+そのためバケットにあるトークン数よりもアクションに必要なトークン数が多い場合はトークンの回復を待つ必要があります。
 このようなアルゴリズムを@<code>{x/time/rate}サブパッケージを通してどのように利用するのか確認してみます。
 
 @<list>{rate1}は@<code>{rate.Limiter}構造体の初期化方法です。
@@ -718,7 +718,7 @@ func (lc *LimitConn) wait(i int) {
 #@# textlint-enable
 
 @<list>{rate6}は@<code>{Reserve}メソッドを使ったレートリミットの実装です。
-@<code>{Reserve}メソッドを使った場合は返り値で@<code>{*rate.Reservation}オブジェクトが取得できます。
+@<code>{Reserve}メソッドを使った場合は戻り値で@<code>{*rate.Reservation}オブジェクトが取得できます。
 同オブジェクトの@<code>{Delay}メソッドを使えば@<code>{Wait}メソッドのときのようにアクションを待機できます。
 また、@<code>{Delay}メソッドでアクションをキャンセルすることもできます。
 @<list>{rate6}では動作確認のため、与えられた整数が偶数のときは@<code>{Cancel}メソッドでキャンセルするようにしています。
@@ -765,8 +765,8 @@ func (lc *LimitConn) reserve(i int) {
 
 以上が@<code>{x/time/rate}サブパッケージを使った流量制限の例です。
 今回は紹介しませんでしたが、@<code>{*rate.Limiter}オブジェクトには@<code>{AllowN}、 @<code>{ReserveN}、@<code>{WaitN}メソッドが存在します。
-これらのメソッドでは引数に任意の要求トークン数@<code>{n}を指定することが可能です。
-これを利用してアクション別にに必要トークン数をの指定を変化させることで、イベント別に重み付けしながら流量制限をすることも可能です。
+これらのメソッドでは引数に任意の要求トークン数@<code>{n}を指定できます。
+これを利用してアクション別に必要トークン数をの指定を変化させることで、イベント別に重み付けしながら流量制限をすることも可能です。
 
 === @<code>{golang.org/x/xerrors}パッケージの利用例
 
