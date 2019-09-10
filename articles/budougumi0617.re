@@ -340,7 +340,7 @@ func packageMemConsumption() int {
 標準パッケージの@<code>{sync}パッケージの補完的なパッケージです。
 @<code>{x/sync/errgroup}サブパッケージ@<fn>{errgroup}の@<code>{errgroup.Group}構造体は
 戻り値にエラーがないか判断する標準パッケージの@<code>{sync.WaitGroup}構造体@<fn>{sync_waitgroup}のような機能です。
-@<code>{Examples}@<fn>{justerrors}に記載されている@<list>{errgroup}のようにエラーハンドリングをしながら複数の@<code>{goroutine}の終了を待機することができます。
+@<code>{Examples}@<fn>{justerrors}に記載されている@<list>{errgroup}のようにエラーハンドリングをしながら複数の@<code>{goroutine}の終了を待機できます。
 
 //footnote[errgroup][@<href>{https://godoc.org/golang.org/x/sync/errgroup}]
 //footnote[justerrors][@<href>{https://godoc.org/golang.org/x/sync/errgroup#example-Group--JustErrors}]
