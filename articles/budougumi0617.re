@@ -660,8 +660,8 @@ func (lc *LimitConn) allow(i int) {
 #@# textlint-enable
 
 @<code>{Allow}メソッドを使って前述の@<code>{main}関数を実行した結果が次の出力です@<fn>{play_allow}。
-@<code>{*rate.Limiter}オブジェクトのバケットは初期化時に最大トークン数が@<code>{5}個の状態になっています。
-そのため、@<code>{5}個のアクションは実行されますが、残りの@<code>{5}個はトークンを取得できずそのままキャンセルされています。
+@<code>{*rate.Limiter}オブジェクトのバケットは初期化時に最大トークン数が5個の状態になっています。
+そのため、5個のアクションは実行されますが、残りの5個はトークンを取得できずそのままキャンセルされています。
 
 //footnote[play_allow][@<href>{https://play.golang.org/p/KuNawacdEFe}]
 
@@ -696,9 +696,9 @@ func (lc *LimitConn) wait(i int) {
 #@# textlint-enable
 
 @<code>{Wait}メソッドを使って前述の@<code>{main}関数を実行した結果が次の出力です@<fn>{play_wait}。
-最初の@<code>{5}個のアクションは即座に実行されます。
-残りの@<code>{5}個のアクションは毎秒@<code>{2}個ずつ実行されています。
-1秒間に増加するトークン数を@<code>{2}個@<code>{r = rate.Limit(2)}と設定しているためです。
+最初の5個のアクションは即座に実行されます。
+残りの5個のアクションは毎秒2個ずつ実行されています。
+1秒間に増加するトークン数を2個@<code>{r = rate.Limit(2)}と設定しているためです。
 
 //footnote[play_wait][@<href>{https://play.golang.org/p/lBtSotFqAZF}]
 
@@ -731,7 +731,7 @@ func (lc *LimitConn) reserve(i int) {
     log.Printf("reserve: cancel %d!\n", i)
     r.Cancel()
     return
-    }
+  }
   if !r.OK() {
     log.Printf("reserve: not ok %d!\n", i)
     return
