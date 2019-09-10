@@ -1,6 +1,6 @@
 = Goの新しいコントラクト
 
-== 始めに
+== はじめに
 
 株式会社メルペイのバックエンドエンジニアの@tenntenn@<fn>{tenntenn}です。
 本稿はGopherCon 2019のIan Lance Taylor氏の"Generics in Go"@<fn>{goingenerics-liveblog}というセッションとその後公開されたDesign Doc@<fn>{contract-draft2}を元に書いています。サンプルコードなどは一部を除き、Design Docから引用しています。
