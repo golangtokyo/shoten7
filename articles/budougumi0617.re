@@ -562,7 +562,7 @@ func CallbackHandler(rw http.ResponseWriter, req *http.Request) {
 @<code>{x/time/rate}サブパッケージはトークンバケット（@<i>{Token Bucket}@<fn>{limilis}）方式のレートリミットを実装したパッケージです。
 
 //footnote[tb][@<href>{https://en.wikipedia.org/wiki/Token_bucket}]
-//footnote[limilis][@<href>{単純な帯域制限を行う実装として@<code>{x/net/netutil}パッケージに@<code>{LmitListenr}構造体もあります}]
+//footnote[limilis][単純な帯域制限を行う実装として@<code>{x/net/netutil}パッケージに@<code>{LmitListenr}構造体もあります]
 
 トークンバケットアルゴリズムでは、一定間隔で増え続けるトークン数と最大トークン数が決まっている@<tt>{バケット}が存在します。
 あるアクションが行われるには、バケットに既定数のトークンが必要になります。アクション実行時にトークンは消費されます。
@@ -721,7 +721,7 @@ func (lc *LimitConn) wait(i int) {
 @<code>{Reserve}メソッドを使った場合は返り値で@<code>{*rate.Reservation}オブジェクトが取得できます。
 同オブジェクトの@<code>{Delay}メソッドを使えば@<code>{Wait}メソッドのときのようにアクションを待機できます。
 また、@<code>{Delay}メソッドでアクションをキャンセルすることもできます。
-@<list>{rate6}では動作確認のため、与えられた整数が偶数のときはキャンセルするようにしています。
+@<list>{rate6}では動作確認のため、与えられた整数が偶数のときは@<code>{Cancel}メソッドでキャンセルするようにしています。
 
 #@# textlint-disable
 //list[rate6][@<code>{Reserve}メソッドを利用したレートリミットの実装]{
@@ -743,27 +743,30 @@ func (lc *LimitConn) reserve(i int) {
 #@# textlint-enable
 
 @<code>{Reserve}メソッドを使って前述の@<code>{main}関数を実行した結果が次の出力です@<fn>{play_reserve}。
-キャンセルが実行されるとトークンが回復するので、
-TODO: 続きを書く。
+@<code>{Cancel}メソッドが実行されるとトークンが回復するので、バケットの最大トークン数の@<code>{5}以上のアクションが同時に実行されています。
+その後は@<code>{Wait}メソッド同様時間をずらしながらアクションが実行されています。
 
 //footnote[play_reserve][@<href>{https://play.golang.org/p/qR9S9mUgHVk}]
 
 #@# textlint-disable
 //cmd{
-08:49:33 reserve: cancel 0!
-08:49:33 reserve: done 9!
-08:49:33 reserve: done 1!
-08:49:33 reserve: cancel 6!
-08:49:33 reserve: cancel 8!
-08:49:33 reserve: cancel 2!
-08:49:33 reserve: done 5!
-08:49:33 reserve: cancel 4!
-08:49:34 reserve: done 7!
-08:49:35 reserve: done 3!
+15:52:04 reserve: cancel 2!
+15:52:04 reserve: done 9!
+15:52:04 reserve: cancel 0!
+15:52:04 reserve: done 5!
+15:52:04 reserve: cancel 4!
+15:52:04 reserve: cancel 6!
+15:52:04 reserve: cancel 8!
+15:52:04 reserve: done 7!
+15:52:05 reserve: done 1!
+15:52:05 reserve: done 3!
 //}
 #@# textlint-enable
 
-TODO: トークン消費量を可変にすることもできる。
+以上が@<code>{x/time/rate}サブパッケージを使った流量制限の例です。
+今回は紹介しませんでしたが、@<code>{*rate.Limiter}オブジェクトには@<code>{AllowN}、 @<code>{ReserveN}、@<code>{WaitN}メソッドが存在します。
+これらのメソッドでは引数に任意の要求トークン数@<code>{n}を指定することが可能です。
+これを利用してアクション別にに必要トークン数をの指定を変化させることで、イベント別に重み付けしながら流量制限をすることも可能です。
 
 === @<code>{golang.org/x/xerrors}パッケージの利用例
 
