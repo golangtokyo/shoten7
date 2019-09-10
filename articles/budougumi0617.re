@@ -337,7 +337,45 @@ func packageMemConsumption() int {
  * @<href>{https://github.com/golang/sync}
 
 標準パッケージの@<code>{sync}パッケージの補完的なパッケージです。
-@<code>{x/sync/syncmap}パッケージに定義されている@<code>{syncmap.Map}は標準パッケージに取り込まれています。
+@<code>{x/sync/errgroup}サブパッケージ@<fn>{errgroup}の@<code>{errgroup.Group}構造体は
+戻り値にエラーがないか判断する標準パッケージの@<code>{sync.WaitGroup}構造体@<fn>{sync_waitgroup}のような機能です。
+@<code>{Examples}@<fn>{justerrors}に記載されている@<list>{errgroup}のようにエラーハンドリングをしながら複数の@<code>{goroutine}の終了を待機することができます。
+
+//footnote[errgroup][@<href>{https://godoc.org/golang.org/x/sync/errgroup}]
+//footnote[justerrors][@<href>{https://godoc.org/golang.org/x/sync/errgroup#example-Group--JustErrors}]
+//footnote[sync_waitgroup][@<href>{https://golang.org/pkg/sync/#WaitGroup}]
+
+#@# textlint-disable
+//list[errgroup][GCを完了するための実装][go]{
+var g errgroup.Group
+var urls = []string{
+    "http://www.golang.org/",
+    "http://www.google.com/",
+    "http://www.somestupidname.com/",
+}
+for _, url := range urls {
+    // Launch a goroutine to fetch the URL.
+    url := url // https://golang.org/doc/faq#closures_and_goroutines
+    g.Go(func() error {
+        // Fetch the URL.
+        resp, err := http.Get(url)
+        if err == nil {
+            resp.Body.Close()
+        }
+        return err
+    })
+}
+// Wait for all HTTP fetches to complete.
+if err := g.Wait(); err == nil {
+    fmt.Println("Successfully fetched all URLs.")
+}
+//}
+#@# textlint-enable
+
+
+@<code>{x/sync/syncmap}パッケージに定義されている@<code>{syncmap.Map}はGo1.9から@<code>{sync.Map}@<fn>{sync_map}として標準パッケージに取り込まれています。
+
+//footnote[sync_map][@<href>{https://golang.org/pkg/sync/#Map}]
 
 === @<code>{golang.org/x/text}パッケージ
  * @<href>{https://godoc.org/golang.org/x/text}
