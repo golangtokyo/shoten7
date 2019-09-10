@@ -312,10 +312,12 @@ Goは標準パッケージでベンチマークを取得する仕組みが提供
 @<code>{x/benchmarks}パッケージはいくつかのベンチマークコマンドの実装が含まれているリポジトリです。
 サブパッケージのコマンドはそれぞれがHTTPリクエスト、ガベージコレクタ、JSON Unmarshal/Marshalなどのベンチマークを実行します。
 正しく計測するにはどのようにベンチマークテストを実装すべきか、という知見が詰まっています。
-たとえば、@<list>{bench_gc}に引用したガベージコレクタのベンチマークコードでは完全に@<code>{GC}を完了するために二度@<code>{runtime.GC}メソッドを実行しています。
+たとえば、@<list>{bench_gc}に引用したガベージコレクタのベンチマークコードでは、@<code>{runtime.GC}メソッドを2回実行しています。
+2回目の@<code>{GC}を実行することで、1回目の@<code>{GC}をバックグラウンド処理も含めて完全に完了させるためです@<fn>{gc_sweep}。
+
+//footnote[gc_sweep][@<href>{https://github.com/golang/go/blob/go1.13//src/runtime/mgc.go#L110}]
 
 #@# textlint-disable
-
 //list[bench_gc][GCを完了するための実装][go]{
 // packageMemConsumption returns memory consumption of a single parsed package.
 func packageMemConsumption() int {
@@ -325,7 +327,6 @@ func packageMemConsumption() int {
   runtime.GC()
   ms0 := new(runtime.MemStats)
 //}
-
 #@# textlint-enable
 
 また、ベンチマークコマンドのメインロジックは@<code>{driver}パッケージで実装@<fn>{bench_driver}されており、ツールを作る際の共通化の参考にもなりそうです。
