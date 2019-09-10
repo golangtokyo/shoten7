@@ -3,7 +3,7 @@
 == 始めに
 
 株式会社メルペイのバックエンドエンジニアの@tenntenn@<fn>{tenntenn}です。
-この記事はGopherCon 2019のIan Lance Taylor氏の"Generics in Go"@<fn>{goingenerics-liveblog}というセッションとその後公開されたDesign Doc@<fn>{contract-draft2}を元に書いています。
+本稿はGopherCon 2019のIan Lance Taylor氏の"Generics in Go"@<fn>{goingenerics-liveblog}というセッションとその後公開されたDesign Doc@<fn>{contract-draft2}を元に書いています。サンプルコードなどは一部を除き、Design Docから引用しています。
 
 //footnote[tenntenn][@<href>{https://tenntenn.dev}]
 //footnote[goingenerics-liveblog][@<href>{https://about.sourcegraph.com/go/gophercon-2019-generics-in-go}]
@@ -655,4 +655,51 @@ type Pair(type T) struct { f1, f2 T }
 var V = Pair{1, 2} // Pair(int){1, 2}のように推論される
 //}
 
+== 関数のインスタンス化
 
+Goでは関数を引数を渡さず参照することによって関数自体を値として扱うことができます（関数のインスタンス化）。
+型パラメタをもつ関数の場合、コンパイル時に型パラメタが解決されている必要があるため直接的にはインスタンス化できません。
+しかし、@<list>{PrintInts}のように型引数を指定することによって関数のインスタンス化を行うことが可能です。
+
+//list[PrintInts][型パラメタを持つ関数のインスタンス化][go]{
+// PrintIntsの型はfunc([]int)になる
+var PrintInts = Print(int)
+//}
+
+== 型アサーションと型スイッチ
+
+Goではインタフェースを実際の値に基づき型変換を
+行う仕組みとして型アサーションと型スイッチが用意されています。
+型パラメタで指定された型の値においても同様に型アサーションや型スイッチが行なえます。
+
+たとえば、@<list>{typepram_typeassertion}は
+@<code>{ReadByte}関数の引数@<code>{r}に対して型アサーションを行っています。
+このとき、型パラメタ@<code>{T}に割り当てられる型はインタフェースである必要はありません。
+
+//list[typepram_typeassertion][型パラメタの型アサーション][go]{
+contract reader(T) {
+  T Read([]byte) (int, error)
+}
+
+func ReadByte(type T reader)(r T) (byte, error) {
+  if br, ok := r.(io.ByteReader); ok {
+    return br.ReadByte()
+  }
+  var b [1]byte
+  _, err := r.Read(b[:])
+  return b[0], err
+}
+//}
+
+== 無名関数における型パラメタの利用
+== リフレクション
+== コントラクトの詳細
+=== メソッド
+=== 演算子
+=== コントラクト内の型
+=== 制約の連言と選言
+=== 型の集約
+=== 型パラメタの集約
+=== コントラクトにおける型についての観察(?)
+=== 型変換
+=== 型なしの定数
