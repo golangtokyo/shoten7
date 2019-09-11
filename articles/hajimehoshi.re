@@ -219,7 +219,7 @@ Androidの場合は次のとおりです。
   2. @<tt>{gomobile bind}のmodule対応。
   3. @<tt>{gomobile build}のmodule対応。
 
-//<footnote>[module][@<href>{https://github.com/golang/go/issues/27234}]
+//footnote[module][@<href>{https://github.com/golang/go/issues/27234}]
 
 1.と3.は割とやるべきことは素直です。
 @<tt>{go/build}を@<tt>{golang.org/x/tools/go/packages}に置き換えれば、理屈上は終わります。
