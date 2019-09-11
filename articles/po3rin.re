@@ -888,6 +888,6 @@ func (c *Classifier) pCategoryDocument(category string, document string) float64
 
 == おわりに
 
-本章では Go とベイズ理論を使ったシンプルな記事分類の実装方法を紹介しました。Naive Byaesの改良手法は今回紹介した他にも、@<em>{N-gram}の導入などまだまだ沢山あるので調べてみるとよsいでしょう。是非みなさんもGoで自然言語処理に挑戦してみてください！
+本章では Go とベイズ理論を使ったシンプルな記事分類の実装方法を紹介しました。Naive Byaesの改良手法は今回紹介した他にも、@<em>{N-gram}の導入などまだまだ沢山あるので調べてみるとよいでしょう。是非みなさんもGoで自然言語処理に挑戦してみてください！
 #@# textlint-enable
 
