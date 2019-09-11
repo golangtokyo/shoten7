@@ -21,6 +21,13 @@ Goでゲームを作ること、またゲームを作るものを作ることに
 エウレカでPairsの技術面やっています。Go言語やC言語が好きですが数学の最適化理論が大好きです。
 最近はWebフロントをやることも多いです。マネジメントもやっているなんでも屋さんです。
 
+==== Goの新しいコントラクト / @<tt>{@tenntenn}
+メルカリ／メルペイ所属。バックエンドエンジニアとして日々Goを書いている。
+Google Developer Expert（Go）。Go Conference主催者。golang.tokyo、Goビギナーズ、GCPUG Tokyo運営。
+大学時代にGoに出会い、それ以来のめり込む。 社内外で自ら勉強会を開催し、Goの普及に取り組んでいる。
+マスコットのGopherの絵を描くのも好き。人類をGopherにしたいと考えている。@<br>{}
+@<href>{https://tenntenn.dev}
+
 ==== 表紙・裏表紙 / @<tt>{@tottie_designer}
 Designer, Illustrator.
 メルカリでUXUI、デザインシステムを作っています。
