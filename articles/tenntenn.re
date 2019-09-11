@@ -862,13 +862,123 @@ func F(m map[int]MyInt) string {
 なお、この仕様は不適切なコードを生むと判断された場合には再検討される可能性があります。
 
 === 演算子
-=== コントラクト内の型
+
+@<list>{typeparam_operator}のように、型パラメタ@<code>{T}で指定される
+@<code>{T}型の値を@<code>{<}のような演算子で比較することはできません。
+型引数として数値のような比較できる値が指定される場合もあれば、
+構造体など比較できないような型が指定される場合もあるからです。
+
+//list[typeparam_operator][比較演算を行った例][go]{
+// この関数は不正
+func Smallest(type T)(s []T) T {
+  r := s[0] // 空のスライスの場合はパニックを起こす
+  for _, v := range s[1:] {
+    if v < r { // 型Tが比較できるとは限らないため不正
+      r=v
+    }
+  }
+  return r
+}
+//}
+
+=== コントラクトで型を規定する
+
+比較演算が行えるような型に制約をするようなコントラクトを定義したい場合、
+メソッドを規定するのではなく、@<list>{type_in_contract}のように型を羅列してコントラクトを定義します。
+
+//list[type_in_contract][型を規定したコントラクト][go]{
+contract SignedInteger(T) {
+  T int, int8, int16, int32, int64
+}
+//}
+
+@<code>{SignedInteger}コントラクトは、型パラメタ@<code>{T}を羅列した
+@<code>{int, int8, int16, int32, int64}のいずれかの型に制約しています。
+
+このように、型引数として指定できる型を絞ることにより、
+特定の型にしか行なえないような演算が行えます。
+
 === 制約の連言と選言
-=== 型の集約
-=== 型パラメタの集約
-=== コントラクトにおける型についての観察（？）
-=== 型変換
-=== 型なしの定数
+
+コントラクトの定義ではメソッドによる制約または型による制約を記述することができます。
+それらの制約は複数記述することができ、カンマで区切る場合と改行で区切る場合には意味が変わります。
+
+カンマで区切った場合は、それらの制約は選言（OR）となり、
+並べた制約のいずれかが満たされていれば問題ありません。
+一方、改行で区切った場合は、連言（AND）となりすべての制約を満たす必要があります。
+
+@<list>{semicolon_separate}のように、セミコロンで区切った場合は
+改行で区切った場合と同等に扱われます。
+
+//list[semicolon_separate][セミコロンで区切った場合][go]{
+// PrintStringer1とPrintStringer2は同等なコントラクト
+contract PrintStringer1(T) {
+  T String() string
+  T Print()
+}
+
+contract PrintStringer2(T) {
+  T String() string; T Print()
+}
+//}
+
+制約をカンマで区切る場合、@<list>{contract_float}のように
+型を羅列する場合が多いでしょう。
+@<code>{Float}コントラクトは型パラメタを@<code>{float32}型か
+@<code>{float64}型に制約します。
+
+//list[contract_float][制約をカンマで区切った例][go]{
+contract Float(T) {
+  T float32, float64
+}
+//}
+
+一方、@<list>{contract_method_or}のようにメソッドによる制約をカンマで区切ることも可能です。
+@<code>{IOCloser}コントラクトは、型パラメタ@<code>{S}を@<code>{Read}メソッドまたは@<code>{Write}メソッドを
+実装していて、かつ、@<code>{Close}メソッドも実装しているような型に制約します。
+つまり、型パラメタ@<code>{S}は@<code>{io.ReadCloser}インタフェースや@<code>{io.WriteCloser}インタフェースを実装するような型だけに絞られます。
+
+//list[contract_method_or][メソッドによる制約をカンマで区切った例][go]{
+contract IOCloser(S) {
+  S Read([]byte) (int, error), // カンマで区切られている
+    Write([]byte) (int, error)
+  S Close() error
+}
+//}
+
+また、型による制約においても@<list>{contract_unsatisfiable}のように
+制約を改行で区切ることが可能です。
+しかし、たとえば@<code>{unsatisfiable}は
+@<code>{int}型と@<code>{uint}型の制約を同時に満たすことはできません。
+このように、型による制約を改行で区切って並べると満たすことが不可能なコントラクトが定義できます。
+
+//list[contract_unsatisfiable][型による制約を改行で区切った例][go]{
+contract unsatisfiable(T) {
+  T int
+  T uint
+}
+//}
+
+=== 型による制約とメソッドによる制約
+
+@<list>{type_method_contract}のように、型による制約とメソッドによる制約を同時に持つようなコントラクトを定義することは可能です。
+
+//list[type_method_contract][型による制約とメソッドによる制約を用いたコントラクト][go]{
+contract StringableSignedInteger(T) {
+  T int, int8, int16, int32, int64
+  T String() string
+}
+//}
+
+@<list>{StringableSignedInteger_MyInt}で定義された@<code>{MyInt}型は@<code>{StringableSignedInteger}コントラクトを満たします。
+@<code>{MyInt}型は@<code>{int}型を基底型とし、@<code>{String}メソッドを実装しています。
+
+//list[StringableSignedInteger_MyInt][StringableSignedIntegerコントラクトを満たす型][go]{
+type MyInt int
+func (mi MyInt) String() string {
+  return fmt.Sprintf("MyInt(%d)", mi)
+}
+//}
 
 == おわりに
 
