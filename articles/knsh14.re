@@ -1,10 +1,10 @@
 = GUIライブラリGioで遊んでみよう
 
-2019年7月に開催されたGopherCon 2019@<fn>{knsh14_gophercon_link}で新しいGoのGUIライブラリが発表されました。
+2019年7月に開催されたGopherCon 2019@<fn>{knsh14_gophercon_link}でGioという新しいGoのGUIライブラリが発表されました。
 これまでGoの苦手な分野としてGUIを持ったアプリケーションが開発しづらいという点が挙げられていましたが、これを解決する可能性を秘めたライブラリです。
 
 
-//footnote[knsh14_gophercon_link][https://www.gophercon.com/]
+//footnote[knsh14_gophercon_link][@<href>{https://www.gophercon.com/}]
 
 == Gioの概要
 Gio@<fn>{knsh14_gioui_link}はGo製のGUIライブラリです。
@@ -14,13 +14,13 @@ Gio@<fn>{knsh14_gioui_link}はGo製のGUIライブラリです。
 Gioはまだv1.0.0がリリースされておらず、今でも大きな変更があります。
 2019年9月2日執筆時点でのバージョン@<fn>{knsh14_gio_version}を正式なものとして扱います。
 
-//footnote[knsh14_gioui_link][https://gioui.org]
-//footnote[knsh14_gio_version][https://git.sr.ht/~eliasnaur/gio/commit/dc62058bcefc51bd138d12668bba5a11dfed3e3f]
+//footnote[knsh14_gioui_link][@<href>{https://gioui.org}]
+//footnote[knsh14_gio_version][@<href>{https://git.sr.ht/~eliasnaur/gio/commit/dc62058bcefc51bd138d12668bba5a11dfed3e3f}]
 
 === 特徴
 大きな特徴として私達が書くアプリケーションのコードをすべてGoで書ける点にあります。
 さらに、Goそのものの特徴であるクロスプラットフォームにも対応しています。
-対応しているプラットフォームはiOS、AndroidはもちろんtvOSやWebGLなどにも出力できます。
+対応しているプラットフォームはmacOSやWindowsなどのデスクトップ、iOS、Androidのスマートフォン、さらにtvOSやWebGLなどにも出力できます。
 
 === インストール方法
 インストール方法は一般的なGoのライブラリと同じ方法でインストールできます。
@@ -49,7 +49,7 @@ $ goexec 'http.ListenAndServe(":8080", http.FileServer(http.Dir("APP")))'
 ビルドするためのコマンドが@<code>{gio}ではなく、@<code>{go run gioui.org/cmd/gio}なのはgioという別のコマンドがmacOSではデフォルトで入っているからです。
 iOS向けやAndroid向けのビルドコマンドで生成されたバイナリは各ツールでさらに端末にインストールできます。
 
-== Gioで遊んで見る
+== Gioで遊んでみる
 実際のコードを動かして、Gioがどのような機能を持っているか紹介します。
 これから紹介するコードは、Go Playgroundで動かすことはできません。
 ローカルで@<code>{go run}コマンドを利用して動かしてください。
@@ -82,7 +82,7 @@ func main() {
 ウィンドウに画像や文字を出したり、キーの入力を受けたりする処理は別の@<code>{goroutine}で実行する必要があります。
 
 === Hello World
-GopherConで例として利用されたHello Worldのコード@<fn>{knsh14_gioui_sample_hello_world_link}を実行します。
+Hello Worldという文字列を表示するサンブルコードを@<list>{knsh14_gioui_sample_hello_world}に示します。
 
 #@# textlint-disable
 //listnum[knsh14_gioui_sample_hello_world][Hello Worldを表示するサンプル][go]{
@@ -95,7 +95,7 @@ import (
   "gioui.org/ui/measure"
   "gioui.org/ui/text"
 
-  "golang.org/x/image/font/gofont/goregular"
+  "golang.org/x/image/font/gofont/gomono"
   "golang.org/x/image/font/sfnt"
 )
 
@@ -103,31 +103,30 @@ import (
 func main() {
   go func() {
     w := app.NewWindow()
-    regular, _ := sfnt.Parse(goregular.TTF)
+    regular, _ := sfnt.Parse(gomono.TTF)
     var cfg ui.Config
     var faces measure.Faces
     ops := new(ui.Ops)
-    for e := range w.Events() {
-      if e, ok := e.(app.UpdateEvent); ok {
+    for event := range w.Events() {
+      switch e := event.(type) {
+      case app.UpdateEvent:
         cfg = &e.Config
         cs := layout.RigidConstraints(e.Size)
         ops.Reset()
         faces.Reset(cfg)
 
-        lbl := text.Label{
+        label := text.Label{
           Face: faces.For(regular, ui.Sp(72)),
           Text: "Hello, World!",
-        } // HLdraw
-        lbl.Layout(ops, cs) // HLdraw
+        }
+        label.Layout(ops, cs)
 
         w.Update(ops)
       }
-    } // HLeventloop
+    }
   }()
   app.Main()
 }
-
-// END OMIT
 //}
 #@# textlint-enable
 
@@ -142,8 +141,8 @@ func main() {
 イベントには「画面を更新した」、「何らかの入力を受けた」などがあります。
 このサンプルでは画面を更新する際のイベント@<code>{gioui.org/ui/app.UpdateEvent}@<fn>{knsh14_gioui_app_updateevent_doc_link}の場合に文字を出す処理を行います。
 
-文字を出力するためには@<code>{gioui.org/ui/text.Label}を利用します。
-@<code>{Label}には2つのフィールドがあります。
+文字を出力するためには@<code>{gioui.org/ui/text.Label}型を利用します。
+@<code>{Label}型には2つのフィールドがあります。
 1つ目はもちろん出力するための@<code>{Text}フィールドです。
 2つ目は文字のフォント、大きさを決める@<code>{Face}フィールドです。
 これら2つを指定してどのように画面に表示するかを決定します。
@@ -157,8 +156,7 @@ func main() {
 @<code>{gioui.org/ui/layout.Constraints}はイベントを処理する毎に取得する必要があります。
 なぜなら画面サイズが変わったりした場合に再度計算する必要があるからです。
 
-//footnote[knsh14_gioui_sample_hello_world_link][https://github.com/eliasnaur/gophercon-2019-talk/blob/master/helloworld.go]
-//footnote[knsh14_gioui_app_updateevent_doc_link][https://godoc.org/gioui.org/ui/app#UpdateEvent]
+//footnote[knsh14_gioui_app_updateevent_doc_link][@<href>{https://godoc.org/gioui.org/ui/app#UpdateEvent}]
 
 === レイアウトを変更する
 右寄せで画面のN%部分に表示したいという状況はGUIアプリケーションを作っているとよく遭遇します。
@@ -304,7 +302,7 @@ func loop(w *app.Window) error {
 #@# textlint-enable
 
 キーボード入力などの入力は@<code>{gioui.org/ui/input.Queue}というインタフェースを通して取得します。
-このQueueは@<code>{app.Window}オブジェクトから取得します。
+この@<code>{Queue}は@<code>{app.Window}オブジェクトから取得します。
 取得できるイベントの種類はキーボードの入力以外にも、マウスのクリックやウィンドウのフォーカスなどがあります。
 
 == Gioでのアプリケーション設計
@@ -314,11 +312,11 @@ func loop(w *app.Window) error {
 === GioのWindowは状態を持たない
 GopherConのtalkでもGioは状態を持たないという説明がされています。
 前の画面更新時の状態を持っていることもありません。
-GioのWindowオブジェクトは全体の描画イベントなどのQueueのchannel、入力イベントのQueueや、画面再描画のメソッドなどだけを提供します。
+Gioの@<code>{Window}オブジェクトは全体の描画イベントなどの@<code>{Queue}のchannel、入力イベントの@<code>{Queue}や、画面再描画のメソッドなどだけを提供します。
 画面の要素の状態や、再描画の際のフックのためのコールバック関数は定義されていません。
 
 画面が今どう表示されているか、そのためのデータはどのような状態なのかは自分たちで管理する必要があります。
-これはアプリケーションの状態を管理するコードを自分たちで管理する必要があるため、より自分たちでコードを書く必要があります。
+そのため、より自分たちでコードを書く必要があります。
 ですが、自分たちで状態の変化を管理できるので、テストコードで正しく状態遷移できているかを担保しやすいというメリットがあります。
 
 Gioを動かす部分、UIの描画などをハンドリングする部分、実際のデータなどを操作する機能などでうまくアプリケーションを設計する必要があります。
@@ -335,52 +333,55 @@ Gioへ興味が湧いてきて、いろいろ使っているとバグを発見�
 ぜひ積極的にGioのコミュニティに参加して、コントリビュートしていきましょう。
 
 === 質問をする
-Gophers Slackには@<tt>{#gioui}というGioに関連した話題について議論するチャンネルがあります。
+Gophers Slackには@<tt>{#gioui}というGioに関連した話題について議論するチャンネルがあります@<fn>{knsh14_gophers_slack_gioui_link}。
 使い方についての質問やベストプラクティスに関する質問など困ったことがあれば参加して聞いて見るとよいでしょう。
 Eliasさんもこのチャンネルを見てくださっているので、本人から意見がもらえることもあります。
+
+//footnote[knsh14_gophers_slack_gioui_link][@<href>{https://gophers.slack.com/app_redirect?channel=gioui}]
 
 === Gioに修正を投げる
 #@# textlint-disable
 Gioはsourcehut@<fn>{knsh14_sourcehut_link}という日本ではなかなか見かけないホスティングサービスを使ってコードを管理しています。
 sourcehutはかなりシンプルな機能を提供しているサービスで、GitHubでの開発に慣れていると分かりづらいことが多いです。
-Pull Requestのようなブランチ間の差分をウェブ上でレビューする仕組みもないため、メーリングリストにパッチを送る必要があります。
+Pull Requestのようなブランチ間の差分をWeb上でレビューする機能がないため、メーリングリストにパッチを送る必要があります。
 以前GitHubに移行するかどうかという議論がありましたが、GitHubにロックインされることを懸念した作者のEliasさんが移行する予定はないとしています。
 
 そのための手順について説明をします。
 私はGmailを使っています。
-なので、Gmailを利用したパッチ送信について説明します。
-なお、すでにローカルにリポジトリがcloneされている状態を想定しています。
+ですのでGmailを利用したパッチ送信について説明します。
+修正を投げるためにすでにローカルにリポジトリがcloneされている状態を想定しています。
 #@# textlint-enable
-//footnote[knsh14_sourcehut_link][https://sourcehut.org/]
+//footnote[knsh14_sourcehut_link][@<href>{https://sourcehut.org/}]
 
 
 #@# textlint-disable
-=== 事前準備
-実際にパッチを投げる前にいくつか事前準備を行います。
+==== パッチを投げるための準備
+実際にパッチを投げる前にいくつか準備を行います。
 
 #@# textlint-enable
 
-==== sourcehutでアカウントを作成する
+===== sourcehutでアカウントを作成する
 sourcehutのサイト@<fn>{knsh14_sourcehut_service_link}へアクセスし、アカウントを作成しておきます。
-この手順は必須ではありませんが、やっておくとうまく行かなかった際に実際に自分でリポジトリを作成して実験できます。
+この手順は必須ではありませんが、やっておくと手順の中で失敗した際に実際に自分でリポジトリを作成して実験できます。
 
-//footnote[knsh14_sourcehut_service_link][https://git.sr.ht/]
+//footnote[knsh14_sourcehut_service_link][@<href>{https://git.sr.ht/}]
 
-==== GmailのIMAPを有効にする
+===== GmailのIMAPを有効にする
 Gmailの画面に行き、設定項目の「メール転送と POP/IMAP」を表示し、IMAPが有効にします。
 他の設定はデフォルトのままで大丈夫です。
 
 #@# textlint-disable
-==== Gmailのアカウントでアプリパスワードを作成する
+===== Gmailのアカウントでアプリパスワードを作成する
 
 まず初めにGoogleアカウントの二段階認証を有効にさせます。
-二段階認証が有効になると、アプリパスワードが作成できるようになります。
+二段階認証が有効になると、アプリ パスワードが作成できます。
 
-セキュリティ項目のアプリパスワード生成画面で「アプリ」と「デバイス」を選択する画面が出てきます。
-アプリを「メール」、デバイスを「その他」にして「git send-email」と入力し、生成ボタンを押します。
+セキュリティ項目のアプリ パスワード生成画面で「アプリ」と「デバイス」を選択する画面が出てきます。
+アプリを「メール」、デバイスを「その他」にして「Git send-email」と入力し、生成ボタンを押します。
 するとパスワードが表示されるので、パスワードマネージャーなどに記憶させます。
 
-==== gitの設定を追加する
+===== Gitの設定を追加する
+#@# textlint-disable
 cloneされたリポジトリの中で@<tt>{.git/config}に@<list>{knsh14_gioui_repo_git_setting}の設定を行います。
 #@# textlint-enable
 
@@ -401,7 +402,7 @@ cloneされたリポジトリの中で@<tt>{.git/config}に@<list>{knsh14_gioui_
 @<tt>{sendmail.annotate}が有効になっていると、パッチを送信する際に確認画面を出してくれます。
 下の4行はGmail用の設定です。@<tt>{sendmail.smtpUser}の部分は自分のGmailアドレスに変更してください。
 
-=== 修正を行う
+==== 修正を行う
 #@# textlint-disable
 取り入れて欲しい変更を実際に修正します。
 この操作は普段と同じようにブランチを切って修正します。
@@ -411,14 +412,14 @@ cloneされたリポジトリの中で@<tt>{.git/config}に@<list>{knsh14_gioui_
 このオプションを付けることで、Developer Certificate of Origin@<fn>{knsh14_certificate_of_origin}に同意し、自分の変更がGioのライセンスに属することを証明します。
 #@# textlint-enable
 
-//footnote[knsh14_certificate_of_origin][https://developercertificate.org/]
+//footnote[knsh14_certificate_of_origin][@<href>{https://developercertificate.org/}]
 
-=== 実際にパッチを送信する
+==== 実際にパッチを送信する
 では実際にパッチをメーリングリストに送信します。
 @<list>{knsh14_gio_git_send-email}は最新のコミットだけをパッチにして送るコマンドです。
 
 #@# textlint-disable
-//listnum[knsh14_gio_git_send-email][メーリングリストにパッチを送るためのコマンド][bash]{
+//list[knsh14_gio_git_send-email][メーリングリストにパッチを送るためのコマンド][bash]{
 $ git send-email HEAD^
 //}
 #@# textlint-enable
@@ -426,7 +427,7 @@ $ git send-email HEAD^
 このコマンドを実行すると、エディタが開き、@<list>{knsh14_send_email_editor}の画面が開きます。
 
 #@# textlint-disable
-//listnum[knsh14_send_email_editor][git send-emailコマンド実行時][vim]{
+//list[knsh14_send_email_editor][git send-emailコマンド実行時][vim]{
   1 From HASH ANSIC_Style_time
   2 From: GIT_USERNAME <USERNAME@gmail.com>
   3 Date: RFC1123Z_style_time
@@ -449,7 +450,7 @@ $ git send-email HEAD^
 再度タイトル、内容を確認し、問題がなさそうならyを入力して進みます。
 
 #@# textlint-disable
-//listnum[knsh14_send_email_annotate][git send-emailコマンド実行前の確認画面][bash]{
+//list[knsh14_send_email_annotate][git send-emailコマンド実行前の確認画面][bash]{
 /PATH/TO/MY/PATCH/FILE.patch
 @<tt>{(mbox) Adding cc: GIT_USERNAME <USERNAME@gmail.com> from line 'From: GIT_USERNAME <USERNAME@gmail.com>'}
 @<tt>{(body) Adding cc: GIT_USERNAME <USERNAME@gmail.com> from line 'Signed-off-by: GIT_USERNAME <USERNAME@gmail.com>'}
@@ -480,9 +481,10 @@ Send this email? ([y]es|[n]o|[e]dit|[q]uit|[a]ll): y
 #@# textlint-enable
 
 #@# textlint-disable
-送信する際にパスワードが求められます。
+最後に@<list>{knsh14_send_email_password}の出力が出てきます。
+1行目で送信する際にパスワードが求められます。
 ここで事前準備で作成したアプリパスワードを入力します。
-そうすると送信されて、メーリングリストに自分のパッチが掲載されます。
+パスワードによって認証されるとメールが送信され、メーリングリストに自分のパッチが掲載されます。
 パッチ一覧@<fn>{knsh14_gio_patch_list_url}に自分のパッチが送られているか確認しましょう。
 #@# textlint-enable
 
@@ -498,7 +500,7 @@ From: GIT_USERNAME <USERNAME@gmail.com>
 To: ~eliasnaur/gio@lists.sr.ht
 Cc: GIT_USERNAME <USERNAME@gmail.com>
 Subject: [PATCH] PATCH_TITLE
-Date: RFC1123Z style time
+Date: RFC1123Z_style_time
 Message-Id: <ID-USERNAME@gmail.com>
 X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
@@ -508,7 +510,7 @@ Result: 250 2.0.0 OK  1567093114 f63sm7776226pfa.144 - gsmtp
 //}
 #@# textlint-enable
 
-//footnote[knsh14_gio_patch_list_url][https://lists.sr.ht/~eliasnaur/gio]
+//footnote[knsh14_gio_patch_list_url][@<href>{https://lists.sr.ht/~eliasnaur/gio}]
 
 == まとめ
 GopherConで発表された新しいGUIライブラリGioについて説明しました。
