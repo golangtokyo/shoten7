@@ -17,7 +17,7 @@ GopherConで英語のできなさに打ちひしがれたので、頑張って�
 ソフトウェアエンジニア。
 Goでゲームを作ること、またゲームを作るものを作ることに興味がある。
 
-==== Secure Coding Practices in Go / @kaneshin0120
+==== Secure Coding Practices in Go / @<tt>{@kaneshin0120}
 エウレカでPairsの技術面やっています。Go言語やC言語が好きですが数学の最適化理論が大好きです。
 最近はWebフロントをやることも多いです。マネジメントもやっているなんでも屋さんです。
 
