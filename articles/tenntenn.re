@@ -1,3 +1,4 @@
+#@# textlint-disable
 = Goの新しいコントラクト
 
 == はじめに
@@ -980,3 +981,4 @@ func (mi MyInt) String() string {
 
 本稿ではGoの新しいコントラクトについて、Design Docを元に解説を行いました。
 コントラクトがどのように設計され提案されているか知るきっかけになれば幸いです。
+#@# textlint-enable
