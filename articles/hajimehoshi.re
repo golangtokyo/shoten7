@@ -1,4 +1,4 @@
-= @<tt>{gomobile}の現況解説
+= gomobileの現況解説
 
 == 著者について
 
@@ -30,7 +30,7 @@ iOS版も流れはだいたい同じはずですので、本稿では割愛し�
 
 ソースコードは主に@<href>{https://godoc.org/golang.org/x/mobile/cmd/gobind}からの引用です。
 
-== @<tt>{gomobile}
+== gomobile
 
 @<tt>{gomobile}はAndroidおよびiOS向けのアプリケーションもしくはライブラリを出力するソフトウェアです。
 パッケージは@<tt>{golang.org/x/mobile}です。
@@ -70,7 +70,7 @@ Goで定義したinterfaceをJava側で実装してGoの関数に渡す、とい
 
 //footnote[tenntenn][実際に@<tt>{gomobile build}で作られたアプリケーションをストアに載せた例もあります: @<href>{https://www.slideshare.net/takuyaueda967/go-mobileandroid}]
 
-== @<tt>{gomobile}と@<tt>{gobind}
+== gomobileとgobind
 
 @<tt>{golang.org/x/mobile/cmd}配下には2つコマンドが存在します。@<tt>{gomobile}と@<tt>{gobind}です。@<tt>{gomobile}は内部的に@<tt>{gobind}を呼び出しています。
 
@@ -83,7 +83,7 @@ Goで定義したinterfaceをJava側で実装してGoの関数に渡す、とい
 一方@<tt>{gomobile}は@<tt>{gobind}で生成されたソースコードをGo本体でコンパイルし、パッケージ化します。
 ソースコードをコンパイルするのはGo本体であって、@<tt>{gomobile}はあくまでGoを呼び出しているだけです。
 
-== @<tt>{gomobile bind}の使用例
+== gomobile bindの使用例
 
 たとえば@<list>{gomobile-go}のようなGoパッケージがあるとします。
 
@@ -147,7 +147,7 @@ Reverse bindingのみでアプリケーションを作るのは現実的では�
 //footnote[reversebindingexample][@<href>{https://go-review.googlesource.com/c/mobile/+/101155/}]
 //footnote[reversebindingreason][@<href>{https://github.com/golang/go/issues/27234#issuecomment-518261769}]
 
-== @<tt>{gomobile}の現状
+== gomobileの現状
 
 @<tt>{gomobile}はElias Naur氏@<fn>{elias}がメンテナーとして活躍されていましたが、
 最近メンテナーを辞めてしまい、誰もアクティブにメンテナンスしていないという状況でした。
@@ -155,7 +155,6 @@ Reverse bindingのみでアプリケーションを作るのは現実的では�
 そこで僭越ながら、私がこのmodule対応対策をやる人として立候補しました。
 
 //footnote[elias][@<href>{https://github.com/eliasnaur}]
-//footnote[module][@<href>{https://github.com/golang/go/issues/27234}]
 
 ちなみにElias氏はGio@<fn>{gio}というGUIライブラリを作成しています。
 GioはAndroidやiOS向けアプリケーションを生成できます。
@@ -167,7 +166,7 @@ GioはAndroidやiOS向けアプリケーションを生成できます。
 
 //footnote[gio][@<href>{https://gioui.org}]
 
-== @<tt>{gobind}が何をしているか
+== gobindが何をしているか
 
 実際に@<tt>{gomobile bind}を実行したときに何が行われるのかを追っていきます。
 @<tt>{gomobile}コマンドは内部で@<tt>{gobind}コマンドを呼びます。
@@ -189,7 +188,7 @@ Androidの場合、次のことを行います。
 共有ライブラリの場合でも@<tt>{main}パッケージは必要だからです。
 @<tt>{main}関数は存在しません。あったとしても自動で呼ばれません。
 
-== @<tt>{gomobile}が何をしているか
+== gomobileが何をしているか
 
 Androidの場合は次のとおりです。
 
@@ -208,7 +207,7 @@ Androidの場合は次のとおりです。
 @<tt>{*.aar}ファイルは実は単なるzipファイルであることがわかります。
 また実は@<tt>{*.jar}ファイルもzipファイルですので、解凍することで構造が簡単にわかります。
 
-== @<tt>{gomobile}の課題
+== gomobileの課題
 
 === module対応
 

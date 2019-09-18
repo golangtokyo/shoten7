@@ -27,7 +27,7 @@ freee株式会社でバックエンドエンジニアをしている@<tt>{@budou
 @<hd>{summary}では、@<code>{golang.org/x}配下にあるすべてのパッケージの簡単な紹介を述べます。
 最後に@<hd>{detail}で実践的な実装を含んだパッケージの詳細とサンプルコードを記載します。
 
-=={abst} @<code>{golang.org/x}配下にあるパッケージとは
+=={abst} golang.org/x配下にあるパッケージとは
 @<code>{golang.org/x}という@<code>{import}パスから始まる準標準パッケージがあることをご存じでしょうか。
 準標準パッケージは標準パッケージに比べて互換性（@<i>{compatibility requirements}）の基準が低いなどの制約はありますが、便利なパッケージばかりです。
 また、Goに大きな新機能が追加される前の試験的な実装もこちらで公開されます。
@@ -39,7 +39,7 @@ freee株式会社でバックエンドエンジニアをしている@<tt>{@budou
 
 #@# textlint-enable
 
-=={summary} @<code>{golang.org/x}で提供されているパッケージ一覧
+=={summary} golang.org/xで提供されているパッケージ一覧
 それでは、さっそく@<code>{golang.org/x}配下から提供されているパッケージを見ていきましょう。
 サブパッケージまでひとつひとつ紹介していくと途方のない数になってしまうため、ここでは@<tt>{GitHub}上のリポジトリ単位で紹介していきます。また以降の文中では@<code>{golang.org/x/package}パッケージは簡略化のため@<code>{x/package}パッケージと表記します。
 
@@ -494,7 +494,7 @@ Google Cloudにある@<i>{google.golang.org パッケージの一覧}@<fn>{googl
 //footnote[xerr_frame][Go1.13のエラーオブジェクトは内部にスタックトレース（@<code>{Frame}）情報を持っていない]
 //footnote[go113_err][@<href>{https://golang.org/doc/go1.13#error_wrapping}]
 
-=={detail} @<code>{golang.org/x}で提供されているパッケージを使ったコーディング
+=={detail} golang.org/xで提供されているパッケージを使ったコーディング
 前節で2019年9月現在存在する@<code>{golang.org/x}配下のパッケージを俯瞰的に確認しました。
 本節では、実際に業務やOSSでも利用できる実用的なパッケージの利用方法を紹介します。
 
